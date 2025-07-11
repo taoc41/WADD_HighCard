@@ -1,5 +1,37 @@
 let suits = ['♠', '♥', '♦', '♣'];
 let ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+// #region Suit and Card Maps
+
+let suitMap = {
+  '♥': 0, // Hearts
+  '♣': 1, // Clubs
+  '♦': 2, // Diamonds
+  '♠': 3  // Spades
+};
+
+let rankMap = {
+  '2': 0,
+  '3': 1,
+  '4': 2,
+  '5': 3,
+  '6': 4,
+  '7': 5,
+  '8': 6,
+  '9': 7,
+  '10': 8,
+  'J': 9,
+  'Q': 10,
+  'K': 11,
+  'A': 12
+};
+
+// #endregion
+
+let cardSpriteSheet;
+let cardWidth = 71;
+let cardHeight = 95;
+
 let deck = [];
 let hand = [];
 let selected = [];
@@ -20,6 +52,7 @@ let bgColours;
 let blobs = [];
 
 function preload() {
+  cardSpriteSheet = loadImage("assets/deck.png");
 }
 
 function setup() {
@@ -83,11 +116,19 @@ function drawGlowingBlob(x, y, r) {
   }
 }
 
+
 function drawGradientBackground() {
   noStroke();
+  
+  let t = millis() * 0.0005; // slow time
+  let colorShift = sin(t) * 0.5 + 0.5; // 0 to 1 range
+
+  let topColour = lerpColor(bgColours[0], bgColours[1], colorShift);
+  let bottomColour = lerpColor(bgColours[1], bgColours[0], colorShift);
+
   for (let y = 0; y < height; y++) {
     let inter = map(y, 0, height, 0, 1);
-    let c = lerpColor(bgColours[0], bgColours[1], inter);
+    let c = lerpColor(topColour, bottomColour, inter);
     fill(c);
     rect(0, y, width, 1);
   }
@@ -168,10 +209,22 @@ function drawUI() {
 }
 
 function drawCard(card, x, y, isSelected) {
+  if (!cardSpriteSheet) return;
+
+  let sx = rankMap[card.rank] * cardWidth;
+  let sy = suitMap[card.suit] * cardHeight;
+  
+  if (isSelected) {
+    fill(255, 255, 0, 100);
+    rect(x, y, cardWidth, cardHeight, 10);
+  }
+
+  // Card background rectangle
   fill(isSelected ? 'gold' : 'white');
-  rect(x, y, 100, 150, 10);
-  fill(0);
-  text(`${card.rank}${card.suit}`, x + 50, y + 75);
+  rect(x, y, cardWidth, cardHeight, 5);
+
+  // Card Sprite
+  image(cardSpriteSheet, x, y, cardWidth, cardHeight, sx, sy, cardWidth, cardHeight)
 }
 
 function mousePressed() {
@@ -300,6 +353,7 @@ function mousePressed() {
       upgradeOptions.push({ rank: r, suit: s });
     }
   }
+
 
 function evaluateHand(cards) {
   let ranksOnly = cards.map(c => c.rank);
