@@ -1,5 +1,6 @@
 let suits = ['♠', '♥', '♦', '♣'];
 let ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+let playBtn, shuffleBtn;
 
 // #region Suit and Card Maps
 
@@ -51,12 +52,20 @@ let reshuffleUses = 99;
 let bgColours;
 let blobs = [];
 
+const gameDiv = document.getElementById("gameDiv")
+
 function preload() {
   cardSpriteSheet = loadImage("assets/deck.png");
 }
 
 function setup() {
-  createCanvas(800, 600);
+  let canvas = createCanvas(800, 600);
+  canvas.id("gameCanvas");
+  canvas.parent("gameDiv");
+
+  playBtn = new PlayHandButton(width / 2 - 60, height - 100,);
+  shuffleBtn = new ShuffleButton(width - 100, height - 100);
+
   textAlign(CENTER, CENTER);
   textSize(20);
   generateDeck();
@@ -72,12 +81,14 @@ function setup() {
     blobs.push({
       x: random(width),
       y: random(height),
-      baseR: random(100, 250),       // used for pulsing radius
+      baseR: random(100, 250),          // used for pulsing radius
       speed: random(0.0001, 0.0010),    // used for motion
-      pulseSpeed: random(0.005, 0.001),// used for pulsing animation
+      pulseSpeed: random(0.005, 0.001), // used for pulsing animation
       offset: random(TWO_PI)
     });
   }
+
+
 }
 
 function draw() {
@@ -138,7 +149,7 @@ function generateDeck() {
   deck = [];
   for (let s of suits) {
     for (let r of ranks) {
-      deck.push({ suit: s, rank: r });
+      deck.push(new Card(r, s));
     }
   }
   shuffle(deck, true);
@@ -175,7 +186,7 @@ function drawUI() {
     for (let i = 0; i < hand.length; i++) {
       let x = 100 + i * 130;
       let y = height / 2;
-      drawCard(hand[i], x, y, selected.includes(i));
+      hand[i].draw(x, y);
     }
 
     // Reshuffle button
@@ -186,12 +197,16 @@ function drawUI() {
       text(`Reshuffle (${reshuffleUses})`, width - 110, height - 80);
     }
 
+    
+
     // Play Hand button
     if (gameState === "playing" && selected.length >= 1 && selected.length <= 3) {
-      fill(0, 200, 0);
-      rect(width / 2 - 60, height - 100, 120, 40, 10);
-      fill(255);
-      text("Play Hand", width / 2, height - 80);
+      playBtn.draw();
+      
+      // fill(0, 200, 0);
+      // rect(width / 2 - 60, height - 100, 120, 40, 10);
+      // fill(255);
+      // text("Play Hand", width / 2, height - 80);
     }
   }
   
@@ -208,40 +223,22 @@ function drawUI() {
   }
 }
 
-function drawCard(card, x, y, isSelected) {
-  if (!cardSpriteSheet) return;
 
-  let sx = rankMap[card.rank] * cardWidth;
-  let sy = suitMap[card.suit] * cardHeight;
-  
-  if (isSelected) {
-    fill(255, 255, 0, 100);
-    rect(x, y, cardWidth, cardHeight, 10);
-  }
-
-  // Card background rectangle
-  fill(isSelected ? 'gold' : 'white');
-  rect(x, y, cardWidth, cardHeight, 5);
-
-  // Card Sprite
-  image(cardSpriteSheet, x, y, cardWidth, cardHeight, sx, sy, cardWidth, cardHeight)
-}
 
 function mousePressed() {
+
+  /**
+   * Finds the
+   */
   for (let i = 0; i < hand.length; i++) {
-    let x = 100 + i * 130;
-    let y = height / 2;
-    if (
-      mouseX > x &&
-      mouseX < x + 100 &&
-      mouseY > y &&
-      mouseY < y + 150
-    ) {
-      if (selected.includes(i)) {
+    let card = hand[i];
+    if (card.contains(mouseX, mouseY)) {
+      if (card.selected) {
         selected = selected.filter(n => n !== i);
       } else if (selected.length < 3) {
         selected.push(i);
       }
+      card.toggleSelect(); // toggles the visual state
     }
   }
 
@@ -340,6 +337,24 @@ function mousePressed() {
     } else {
       drawHand();
     }
+  }
+
+  function shuffleHand(){
+    // Shuffle selected cards back into deck and draw replacements
+    for (let i of selected) {
+      deck.push(hand[i]); // return card to deck
+    }
+    shuffle(deck, true);
+  
+    // Replace only the selected cards
+    for (let i of selected) {
+      hand[i] = deck.pop();
+    }
+  
+    reshuffleUses--;
+    selected = [];
+    currentHandInfo = null;
+    return;
   }
 
   function generateUpgradeOptions() {
