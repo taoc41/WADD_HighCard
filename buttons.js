@@ -25,11 +25,12 @@ class GameButton {
         text(this.label, this.x + this.w / 2, this.y + this.h / 2);
     }
 
-    isHovered(mx, my) {
+    contains(mx, my){
         return (
-            this.visible &&
-            mx > this.x ** mx < this.x + this.w &&
-            my > this.y && my < this.y + this.h
+            mx >= this.x &&
+            mx <= this.x + this.w &&
+            my >= this.y &&
+            my <= this.y + this.h
         );
     }
 
@@ -46,9 +47,7 @@ class PlayHandButton extends GameButton {
     }
 
     onClick() {
-        if (selected.length <= 3) {
-            playHand();
-        }
+        playHand();
     }
 }
 
@@ -63,8 +62,7 @@ class ShuffleButton extends GameButton {
     }
 
     onClick() {
-        if (selected.length >= 1 && selected.length <= 2 && reshufleUses > 0) {
-            reshuffleSelectedCards();
-        }
+        reshuffleHand()
+        console.log("After drawHand:", selected.map(c => c.rank + c.suit));
     }
 }

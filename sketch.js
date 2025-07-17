@@ -156,20 +156,9 @@ function generateDeck() {
 }
 
 function drawHand() {
-  // Remove played cards
-  let newHand = [];
-  for (let i = 0; i < hand.length; i++) {
-    if (!selected.includes(i)) {
-      newHand.push(hand[i]);
-    }
-  }
-
-  // Draw enough new cards to reach 5 again
-  let needed = 5 - newHand.length;
-  let drawn = deck.splice(0, needed);
-  hand = newHand.concat(drawn);
-
-  selected = [];
+  let needed = 5  - hand.length;
+  let drawn = deck.splice (0, needed);
+  hand = hand.concat(drawn);
 }
 
 function drawUI() {
@@ -191,22 +180,12 @@ function drawUI() {
 
     // Reshuffle button
     if (gameState === "playing" && reshuffleUses > 0 && selected.length >= 1 && selected.length <= 3) {
-      fill(100, 100, 255);
-      rect(width - 180, height - 100, 140, 40, 10);
-      fill(255);
-      text(`Reshuffle (${reshuffleUses})`, width - 110, height - 80);
+      shuffleBtn.draw();
     }
-
-    
 
     // Play Hand button
     if (gameState === "playing" && selected.length >= 1 && selected.length <= 3) {
       playBtn.draw();
-      
-      // fill(0, 200, 0);
-      // rect(width / 2 - 60, height - 100, 120, 40, 10);
-      // fill(255);
-      // text("Play Hand", width / 2, height - 80);
     }
   }
   
@@ -227,20 +206,25 @@ function drawUI() {
 
 function mousePressed() {
 
-  /**
-   * Finds the
-   */
-  for (let i = 0; i < hand.length; i++) {
+  /** CARD SELECTION HANDLER
+   * Probably should be put in the card class. */
+  for (let i = 0; i < hand.length; i++) { // Checks through every card in the current hand.
     let card = hand[i];
+
     if (card.contains(mouseX, mouseY)) {
       if (card.selected) {
         selected = selected.filter(n => n !== i);
+        card.selected = false;
       } else if (selected.length < 3) {
         selected.push(i);
+        card.selected = true;
       }
-      card.toggleSelect(); // toggles the visual state
     }
   }
+
+  console.log(selected.map(c => c.rank + c.suit)) // Debug.
+
+  // -------------------------------------------------------------
 
   // Update preview of hand type (1–3 cards)
   if (selected.length >= 1) {
@@ -250,49 +234,18 @@ function mousePressed() {
     currentHandInfo = null;
   }
 
-
-  // Play hand
-  if (
-    gameState === "playing" &&
-    selected.length >= 1 &&
-    selected.length <= 3 &&
-    mouseX > width / 2 - 60 &&
-    mouseX < width / 2 + 60 &&
-    mouseY > height - 100 &&
-    mouseY < height - 60
-  ) {
-    playHand();
-  }
-
-  // Shuffle hand
-  if (
-    gameState === "playing" &&
-    reshuffleUses > 0 &&
-    selected.length >= 1 &&
-    selected.length <= 3 &&
-    mouseX > width - 180 &&
-    mouseX < width - 40 &&
-    mouseY > height - 100 &&
-    mouseY < height - 60
-  ) {
-    // Shuffle selected cards back into deck and draw replacements
-    for (let i of selected) {
-      deck.push(hand[i]); // return card to deck
-    }
-    shuffle(deck, true);
-  
-    // Replace only the selected cards
-    for (let i of selected) {
-      hand[i] = deck.pop();
-    }
-  
-    reshuffleUses--;
-    selected = [];
-    currentHandInfo = null;
+  // Handle play button click
+  if (playBtn && playBtn.visible && playBtn.contains(mouseX, mouseY)) {
+    playBtn.onClick();
     return;
   }
 
-  //s
+  // Handle shuffle button click
+  if (shuffleBtn && shuffleBtn.visible && shuffleBtn.contains(mouseX, mouseY)) {
+    shuffleBtn.onClick();
+    return;
+  }
+
 
   if (gameState === "upgrade") {
     for (let i = 0; i < upgradeOptions.length; i++) {
@@ -324,50 +277,73 @@ function mousePressed() {
   }
 }
 
-  function playHand() {
-    let chosenCards = selected.map(i => hand[i]);
-    let handInfo = evaluateHand(chosenCards);
-    score += handInfo.score;
-    currentHandInfo = null;
-    round++;
-  
-    if (round > maxRounds) {
-      gameState = "upgrade";
-      generateUpgradeOptions();
+function playHand(){
+  selected = selected.filter(i => hand[i] !== null && hand[i] !== undefined);
+
+  let chosenCards = selected.map(i => hand[i]);
+  let handInfo = evaluateHand(chosenCards);
+  score += handInfo.score;
+  currentHandInfo = null;
+  round++;
+
+  // Replace only the selected card indices
+  for (let i = 0; i < selected.length; i++) {
+    let handIndex = selected[i];
+    if (deck.length > 0) {
+      hand[handIndex] = deck.shift(); // replace from deck
     } else {
-      drawHand();
+      hand[handIndex] = null // no card left, leave empty
     }
   }
 
-  function shuffleHand(){
-    // Shuffle selected cards back into deck and draw replacements
-    for (let i of selected) {
-      deck.push(hand[i]); // return card to deck
-    }
-    shuffle(deck, true);
-  
-    // Replace only the selected cards
-    for (let i of selected) {
-      hand[i] = deck.pop();
-    }
-  
-    reshuffleUses--;
-    selected = [];
-    currentHandInfo = null;
-    return;
+  selected = [];
+
+  if (round > maxRounds) {
+    gameState = "upgrade";
+    generateUpgradeOptions();
+  } else {
+    drawHand();
   }
 
-  function generateUpgradeOptions() {
-    // Determine how many cards the player can add
-    cardsToAdd = Math.min(3, Math.floor(score / 500) || 1);
-  
-    upgradeOptions = [];
-    for (let i = 0; i < 5; i++) { // Offer 5 options regardless of how many can be chosen
-      let r = random(ranks);
-      let s = random(suits);
-      upgradeOptions.push({ rank: r, suit: s });
+}
+
+function reshuffleHand(){
+  selected = selected.filter(i => hand[i] !== null && hand[i] !== undefined);
+
+  if (selected.length === 0 || reshuffleUses <= 0) return;
+
+  let chosenCards = selected.map(i => hand[i]);
+  chosenCards.forEach(c => c.selected = false);
+  deck.push (...chosenCards);
+  shuffle(deck, true);
+
+  for (let i = 0; i < selected.length; i++) {
+    let handIndex = selected[i];
+    if (deck.length > 0) {
+      hand[handIndex] = deck.shift();
+      hand[handIndex].selected = false;
+    } else {
+      hand[handIndex] = null;
     }
   }
+
+  selected = [];
+  currentHandInfo = null;
+  reshuffleUses--;
+}
+
+// need to update (proper shop with perks, etc)
+function generateUpgradeOptions() {
+  // Determine how many cards the player can add
+  cardsToAdd = Math.min(3, Math.floor(score / 500) || 1);
+  
+  upgradeOptions = [];
+  for (let i = 0; i < 5; i++) { // Offer 5 options regardless of how many can be chosen
+    let r = random(ranks);
+    let s = random(suits);
+    upgradeOptions.push({ rank: r, suit: s });
+  }
+}
 
 
 function evaluateHand(cards) {
