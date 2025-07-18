@@ -39,8 +39,4 @@ class Card {
         return mx > this.x && mx < this.x + this.width &&
         my > this.y && my < this.y + this.height;
     }
-
-    toggleSelect() {
-        this.selected = !this.selected;
-    }
 }

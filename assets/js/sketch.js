@@ -282,6 +282,9 @@ function playHand(){
 
   let chosenCards = selected.map(i => hand[i]);
   let handInfo = evaluateHand(chosenCards);
+
+  // perk handling here
+
   score += handInfo.score;
   currentHandInfo = null;
   round++;
