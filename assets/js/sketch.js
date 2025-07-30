@@ -14,6 +14,20 @@ const PERKS = [
     }
   },
   {
+    name: "Bonus Draw",
+    description: "Add 2 random cards to your deck.",
+    apply: () => {
+      for (let i = 0; i < 2; i++) deck.push(generateRandomCard());
+    }
+  },
+  {
+    name: "Extra Shuffle",
+    description: "Add +1 reshuffle.",
+    apply: () => {
+      reshuffleUses++;
+    }
+  },
+  {
     name: "Flush Finder",
     description: "Add 3 cards of the same suit.",
     apply: () => {
@@ -30,15 +44,6 @@ const PERKS = [
       for (let i = 0; i < 3; i++) {
         deck.push(new Card(ranks[start + i], suit));
       }
-    }
-  },
-  {
-    name: "Suit Stack",
-    description: "Pick a suit and gain 4 cards of it.",
-    apply: () => {
-      let suit = prompt("Choose a suit: ♠, ♥, ♦, ♣") || "♠";
-      if (!suits.includes(suit)) suit = "♠";
-      for (let i = 0; i < 4; i++) deck.push(generateRandomCard(suit));
     }
   },
   {
@@ -79,54 +84,54 @@ const PASSIVE_PERKS = [
   {
     name: "Lucky Clover",
     description: "Multiply score by 1.5 if hand contains at least one ♣.",
-    condition: (playedCards) => playedCards.some(card => card.suit === '♣'),
+    condition: (playedCards, _) => playedCards.some(card => card.suit === '♣'),
     effect: (score) => score * 1.5
   },
   {
     name: "Flush Bonus",
     description: "Gain 50 bonus points if all cards are the same suit.",
-    condition: (playedCards) => new Set(playedCards.map(c => c.suit)).size === 1,
+    condition: (playedCards, _) => new Set(playedCards.map(c => c.suit)).size === 1,
     effect: (score) => score + 50
   },
   {
     name: "Face Card Fan",
     description: "Double score if hand contains only J, Q, K.",
-    condition: (playedCards) => playedCards.every(c => ['J', 'Q', 'K'].includes(c.rank)),
+    condition: (playedCards, _) => playedCards.every(c => ['J', 'Q', 'K'].includes(c.rank)),
     effect: (score) => score * 2
   },
   {
     name: "Low Roll",
     description: "Add 1 random card to your deck if all ranks are 6 or lower.",
-    condition: (playedCards) => playedCards.every(c => ranks.indexOf(c.rank) <= 4),
+    condition: (playedCards, _) => playedCards.every(c => ranks.indexOf(c.rank) <= 4),
     effect: (score) => {
-      deck.push(generateRandomCard())
+      deck.push(generateRandomCard());
       return score;
     }
   },
   {
     name: "Repeated Rhythm",
     description: "Multiply score by 2 if you played the same hand type as last round.",
-    condition: (playedCards) => currentHandInfo.name && lastHandInfo.name === currentHandInfo.name,
-    effect: (baseScore) => baseScore * 2
+    condition: (playedCards, _) => currentHandInfo.name && lastHandInfo.name === currentHandInfo.name,
+    effect: (score) => score * 2
   },
   {
     name: "Thick Stack",
     description: "At the start of every ante, gain 3 random cards to your deck.",
-    condition: () => round === 1,
+    condition: (_, __) => round === 1,
     effect: (score) => {
       for (let i = 0; i < 3; i++) deck.push(generateRandomCard());
       return score;
     }
   },
-  {
-    name: "Backup Plan",
-    description: "If score is below 30, add a random card to your deck.",
-    condition: (_, baseScore) => baseScore < 30,
-    effect: (score) => {
-      deck.push(generateRandomCard());
-      return score;
-    }
-  }
+  // {
+  //   name: "Backup Plan",
+  //   description: "If score is below 30, add a random card to your deck.",
+  //   condition: (_, baseScore) => baseScore < 30,
+  //   effect: (score) => {
+  //     deck.push(generateRandomCard());
+  //     return score;
+  //   }
+  // }
 ];
 
 
@@ -283,9 +288,10 @@ let round = 1;
 let ante = 1;
 let maxRounds = 5;
 
-
-let gameState = "playing"; // "playing", "upgrade", or "end"
+let gameState = "playing"; // "playing", "upgrade", or "gameover"
+let lastAction = "none" // "none", "playhand", "reshuffle"
 let passivePerks = [];
+let upgradeChoices = [];
 
 let previewHandInfo = null; // Preview and Current hand info are seperated as to not cause issues with overwriting.
 let currentHandInfo = null;
@@ -295,9 +301,11 @@ let lastHandInfo = null;
 let pickedCards = 0;
 let pickedIndices = [];
 
-let reshuffleUses = 99;
+let reshuffleUses = 10;
 let bgColours;
 let blobs = [];
+
+let playerName = ""; // for final score;
 
 const gameDiv = document.getElementById("gameDiv")
 
@@ -336,8 +344,6 @@ function setup() {
       offset: random(TWO_PI)
     });
   }
-
-
 }
 
 function draw() {
@@ -375,7 +381,6 @@ function drawGlowingBlob(x, y, r) {
     ellipse(x, y, radius);
   }
 }
-
 
 function drawGradientBackground() {
   noStroke();
@@ -418,6 +423,7 @@ function drawHand() {
 
 function drawUI() {
   if (gameState === "playing") {
+    textSize(20);
     fill(255);
     text(`[ Chips: ${score} ] [ Total Chips: NaN ]`, width / 2, 30);
     text(`[ Round: ${round}/${maxRounds} ] [ Ante: ${ante} ]`, width/2, 60);
@@ -428,9 +434,12 @@ function drawUI() {
     }
 
     for (let i = 0; i < hand.length; i++) {
+      let card = hand[i];
+      if (!card) continue; // no more cards? skip them entirely.
+      
       let x = 100 + i * 130;
       let y = height / 2;
-      hand[i].draw(x, y);
+      card.draw(x, y);
     }
 
     // Reshuffle button
@@ -445,17 +454,14 @@ function drawUI() {
   }
   
   if (gameState === "upgrade") {
-    fill(255);
-    text("Choose a card to add to your deck", width / 2, 40);
-    let totalWidth = upgradeOptions.length * 110 + (upgradeOptions.length - 1) * 20;
-    let startX = (width - totalWidth) / 2;
-
-    for (let i = 0; i < upgradeOptions.length; i++) {
-    let x = startX + i * (110 + 20); // 110 is card width, 20 is spacing
-    drawCard(upgradeOptions[i], x, height / 2, pickedIndices.includes(i));
-    }
+    drawUpgradeScreen();
   }
 
+  if (gameState === "gameover") {
+    drawGameOver();
+  }
+
+  // Event Text
   for (let i = perkTextAnimations.length - 1; i >= 0; i--) {
     let anim = perkTextAnimations[i];
     
@@ -476,6 +482,41 @@ function drawUI() {
   }
 }
 
+function drawUpgradeScreen() {
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  fill(255);
+  text("Choose an Upgrade", width/ 2 , 50);
+
+  for (let i = 0; i < upgradeChoices.length; i++) {
+    let x = width / 2 - 250 + i * 250;
+    let y = height / 2;
+
+    fill(60);
+    rect(x - 100, y - 100, 200, 200, 20);
+
+    let choice = upgradeChoices[i];
+    fill(255);
+    textSize(16);
+    text(choice.data.name, x, y - 30);
+    textSize(12);
+    text(choice.data.description, x - 90, y + 10, 180, 100);
+  }
+}
+
+function drawGameOver(){
+  fill(255);
+  textAlign(CENTER);
+  textSize(32);
+  text("Game Over", width / 2, height / 2 - 100);
+  textSize(20);
+  text(`Final Score: ${score}`, width / 2, height / 2 - 60);
+
+  textSize(16);
+  text("Enter your name (max 12 characters):", width / 2 , height / 2);
+  text(playerName, width / 2, height / 2 + 30);
+}
+
 function mousePressed() {
 
   /** CARD SELECTION HANDLER
@@ -483,7 +524,7 @@ function mousePressed() {
   for (let i = 0; i < hand.length; i++) { // Checks through every card in the current hand.
     let card = hand[i];
 
-    if (card.contains(mouseX, mouseY)) {
+    if (card && card.contains(mouseX, mouseY)) {
       if (card.selected) {
         selected = selected.filter(n => n !== i);
         card.selected = false;
@@ -514,6 +555,56 @@ function mousePressed() {
     return;
   }
 
+  if (gameState === "upgrade") {
+    for (let i = 0; i < upgradeChoices.length; i++) {
+      let x = width / 2 - 250 + i * 250;
+      let y = height / 2;
+      if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 100 && mouseY < y + 100) {
+        let choice = upgradeChoices[i];
+  
+        if (choice.type === "passive") {
+          passivePerks.push(choice.data);
+        } else if (choice.type === "pack") {
+          choice.data.apply(); // run the pack effect
+        }
+  
+        // Reset game state
+        gameState = "playing";
+        ante++;
+        round = 1;
+        drawHand();
+        return;
+      }
+    }
+  }
+}
+
+function keyTyped() {
+  if (gameState === "gameover") {
+    if (playerName.length < 12 && key.match(/^[a-zA-Z0-9 ]$/)) {
+      playerName += key;
+    }
+  }
+}
+
+function keyPressed(){
+  if (gameState === "gameover") {
+    if (keyCode === BACKSPACE) {
+      playerName = playerName.slice(0, -1);
+    }
+    if (keyCode === ENTER && playerName.trim () !== "") {
+      saveScore(playerName.trim(), score);
+      window.location.href = "leaderboard.html"; // redirect to leaderboard
+    }
+  }
+}
+
+function saveScore(name, score) {
+  let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+  leaderboard.push({name, score});
+  leaderboard.sort((a, b) => b.score - a.score);
+  leaderboard = leaderboard.slice(0, 10);
+  localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
 }
 
 function playHand(){
@@ -524,7 +615,7 @@ function playHand(){
   // Apply passive perks
   let finalScore = currentHandInfo.score;
   passivePerks.forEach(perk => {
-    if (perk.condition(chosenCards)) {
+    if (perk.condition(chosenCards, finalScore)) {
       finalScore = perk.effect(finalScore);
       let activeCount = perkTextAnimations.length;
 
@@ -535,7 +626,7 @@ function playHand(){
         y: height / 2 - 100 + (activeCount * 30),
         opacity: 255,
         timer: 60
-      })
+      });
     }
   });
 
@@ -551,14 +642,15 @@ function playHand(){
   }
 
   selected = [];
-
+  
+  if (deck.length === 0 && hand.every(card => card === null)) {
+    gameState = "gameover";
+  } 
+  
   if (round > maxRounds) {
     gameState = "upgrade";
-    choosePassivePerk();
-  } else {
-    drawHand();
+    generateUpgradeChoice();
   }
-
 }
 
 function reshuffleHand(){
@@ -586,7 +678,28 @@ function reshuffleHand(){
   reshuffleUses--;
 }
 
+function generateUpgradeChoice(){
+  const availablePerks = PASSIVE_PERKS.filter(p => !passivePerks.some(passivePerks => passivePerks.name === p.name));
+  const availablePacks = [...PERKS]; // allows dupilcates or filter if needed
 
+  const mixedChoices = []; // mixes both passive perks and packs into one array
+
+  for (let i = 0; i < 3; i++) {
+    if(random() < 0.25 && availablePerks.length > 0) { // 1/4 chance for a passive perk
+      let perk = random(availablePerks);
+      mixedChoices.push ({type: "passive", data: perk});
+      availablePerks.splice(availablePerks.indexOf(perk), 1);
+    } else if (availablePacks.length > 0) {
+      let pack = random(availablePacks);
+      mixedChoices.push({ type: "pack", data: pack});
+      availablePacks.splice(availablePacks.indexOf(pack), 1);
+    }
+  }
+
+  upgradeChoices = mixedChoices;
+}
+
+// DEBUG
 function choosePassivePerk() {
   // Filter: only show perks not already owned
   let availablePerks = PASSIVE_PERKS.filter(
@@ -657,43 +770,6 @@ function evaluateHand(cards) {
   if (allDifferentSuits && allDifferentRanks) return { name: "Rainbow", score: 200 }; // Rainbow
   if (counts[0] === 2) return { name: "Pair", score: 100 }; // Pair
   return { name: "High Card", score: 50 }; // High card
-}
-
-class ShopItem {
-  constructor(name, description, price, type, applyFunc) {
-    this.name = name;
-    this.description = description;
-    this.price = price;
-    this.type = type;
-    this.apply = applyFunc;
-  }
-
-  draw(x, y, w, h) {
-    // UI Block
-  }
-
-  contains(mx, my) {
-    return 
-      mx >= this.x && mx <= this.x + this.w &&
-      my >= this.y && my <= this.y + this.h;
-  }
-}
-
-function openShop() {
-  gameState = "shop";
-  shopOptions = [];
-
-  let cardPacks = shuffle([...PERKS]).slice(0, 2).map(perk => {
-    return new ShopItem(perk.name, perk.description, 25, 'cardPack', perk.apply);
-  })
-
-  let passiveOptions = shuffle([...PASSIVE_PERKS]).slice(0, 2).map(perk => {
-    return new ShopItem(perk.name, perk.description, 40, 'passivePerk', () => {
-      passivePerks.push(perk);
-    })
-  })
-
-  shopOptions.push
 }
 
 // Debug function
