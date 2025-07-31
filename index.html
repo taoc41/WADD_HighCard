@@ -15,7 +15,7 @@
     }
 
     main {
-      display: flex;
+      display: inline;
       flex-direction: row;
       justify-content: center;
     }
@@ -34,10 +34,15 @@
 <body>
   <main>
     <div id="gameDiv">
-      <script src="/assets/js/perk.js"></script>
+      <!-- <script src="/assets/js/perk.js"></script>
       <script src="/assets/js/card.js"></script>
-      <script src="/assets/js/buttons.js"></script>
+      <script src="/assets/js/buttons.js"></script> -->
       <script src="/assets/js/sketch.js"></script>
+    </div>
+
+    <div id="perkContainer" style="color: white; padding: 1em; text-align:center;">
+      <h3>Current Passive Perks:</h3>
+      <div id="perkDisplay" style="margin-top: 20px;"></div>
     </div>
     
 

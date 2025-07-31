@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaderboard</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; text-align: center; padding: 50px; }
+    h1 { margin-bottom: 20px; }
+    table { margin: auto; border-collapse: collapse; width: 50%; }
+    th, td { padding: 10px; border-bottom: 1px solid #444; }
+    tr:nth-child(even) { background: #222; }
+  </style>
+</head>
+<body>
+  <h1>Leaderboard</h1>
+  <table id="leaderboard">
+    <thead>
+      <tr><th>Rank</th><th>Name</th><th>Score</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+    const tbody = document.querySelector("#leaderboard tbody");
+
+    leaderboard.forEach((entry, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
+      tbody.appendChild(row);
+    });
+  </script>
+</body>
+</html>

@@ -9,13 +9,7 @@ const PERKS = [
   {
     name: "Bonus Draw",
     description: "Add 2 random cards to your deck.",
-    apply: () => {
-      for (let i = 0; i < 2; i++) deck.push(generateRandomCard());
-    }
-  },
-  {
-    name: "Bonus Draw",
-    description: "Add 2 random cards to your deck.",
+    rarity: "Common",
     apply: () => {
       for (let i = 0; i < 2; i++) deck.push(generateRandomCard());
     }
@@ -23,6 +17,7 @@ const PERKS = [
   {
     name: "Extra Shuffle",
     description: "Add +1 reshuffle.",
+    rarity: "Common",
     apply: () => {
       reshuffleUses++;
     }
@@ -30,6 +25,7 @@ const PERKS = [
   {
     name: "Flush Finder",
     description: "Add 3 cards of the same suit.",
+    rarity: "Common",
     apply: () => {
       let suit = random(suits);
       for (let i = 0; i < 3; i++) deck.push(generateRandomCard(suit));
@@ -49,6 +45,7 @@ const PERKS = [
   {
     name: "Balanced Hand",
     description: "Add 1 card of each suit.",
+    rarity: "Uncommon",
     apply: () => {
       suits.forEach(suit => {
         deck.push(generateRandomCard(suit));
@@ -58,6 +55,7 @@ const PERKS = [
   {
     name: "High Stakes",
     description: "Add 2 random face cards.",
+    rarity: "Uncommon",
     apply: () => {
       let faceRanks = ['J', 'Q', 'K'];
       for (let i = 0; i < 2; i++) {
@@ -70,12 +68,22 @@ const PERKS = [
   {
     name: "Duplicate",
     description: "Add 2 copies of a random card from your deck.",
+    rarity: "Common",
     apply: () => {
       if (deck.length === 0) return;
       let c = random(deck);
       for (let i = 0; i < 2; i++) {
         deck.push(new Card(c.rank, c.suit));
       }
+    }
+  },
+  {
+    name: "Extra Card",
+    description: "Add 1 card to the total amount displayed in your hand. (10 Max)",
+    rarity: "Rare",
+    apply: () => {
+      if (deck.length < 10) return;
+      handSize++
     }
   }
 ];
@@ -84,24 +92,28 @@ const PASSIVE_PERKS = [
   {
     name: "Lucky Clover",
     description: "Multiply score by 1.5 if hand contains at least one ♣.",
+    rarity: "Rare",
     condition: (playedCards, _) => playedCards.some(card => card.suit === '♣'),
     effect: (score) => score * 1.5
   },
   {
     name: "Flush Bonus",
     description: "Gain 50 bonus points if all cards are the same suit.",
+    rarity: "Common",
     condition: (playedCards, _) => new Set(playedCards.map(c => c.suit)).size === 1,
     effect: (score) => score + 50
   },
   {
     name: "Face Card Fan",
     description: "Double score if hand contains only J, Q, K.",
+    rarity: "Uncommon",
     condition: (playedCards, _) => playedCards.every(c => ['J', 'Q', 'K'].includes(c.rank)),
     effect: (score) => score * 2
   },
   {
     name: "Low Roll",
     description: "Add 1 random card to your deck if all ranks are 6 or lower.",
+    rarity: "Uncommon",
     condition: (playedCards, _) => playedCards.every(c => ranks.indexOf(c.rank) <= 4),
     effect: (score) => {
       deck.push(generateRandomCard());
@@ -111,29 +123,27 @@ const PASSIVE_PERKS = [
   {
     name: "Repeated Rhythm",
     description: "Multiply score by 2 if you played the same hand type as last round.",
+    rarity: "Common",
     condition: (playedCards, _) => currentHandInfo.name && lastHandInfo.name === currentHandInfo.name,
     effect: (score) => score * 2
   },
   {
     name: "Thick Stack",
     description: "At the start of every ante, gain 3 random cards to your deck.",
+    rarity: "Uncommon",
     condition: (_, __) => round === 1,
     effect: (score) => {
       for (let i = 0; i < 3; i++) deck.push(generateRandomCard());
       return score;
     }
-  },
-  // {
-  //   name: "Backup Plan",
-  //   description: "If score is below 30, add a random card to your deck.",
-  //   condition: (_, baseScore) => baseScore < 30,
-  //   effect: (score) => {
-  //     deck.push(generateRandomCard());
-  //     return score;
-  //   }
-  // }
+  }
 ];
 
+const RARITY_WEIGHTS = {
+  Common: 0.6,
+  Uncommon: 0.3,
+  Rare: 0.1
+}
 
 /**
 * Base class for the game UI buttons.
@@ -206,14 +216,14 @@ class ShuffleButton extends GameButton {
 
 // #region Suit and Card Maps
 
-let suitMap = {
+const suitMap = {
   '♥': 0, // Hearts
   '♣': 1, // Clubs
   '♦': 2, // Diamonds
   '♠': 3  // Spades
 };
 
-let rankMap = {
+const rankMap = {
   '2': 0,
   '3': 1,
   '4': 2,
@@ -229,6 +239,12 @@ let rankMap = {
   'A': 12
 };
 
+// Rank Value Map (different from rankMap because thats used for sprites)
+const rankValueMap = {
+  '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14
+}; // This is like this because I don't want to keep scrolling down a massive list of numbers
+
+
 class Card {
   constructor (rank, suit) {
       this.rank = rank;
@@ -238,7 +254,6 @@ class Card {
       this.y = 0;
       this.width = cardWidth;
       this.height = cardHeight;
-      this.animationOffset = random(TWO_PI);
   }
 
   /** 
@@ -276,36 +291,48 @@ class Card {
 
 // #region Globals
 let cardSpriteSheet;
-let cardWidth = 71;
-let cardHeight = 95;
+const cardWidth = 71;
+const cardHeight = 95;
 
-let deck = [];
-let hand = [];
-let selected = [];
-let perkTextAnimations = [];
-let score = 0;
-let round = 1;
-let ante = 1;
-let maxRounds = 5;
+let deck = [];                // Array to hold all cards within the deck.
+let hand = [];                // Array to hold all cards drawn into the hand.
+let selected = [];            // Array to hold all cards currently selected by the player.
+let handSize = 7;             // Amount of cards drawn into the hand.
+let reshuffleUses = 10;       // Amount of reshuffles the player can use.
 
-let gameState = "playing"; // "playing", "upgrade", or "gameover"
-let lastAction = "none" // "none", "playhand", "reshuffle"
-let passivePerks = [];
-let upgradeChoices = [];
+let eventTextAnimations = [];  // Array to hold currently playing event text.
 
-let previewHandInfo = null; // Preview and Current hand info are seperated as to not cause issues with overwriting.
-let currentHandInfo = null;
+let totalScore = 0;           // Total score across the game
+let score = 0;                // Score earned in the current ante
+let upgradePoints = 0;        // Number of upgrades allowed in this ante
+let upgradeThreshold = 300;   // Base threshold score for one upgrade
+
+let round = 1;                // Current round number.
+let ante = 1;                 // Current ante number.
+let maxRounds = 5;            // Maximum amount of rounds needed to play before proceeding onto the next ante.
+
+let gameState = "playing";    // "playing", "upgrade", or "gameover"
+let lastAction = "none"       // "none", "playhand", "reshuffle"
+
+let passivePerks = [];        // Array to hold all acquired passive perks
+let upgradeChoices = [];      // Array to hold all upgrade choices that the player can select, used for upgrade phase
+
+let previewHandInfo = null;   // Preview and Current hand info are seperated as to not cause issues with overwriting.
+let currentHandInfo = null;   
 let lastHandInfo = null;
 
 // add cards to deck
 let pickedCards = 0;
 let pickedIndices = [];
 
-let reshuffleUses = 10;
+// Background stuff
 let bgColours;
 let blobs = [];
 
 let playerName = ""; // for final score;
+
+const MAX_PASSIVE_PERKS = 5;
+let passivePerkDisplayDiv;
 
 const gameDiv = document.getElementById("gameDiv")
 
@@ -316,12 +343,15 @@ function preload() {
 }
 
 function setup() {
-  let canvas = createCanvas(800, 600);
+  let canvas = createCanvas(800, 500);
   canvas.id("gameCanvas");
   canvas.parent("gameDiv");
 
-  playBtn = new PlayHandButton(width / 2 - 60, height - 100,);
-  shuffleBtn = new ShuffleButton(width - 100, height - 100);
+  passivePerkDisplayDiv = document.getElementById('perkDisplay');
+  updatePassivePerkDisplay();
+
+  playBtn = new PlayHandButton(width / 2 - 65, height - 75);
+  shuffleBtn = new ShuffleButton(width - 200, height - 75);
 
   textAlign(CENTER, CENTER);
   textSize(20);
@@ -416,7 +446,7 @@ function generateRandomCard(suit = null) {
 }
 
 function drawHand() {
-  let needed = 5  - hand.length;
+  let needed = handSize - hand.length;
   let drawn = deck.splice (0, needed);
   hand = hand.concat(drawn);
 }
@@ -425,30 +455,27 @@ function drawUI() {
   if (gameState === "playing") {
     textSize(20);
     fill(255);
-    text(`[ Chips: ${score} ] [ Total Chips: NaN ]`, width / 2, 30);
-    text(`[ Round: ${round}/${maxRounds} ] [ Ante: ${ante} ]`, width/2, 60);
-    text(`Deck: ${deck.length} cards left`, width / 2, 90);
+    text(`[ Score: ${score} ] [ Total Score: ${totalScore} ]`, width / 2, 30);
+    text(`[ Upgrade Threshold: ${upgradeThreshold * Math.pow(1.5, ante - 1)} ]`, width / 2, 60);
+    text(`[ Round: ${round}/${maxRounds} ] [ Ante: ${ante} ]`, width/2, 90);
+    text(`Deck: ${deck.length} cards left`, width / 2, 120);
 
-    if (previewHandInfo) {
-      text(`Selected Hand: ${previewHandInfo.name} (${previewHandInfo.score} pts)`, width / 2, 130);
+    if (previewHandInfo && previewHandInfo.usedCards) {
+      let baseScore = previewHandInfo.score;
+      let multiplier = calculateRankMultiplier(previewHandInfo.usedCards);
+      text(`Selected Hand: ${previewHandInfo.name} (${baseScore} x ${multiplier})`, width / 2, height - 100);
     }
 
-    for (let i = 0; i < hand.length; i++) {
-      let card = hand[i];
-      if (!card) continue; // no more cards? skip them entirely.
-      
-      let x = 100 + i * 130;
-      let y = height / 2;
-      card.draw(x, y);
-    }
+    //
+    drawHandUI();
 
     // Reshuffle button
-    if (gameState === "playing" && reshuffleUses > 0 && selected.length >= 1 && selected.length <= 3) {
+    if (gameState === "playing" && reshuffleUses > 0 && selected.length >= 1 && selected.length <= 5) {
       shuffleBtn.draw();
     }
 
     // Play Hand button
-    if (gameState === "playing" && selected.length >= 1 && selected.length <= 3) {
+    if (gameState === "playing" && selected.length >= 1 && selected.length <= 5) {
       playBtn.draw();
     }
   }
@@ -462,8 +489,8 @@ function drawUI() {
   }
 
   // Event Text
-  for (let i = perkTextAnimations.length - 1; i >= 0; i--) {
-    let anim = perkTextAnimations[i];
+  for (let i = eventTextAnimations.length - 1; i >= 0; i--) {
+    let anim = eventTextAnimations[i];
     
     push(); // isolate text styles.
     fill (255, anim.opacity);
@@ -477,8 +504,40 @@ function drawUI() {
     anim.timer--;
 
     if (anim.timer <= 0 || 0) {
-      perkTextAnimations.splice(i, 1);
+      eventTextAnimations.splice(i, 1);
     }
+  }
+}
+
+function drawHandUI() {
+  let handSize = hand.length;
+  let spacing;
+
+  if (handSize > 1) {
+    spacing = Math.min ((width - 2 * 15 - cardWidth) / (handSize - 1), cardWidth + 20);
+  } else {
+    spacing = 0;
+  }
+
+  let totalWidth = spacing * (handSize - 1) + cardWidth;
+  let startX = (width - totalWidth) / 2;
+
+  for (let i = 0; i < hand.length; i++) {
+    let card = hand[i];
+    if (!card) continue; // stops the game from crashing if there's no more cards to draw
+
+    let x = startX + i * spacing;
+    let y = height / 2;
+    card.draw(x, y);
+  }
+}
+
+function getRarityColor(rarity) {
+  switch (rarity) {
+    case "Common": return color(200);
+    case "Uncommon": return color(100, 200, 255); // blue
+    case "Rare": return color(255, 100, 200); // pinkish purple
+    default: return color(255);
   }
 }
 
@@ -486,7 +545,7 @@ function drawUpgradeScreen() {
   textAlign(CENTER, CENTER);
   textSize(24);
   fill(255);
-  text("Choose an Upgrade", width/ 2 , 50);
+  text("Choose an Upgrade", width / 2, 50);
 
   for (let i = 0; i < upgradeChoices.length; i++) {
     let x = width / 2 - 250 + i * 250;
@@ -496,9 +555,19 @@ function drawUpgradeScreen() {
     rect(x - 100, y - 100, 200, 200, 20);
 
     let choice = upgradeChoices[i];
-    fill(255);
+    let rarityColor = getRarityColor(choice.data.rarity);
+
+    // Draw name
+    fill(rarityColor);
     textSize(16);
-    text(choice.data.name, x, y - 30);
+    text(choice.data.name, x, y - 40);
+
+    // Draw rarity label
+    textSize(12);
+    text(`[${choice.data.rarity}]`, x, y - 20);
+
+    // Draw description
+    fill(255);
     textSize(12);
     text(choice.data.description, x - 90, y + 10, 180, 100);
   }
@@ -510,7 +579,7 @@ function drawGameOver(){
   textSize(32);
   text("Game Over", width / 2, height / 2 - 100);
   textSize(20);
-  text(`Final Score: ${score}`, width / 2, height / 2 - 60);
+  text(`Final Score: ${totalScore}`, width / 2, height / 2 - 60);
 
   textSize(16);
   text("Enter your name (max 12 characters):", width / 2 , height / 2);
@@ -528,7 +597,7 @@ function mousePressed() {
       if (card.selected) {
         selected = selected.filter(n => n !== i);
         card.selected = false;
-      } else if (selected.length < 3) {
+      } else if (selected.length < 5) {
         selected.push(i);
         card.selected = true;
       }
@@ -539,6 +608,8 @@ function mousePressed() {
   if (selected.length >= 1) {
     let chosenCards = selected.map(i => hand[i]);
     previewHandInfo = evaluateHand(chosenCards);
+    previewHandInfo.cards = chosenCards;
+    previewHandInfo.baseScore = previewHandInfo.score;
   } else {
     previewHandInfo = null;
   }
@@ -560,19 +631,7 @@ function mousePressed() {
       let x = width / 2 - 250 + i * 250;
       let y = height / 2;
       if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 100 && mouseY < y + 100) {
-        let choice = upgradeChoices[i];
-  
-        if (choice.type === "passive") {
-          passivePerks.push(choice.data);
-        } else if (choice.type === "pack") {
-          choice.data.apply(); // run the pack effect
-        }
-  
-        // Reset game state
-        gameState = "playing";
-        ante++;
-        round = 1;
-        drawHand();
+        chooseUpgrade(i);
         return;
       }
     }
@@ -593,7 +652,7 @@ function keyPressed(){
       playerName = playerName.slice(0, -1);
     }
     if (keyCode === ENTER && playerName.trim () !== "") {
-      saveScore(playerName.trim(), score);
+      saveScore(playerName.trim(), totalScore);
       window.location.href = "leaderboard.html"; // redirect to leaderboard
     }
   }
@@ -610,17 +669,22 @@ function saveScore(name, score) {
 function playHand(){
   selected = selected.filter(i => hand[i] !== null && hand[i] !== undefined);
   let chosenCards = selected.map(i => hand[i]);
+
   currentHandInfo = evaluateHand(chosenCards);
 
+  let baseScore = currentHandInfo.score;
+  let multiplier = calculateRankMultiplier(currentHandInfo.usedCards);
+  let finalScore = baseScore * multiplier;
+
+
   // Apply passive perks
-  let finalScore = currentHandInfo.score;
   passivePerks.forEach(perk => {
     if (perk.condition(chosenCards, finalScore)) {
-      finalScore = perk.effect(finalScore);
-      let activeCount = perkTextAnimations.length;
+      finalScore = Math.floor(perk.effect(finalScore));
+      let activeCount = eventTextAnimations.length;
 
       // Trigger text animations
-      perkTextAnimations.push({
+      eventTextAnimations.push({
         text: perk.name + " activated!",
         x: width / 2,
         y: height / 2 - 100 + (activeCount * 30),
@@ -648,8 +712,24 @@ function playHand(){
   } 
   
   if (round > maxRounds) {
-    gameState = "upgrade";
-    generateUpgradeChoice();
+    // Convert ante score into upgrades
+    let baseThreshold = upgradeThreshold * Math.pow(1.5, ante - 1);
+    upgradePoints = Math.floor(score / baseThreshold);
+
+    // Transfer score to totalScore
+    totalScore += score;
+    score = 0;
+
+    if (upgradePoints > 0) {
+      gameState = "upgrade";
+      generateUpgradeChoice();
+    } else {
+      ante++
+      round = 1;
+      drawHand();
+    }
+  } else {
+    drawHand();
   }
 }
 
@@ -675,104 +755,292 @@ function reshuffleHand(){
 
   selected = [];
   currentHandInfo = null;
+  previewHandInfo = null;
   reshuffleUses--;
+
+  // For shuffle based perks (Card Crawler for now)
+  passivePerks.forEach(perk => {
+    if (perk.name === "Card Crawler") {
+      perk.effect(0); // score doesn't matter here
+      eventTextAnimations.push({
+        text: `${perk.name} activated!`,
+        x: width / 2,
+        y: height / 2 - 100 + (eventTextAnimations.length * 30),
+        opacity: 255,
+        timer: 60
+      });
+    }
+  });
 }
 
-function generateUpgradeChoice(){
-  const availablePerks = PASSIVE_PERKS.filter(p => !passivePerks.some(passivePerks => passivePerks.name === p.name));
-  const availablePacks = [...PERKS]; // allows dupilcates or filter if needed
+function weightedRandomRarity() {
+  let r = random();
+  let cumulative = 0;
+  for (let rarity in RARITY_WEIGHTS) {
+    cumulative += RARITY_WEIGHTS[rarity];
+    if (r < cumulative) return rarity;
+  }
+  return "Common";
+}
 
-  const mixedChoices = []; // mixes both passive perks and packs into one array
+function chooseUpgrade(index) {
+  let choice = upgradeChoices[index];
+  if (!choice) return;
 
-  for (let i = 0; i < 3; i++) {
-    if(random() < 0.25 && availablePerks.length > 0) { // 1/4 chance for a passive perk
-      let perk = random(availablePerks);
-      mixedChoices.push ({type: "passive", data: perk});
-      availablePerks.splice(availablePerks.indexOf(perk), 1);
-    } else if (availablePacks.length > 0) {
-      let pack = random(availablePacks);
-      mixedChoices.push({ type: "pack", data: pack});
-      availablePacks.splice(availablePacks.indexOf(pack), 1);
+  if (choice.type === "passive") {
+    if (choice.type === "passive") {
+      if (passivePerks.length >= MAX_PASSIVE_PERKS) {
+        alert("You already have 5 passive perks. Remove one before adding another.");
+        return; // Prevents overflow
+      }
+      passivePerks.push(choice.data);
+      updatePassivePerkDisplay();
+    }
+  } else if (choice.type === "pack") {
+    choice.data.apply();
+  }
+
+  upgradePoints--;
+
+  if (upgradePoints > 0) {
+    generateUpgradeChoice();
+  } else {
+    gameState = "playing";
+    ante++
+    round = 1;
+    drawHand();
+  }
+}
+
+function generateUpgradeChoice() {
+  const availablePerks = PASSIVE_PERKS.filter(p => !passivePerks.some(pp => pp.name === p.name));
+  const availablePacks = [...PERKS];
+
+  const mixedChoices = [];
+
+  while (mixedChoices.length < 3) {
+    let isPerk = random() < 0.25;
+    let rarity = weightedRandomRarity();
+
+    if (isPerk && availablePerks.length > 0) {
+      let filtered = availablePerks.filter(p => p.rarity === rarity);
+      if (filtered.length > 0) {
+        let perk = random(filtered);
+        mixedChoices.push({ type: "passive", data: perk });
+        availablePerks.splice(availablePerks.indexOf(perk), 1);
+        continue;
+      }
+    }
+
+    if (!isPerk && availablePacks.length > 0) {
+      let filtered = availablePacks.filter(p => p.rarity === rarity);
+      if (filtered.length > 0) {
+        let pack = random(filtered);
+        mixedChoices.push({ type: "pack", data: pack });
+        availablePacks.splice(availablePacks.indexOf(pack), 1);
+        continue;
+      }
     }
   }
 
   upgradeChoices = mixedChoices;
 }
 
-// DEBUG
-function choosePassivePerk() {
-  // Filter: only show perks not already owned
-  let availablePerks = PASSIVE_PERKS.filter(
-    perk => !passivePerks.some(p => p.name === perk.name)
-  );
-
-  // Randomly pick 3 options
-  let choices = shuffle([...availablePerks]).slice(0, 3);
-
-  // Prompt user to choose
-  let choice = prompt(
-    "Choose a passive perk:\n" +
-    choices.map((p, i) => `${i + 1}. ${p.name}: ${p.description}`).join("\n")
-  ) || "1";
-
-  let selectedPerk = choices[parseInt(choice) - 1];
-
-  // Add it if it's valid and not already owned
-  if (selectedPerk && !passivePerks.some(p => p.name === selectedPerk.name)) {
-    passivePerks.push(selectedPerk);
-  }
-
-  gameState = "playing";
-  ante++;
-  round = 1;
-  drawHand();
+function updatePassivePerkDisplay() {
+  if (!passivePerkDisplayDiv) return;
+  passivePerkDisplayDiv.innerHTML = '';
+  
+  passivePerks.forEach((perk, index) => {
+    const perkDiv = document.createElement('div');
+    perkDiv.className = 'perk-item';
+    perkDiv.innerHTML = `
+    <strong>${perk.name}</strong> - ${perk.description}
+    <button id="removePerk" onclick="removePassivePerk(${index})">Remove</button>
+    `;
+    passivePerkDisplayDiv.appendChild(perkDiv)
+  })
 }
 
+function removePassivePerk(index) {
+  passivePerks.splice(index, 1);
+  updatePassivePerkDisplay();
+}
+
+/**
+ * Evaluates the hand for scoring/typing
+ * @param {*} cards The hand to evaluate, often always used with the hand variable.
+ * @returns The type of hand the player has selected, the score, and what cards make up the hand.
+ */
 function evaluateHand(cards) {
   let ranksOnly = cards.map(c => c.rank);
   let suitsOnly = cards.map(c => c.suit);
   let rankCounts = {};
   let rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-  let faceCards = ['J', 'Q', 'K'];
 
   for (let r of ranksOnly) {
     rankCounts[r] = (rankCounts[r] || 0) + 1;
   }
 
-  let counts = Object.values(rankCounts).sort((a, b) => b - a);
-  let isFlush = suitsOnly.every(s => s === suitsOnly[0]);
-  let sortedIndices = ranksOnly.map(r => rankOrder.indexOf(r)).sort((a, b) => a - b);
-  let isStraight = sortedIndices[2] - sortedIndices[0] === 2 && sortedIndices[1] - sortedIndices[0] === 1;
+  // hand type checks.
+  let counts = Object.values(rankCounts).sort((a, b) => b - a);                                                          // Tells how much of each rank is present. Identifies pairs, Three -> Five of a Kind, Etc.
+  let isFlush = suitsOnly.every(s => s === suitsOnly[0]);                                                                // Checks if all cards are the same rank.
+  let sortedIndices = ranksOnly.map(r => rankOrder.indexOf(r)).sort((a, b) => a - b);                                    // Creates a numerically sorted list of ranks.
+  let isStraight = sortedIndices.length >= 2 && sortedIndices.every((val, i, arr) => i === 0 || val - arr[i - 1] === 1); // Checks if sortedIndices form a consecutive sequence. Confirms if hand is a straight.
 
-  let allFace = ranksOnly.every(r => faceCards.includes(r));
-  let allDifferentSuits = new Set(suitsOnly).size === 3;
-  let allDifferentRanks = new Set(ranksOnly).size === 3;
+  // arrow functions to check what cards make up the hand type (pair, straight, etc)
+  const getCardsByRank = (rank) => cards.filter(c => c.rank === rank); // return all cards from `cards` that match a specific rank
+  const getUsedCards = (rankCountMap, count) =>                        // return all cards that appears `count` times in the hand.
+    Object.entries(rankCountMap)                                       // rankCountMap is an object, e.g. { 'A': 2, '10, 'J': 2 }, this line converts it to [['A', 2], ['10', 1], ['J', 2]].
+      .filter(([_, cnt]) => cnt === count)                             // keeps entries where the count matches the value that we are interested in
+      .flatMap(([rank]) => getCardsByRank(rank));                      // for each matching rank, pull all cards with that rank using `getCardByRank`. flatMap flattens the array into single card objects.
 
-  if (cards.length === 1) { // Is the current selection only 1?
-    return { name: "High Card", score: 69 };
+  // Checks for how many cards are selected and returns the appropriate object depending on the type of hand selected using the hand type checks
+  switch (cards.length) {
+    case 1: // One card selected
+
+      // High Card
+      return {
+        name: "High Card", 
+        score: 5, 
+        usedCards: [cards[0]]
+      };
+
+    case 2: // Two cards selected
+      
+    // Pair
+      if (counts[0] === 2) {
+        let used = getUsedCards(rankCounts, 2);
+        return { name: "Pair", score: 10, usedCards: used };
+      }
+
+      // High Card
+      return { name: "High Card", score: 5, usedCards: [cards[0]] };
+
+    case 3: // Three cards selected
+
+      // Three of a Kind
+      if (counts[0] === 3) {
+        let used = getUsedCards(rankCounts, 3);
+        return { name: "Three of a Kind", score: 30, usedCards: used };
+      }
+
+      // Pair
+      if (counts[0] === 2) {
+        let used = getUsedCards(rankCounts, 2);
+        return { name: "Pair", score: 10, usedCards: used };
+      }
+
+      // High Card
+      return { name: "High Card", score: 5, usedCards: [cards[0]] };
+
+    case 4:
+
+      // Four of a Kind
+      if (counts[0] === 4) {
+        let used = getUsedCards(rankCounts, 4);
+        return { name: "Four of a Kind", score: 60, usedCards: used };
+      }
+
+      // Three of a Kind
+      if (counts[0] === 3) {
+        let used = getUsedCards(rankCounts, 3);
+        return { name: "Three of a Kind", score: 30, usedCards: used };
+      }
+
+      // Two Pair
+      if (counts[0] === 2 && counts[1] === 2) {
+        let pairs = getUsedCards(rankCounts, 2);
+        return { name: "Two Pair", score: 20, usedCards: pairs };
+      }
+
+      // Pair
+      if (counts[0] === 2) {
+        let used = getUsedCards(rankCounts, 2);
+        return { name: "Pair", score: 10, usedCards: used };
+      }
+
+      // High Card
+      return { name: "High Card", score: 5, usedCards: [cards[0]] };
+
+    case 5: // 5 Cards selected
+
+      // Flush Five
+      if (isFlush && counts[0] === 5) {
+        return { name: "Flush Five", score: 120, usedCards: cards };
+      }
+
+      // Five of a Kind
+      if (counts[0] === 5) {
+        let used = getUsedCards(rankCounts, 5);
+        return { name: "Five of a Kind", score: 110, usedCards: used };
+      }
+
+      // Royal Flush and Straight Flush
+      if (isFlush && isStraight && sortedIndices[4] === 12) return { name: "Royal Flush", score: 100, usedCards: cards };
+      if (isFlush && isStraight) return { name: "Straight Flush", score: 75, usedCards: cards };
+
+      // Four of a Kind
+      if (counts[0] === 4) {
+        let used = getUsedCards(rankCounts, 4);
+        return { name: "Four of a Kind", score: 70, usedCards: used };
+      }
+      
+      // Full House
+      if (counts[0] === 3 && counts[1] === 2) {
+        // Full House = Three of a Kind + Pair
+        let usedThree = getUsedCards(rankCounts, 3);
+        let usedPair = getUsedCards(rankCounts, 2);
+        let used = [...usedThree, ...usedPair];
+        return { name: "Full House", score: 50, usedCards: used };
+      }
+
+      // Flush and Straight
+      if (isFlush) return { name: "Flush", score: 40, usedCards: cards }; 
+      if (isStraight) return { name: "Straight", score: 35, usedCards: cards };
+
+      // Three of a Kind
+      if (counts[0] === 3) {
+        let used = getUsedCards(rankCounts, 3);
+        return { name: "Three of a Kind", score: 30, usedCards: used };
+      }
+      
+      // Two Pair
+      if (counts[0] === 2 && counts[1] === 2) {
+        let pairs = getUsedCards(rankCounts, 2);
+        return { name: "Two Pair", score: 20, usedCards: pairs };
+      }
+
+      // Pair
+      if (counts[0] === 2) {
+        let used = getUsedCards(rankCounts, 2);
+        return { name: "Pair", score: 10, usedCards: used };
+      }
+
+      // High Card
+      return { name: "High Card", score: 5, usedCards: [cards[0]] };
   }
-
-  if (cards.length === 2) { // Only 2 cards selected?
-    if (cards[0].rank === cards[1].rank) 
-      return { name: "Pair", score: 100 };
-      return { name: "High Card", score: 20 };
-  }
-
-  // 3 Cards selected
-
-  if (allFace && isFlush) return {name: "Royal Flush", score: 500}
-  if (isFlush && isStraight) return { name: "Straight Flush", score: 300}
-  if (counts[0] === 3) return { name: "Three of a Kind", score: 300 }; // Three Of A Kind.
-  if (isFlush) return { name: "Flush", score: 250 }; // Flush
-  if (isStraight) return { name: "Straight", score: 400 }; // Straight
-  if (counts[0] === 2 && counts[1] === 1) return { name: "Full House", score: 500 }; // Full House (maybe get rid off if sticking to 3 selected cards)
-  if (allFace) return { name: "All Face Cards", score: 350 }; // All Face cards (get rid of if 5 selection)
-  if (allDifferentSuits && allDifferentRanks) return { name: "Rainbow", score: 200 }; // Rainbow
-  if (counts[0] === 2) return { name: "Pair", score: 100 }; // Pair
-  return { name: "High Card", score: 50 }; // High card
 }
 
-// Debug function
+
+function calculateRankMultiplier(cards) {
+  const rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  let total = 0;
+
+  for (let card of cards) {
+    let value = rankOrder.indexOf(card.rank) + 2;
+    total += value;
+  }
+
+  return Math.max(1, total); // Ensure multiplier is at least 1
+}
+
+// Debug functions
+
+function debugUpgrade(){
+  gameState = "upgrade";
+  generateUpgradeChoice();
+}
+
 function debugSetHand(cardDataArray) {
   if (!Array.isArray(cardDataArray)) {
     console.error("Expected an array of card objects.");

@@ -1,3 +1,6 @@
+// Perks List, seperated for ease of access.
+// USE CTRL + F TO FIND PERKS, PASSIVE_PERKS.
+
 const PERKS = [
     {
       name: "Bonus Draw",
@@ -65,6 +68,50 @@ const PERKS = [
           deck.push(new Card(c.rank, c.suit));
         }
       }
+    }
+  ];
+
+  // ----- PASSIVE PERKS -----
+  /** TEMPLATE
+   *  name: "NAME",
+      description: "DESCRIPTION",
+      condition: (playedCards) => playedCards.some(card => card.suit === '♣'),
+      effect: (baseScore) => baseScore * 1.5
+   */
+
+  const PASSIVE_PERKS = [
+    {
+      name: "Lucky Clover",
+      description: "Multiply score by 1.5 if hand contains at least one ♣.",
+      condition: (playedCards) => playedCards.some(card => card.suit === '♣'),
+      effect: (baseScore) => baseScore * 1.5
+    },
+    {
+      name: "Flush Bonus",
+      description: "Gain 50 bonus points if all cards are the same suit.",
+      condition: (playedCards) => new Set(playedCards.map(c => c.suit)).size === 1,
+      effect: (baseScore) => baseScore + 50
+    },
+    {
+      name: "Face Card Fan",
+      description: "Double score if hand contains only J, Q, K.",
+      condition: (playedCards) => playedCards.every(c => ['J', 'Q', 'K'].includes(c.rank)),
+      effect: (baseScore) => baseScore * 2
+    },
+    {
+      name: "Low Roll",
+      description: "Add 1 random card to your hand if all ranks are 6 or lower.",
+      condition: (playedCards) => playedCards.every(c => ranks.indexOf(c.rank) <= 4),
+      effect: (baseScore) => {
+        if (hand.length < 5) hand.push(generateRandomCard());
+        return baseScore;
+      }
+    },
+    {
+      name: "Repeated Rhythm",
+      description: "Multiply score by 2 if you played the same hand type as last round.",
+      condition: (playedCards) => currentHandInfo.name && lastHandInfo.name === currentHandType.currentHandInfo.name,
+      effect: (baseScore) => baseScore * 2
     }
   ];
 
