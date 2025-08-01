@@ -1,23 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Leaderboard</title>
+  <title>Highcarder - Leaderboard</title>
   <style>
-    body { font-family: sans-serif; background: #111; color: #fff; text-align: center; padding: 50px; }
-    h1 { margin-bottom: 20px; }
-    table { margin: auto; border-collapse: collapse; width: 50%; }
-    th, td { padding: 10px; border-bottom: 1px solid #444; }
-    tr:nth-child(even) { background: #222; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: auto;
+    }
+    
+    nav {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+    }
+
+    .nav-container a {
+      display: inline-flex;
+      color: white;
+    }
+
+    .navpage a {
+      padding: 1%;
+      margin: 1%;
+    }
+    
+
+    main { 
+      font-family: sans-serif; 
+      color: #fff; 
+      text-align: center; 
+      margin-top: 2%;
+      padding: 50px; 
+    }
+
+    h1 { 
+      margin-bottom: 20px; 
+    }
+
+    table { 
+      margin: auto; 
+      border-collapse: collapse; 
+      width: 50%; 
+    }
+
+    th, td { 
+      padding: 10px; 
+      border-bottom: 1px solid #444; 
+    }
+
+    tr:nth-child(even) {
+       background: #222; 
+    }
+  
   </style>
+
+  <script src="p5/p5.min.js"></script>
+  <script src="/assets/js/background.js"></script>
 </head>
+
+<header>
+  <nav>
+    <div class="navpage">
+      <div class="nav-container">
+        <a href="leaderboard.html">LEADERBOARD</a>
+        <a href="index.html">HIGHCARDER</a>
+        <a href="howtoplay.html">HOW TO PLAY</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
 <body>
-  <h1>Leaderboard</h1>
-  <table id="leaderboard">
-    <thead>
-      <tr><th>Rank</th><th>Name</th><th>Score</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <main>
+    <h1>Leaderboard</h1>
+    <table id="leaderboard">
+      <thead>
+        <tr> <th>Rank</th> <th>Name</th> <th>Score</th> </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+  
 
   <script>
     const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];

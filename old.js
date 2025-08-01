@@ -98,3 +98,14 @@ function choosePassivePerk() {
   round = 1;
   drawHand();
 }
+
+// activeDebuffs.forEach((debuff) => {
+  //   const debuffDiv = document.createElement('div');
+  //   const debuffDescDiv = document.createElement('div');
+  //   debuffDiv.className = 'debuff-item';
+  //   debuffDescDiv.className = 'debuff-desc';
+  //   debuffDiv.innerHTML = `<strong>${debuff.name}</strong>`;
+  //   debuffDescDiv.innerHTML = `<p>${debuff.description}</p>`;
+  //   debuffDisplayDiv.appendChild(debuffDiv);
+  //   debuffDiv.appendChild(debuffDescDiv);
+  // })

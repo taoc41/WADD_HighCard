@@ -25,6 +25,11 @@ class GameButton {
         text(this.label, this.x + this.w / 2, this.y + this.h / 2);
     }
 
+    updatePosition(x, y){
+        this.x = x;
+        this.y = y;
+    }
+
     contains(mx, my){
         return (
             mx >= this.x &&
@@ -40,6 +45,9 @@ class GameButton {
     }
 }
 
+/**
+ * The play button object, should trigger "playHand()" when clicked.
+ */
 class PlayHandButton extends GameButton {
     
     constructor(x, y) {
@@ -51,6 +59,9 @@ class PlayHandButton extends GameButton {
     }
 }
 
+/**
+ * The play button object, should trigger "reshuffleHand()" when clicked.
+ */
 class ShuffleButton extends GameButton {
     constructor(x, y) {
         super(x, y, 140, 40, `Reshuffle (${reshuffleUses})`);
@@ -62,7 +73,6 @@ class ShuffleButton extends GameButton {
     }
 
     onClick() {
-        reshuffleHand()
-        console.log("After drawHand:", selected.map(c => c.rank + c.suit));
+        reshuffleHand();
     }
 }

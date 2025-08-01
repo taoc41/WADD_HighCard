@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Highcarder - How to Play</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: auto;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+        background-color: #1b1b1b;
+    }
+
+    main {
+        font-family: Arial, Helvetica, sans-serif;
+        margin-top: 7%;
+        padding-inline: 20%;
+        color: white;
+
+        div:nth-of-type(1) {
+            text-align: center;
+            font-size: 14px;
+            padding-inline: 25%;
+        }
+
+        div:nth-of-type(2) {
+
+            p {
+                text-align: center;
+            }
+
+            li {
+                margin-bottom: 1%;
+            }
+        }
+
+    }
+
+    h1 { 
+        margin-bottom: 20px;
+        text-decoration: underline; 
+        text-align: center;
+    }
+
+    nav {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+    }
+
+    .nav-container a {
+      display: inline-flex;
+      color: white;
+    }
+
+    .navpage a {
+      padding: 1%;
+      margin: 1%;
+    }
+    
+  </style>
+  <script src="p5/p5.min.js"></script>
+  <script src="/assets/js/background.js"></script>
+</head>
+
+<header>
+    <nav>
+      <div class="navpage">
+        <div class="nav-container">
+          <a href="leaderboard.html">LEADERBOARD</a>
+          <a href="index.html">HIGHCARDER</a>
+          <a href="howtoplay.html">HOW TO PLAY</a>
+        </div>
+      </div>
+    </nav>
+</header>
+
+<body>
+    <main>
+        <div>
+            <h1>
+                Highcarder - How to Play
+            </h1>
+            <p>
+                Highcarder is a roguelike poker-inspired deckbuilder card game where the main goal is to earn 
+                as high of a score as possible through playing Poker Hands with an ever-dwindling deck of playing 
+                cards—earning packs, perks, and upgrades for your deck along the way—whilst trying not to run out of cards.
+            </p>
+        </div>
+        
+        <div>
+            <h2>
+                The Basics
+            </h2>
+            <p><b>In Highcarder, your main aim is to survive as many "antes" as possible without running out of cards.</b></p>
+            
+            <li>You start with a basic 52 card deck and 7 cards in your hand.</li>
+            <li>There are 5 rounds in every ante. You progress each round by playing a poker hand.</li>
+            <li>After every ante, you are able to upgrade your deck if your score is above the "Upgrade Threshold"</li>
+            <li>Exceeding the "Upgrade Threshold" allows you choose multiple upgrades—one for each multiple of the threshold.
+                 For example, if your score is 300 and the threshold is 300, you can choose 10 upgrades (3000 ÷ 300 = 10)</li>
+            <li>The upgrade threshold will increase every ante.</li>
+            <li>You cannot progress onto the next ante until you meet the threshold.</li>
+            <li>Every five antes, the difficulty will increase and a "debuff" will be added.</li>
+            <li>There is no win condition, only a lose condition: <b>Run out of cards to play.</b></li>
+        </div>
+        
+        <div>
+            <h2>
+                Poker Hands
+            </h2>
+            <p>image here or something</p>
+        </div>
+        
+    </main>
+</body>
+</html>
