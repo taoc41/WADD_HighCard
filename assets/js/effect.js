@@ -5,23 +5,24 @@
 /* —————————————————————————————— EFFECT LIST —————————————————————————————— */
 
 // USE CTRL + F TO FIND PERKS, PASSIVE_PERKS, AND DEBUFFS
-// 
-// CURRENT PERKS 
-// 
-// 
-// 
-// 
-// 
 
 
 // PERKS —————————————— //
 const PERKS = [
   {
-    name: "Bonus Draw",
+    name: "Backup Plan",
     description: "Add 2 random cards to your deck.",
     rarity: "Common",
     apply: () => {
       for (let i = 0; i < 2; i++) deck.push(generateRandomCard());
+    }
+  },
+  {
+    name: "Card Fountain",
+    description: "Add 5 random cards to your deck.",
+    rarity: "Rare",
+    apply: () => {
+      for (let i = 0; i < 5; i++) deck.push(generateRandomCard());
     }
   },
   {
@@ -33,18 +34,9 @@ const PERKS = [
     }
   },
   {
-    name: "Extra Shuffle",
-    description: "Add +2 reshuffle.",
-    rarity: "Common",
-    apply: () => {
-      reshuffleUses += 2;
-
-    }
-  },
-  {
-    name: "Extra Shuffle",
+    name: "Card Mechanic",
     description: "Add +3 reshuffle.",
-    rarity: "Common",
+    rarity: "Rare",
     apply: () => {
       reshuffleUses += 3;
     }
@@ -100,6 +92,18 @@ const PERKS = [
       if (deck.length === 0) return;
       let c = random(deck);
       for (let i = 0; i < 2; i++) {
+        deck.push(new Card(c.rank, c.suit));
+      }
+    }
+  },
+  {
+    name: "Mytosis",
+    description: "Add 5 copies of a random card from your deck.",
+    rarity: "Rare",
+    apply: () => {
+      if (deck.length === 0) return;
+      let c = random(deck);
+      for (let i = 0; i < 5; i++) {
         deck.push(new Card(c.rank, c.suit));
       }
     }
@@ -257,7 +261,7 @@ const PASSIVE_PERKS = [
   },
   {
     name: "Clover's Favor",
-    suit: '♠',
+    suit: '♣',
     rarity: "Rare",
     get description() {
       const count = deck ? deck.filter(c => c.suit === this.suit).length : 0;
@@ -269,7 +273,7 @@ const PASSIVE_PERKS = [
       return score + (count * 50);
     }
   },
-  
+
   // "Multiply score by 1.5 if hand contains at least one X Card" - PASSIVES
   {
     name: "Lucky Clover",
@@ -333,8 +337,6 @@ const DEBUFFS = [
       maxRounds = max(maxRounds - 1, 1)
     }
   },
-
-  // this is not working, fix later
   {
     name: "Cramped Hand",
     description: "Draw 2 fewer cards per hand (min 3).",
@@ -343,17 +345,19 @@ const DEBUFFS = [
       handSize = max(handSize - 2, 3);
     },
     revert: () => {
-      handSize = min (handSize + 2, 10);
+      handSize = min(handSize + 2, 10);
     }
   }
 ]
 
+
+// Rarity weights, to handle what's more common
 const RARITY_WEIGHTS = {
   Common: 0.6,
   Uncommon: 0.3,
-  Rare: 0.1
+  Rare: 0.75,
+  Legendary: 0.25
 }
-
 
 function weightedRandomRarity() {
   let r = random();

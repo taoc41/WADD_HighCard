@@ -18,7 +18,7 @@ function setup() {
   let canvasHeight = max(windowHeight, 800);
 
   let canvas = createCanvas(canvasWidth, canvasHeight);
-  canvas.position(0,0)
+  canvas.position(0, 0)
   canvas.style('z-index', '-1')
   canvas.id("gameCanvas");
 
@@ -97,7 +97,7 @@ function drawGlowingBlob(x, y, r) {
 
 function drawGradientBackground() {
   noStroke();
-  
+
   let t = millis() * 0.0005; // slow time
   let colorShift = sin(t) * 0.5 + 0.5; // 0 to 1 range
 
@@ -118,7 +118,7 @@ function drawUI() {
     fill(255);
     text(`[ Score: ${score} ] [ Total Score: ${totalScore} ]`, width / 2, 90);
     text(`[ Upgrade Threshold: ${getUpgradeThreshold()} ]`, width / 2, 120);
-    text(`[ Round: ${round}/${maxRounds} ] [ Ante: ${ante} ]`, width/2, 150);
+    text(`[ Round: ${round}/${maxRounds} ] [ Ante: ${ante} ]`, width / 2, 150);
     text(`Deck: ${deck.length} cards left`, width / 2, 180);
 
     if (previewHandInfo && previewHandInfo.usedCards) {
@@ -142,7 +142,7 @@ function drawUI() {
       playBtn.draw();
     }
   }
-  
+
   if (gameState === "upgrade") {
     drawUpgradeScreen();
   }
@@ -154,9 +154,9 @@ function drawUI() {
   // Event Text
   for (let i = eventTextAnimations.length - 1; i >= 0; i--) {
     let anim = eventTextAnimations[i];
-    
+
     push(); // isolate text styles.
-    fill (255, anim.opacity);
+    fill(255, anim.opacity);
     textAlign(CENTER);
     textSize(24);
     text(anim.text, anim.x, anim.y);
@@ -173,25 +173,31 @@ function drawUI() {
 }
 
 function drawHandUI() {
-  let handSize = hand.length;
+  let size = hand.length;
   let spacing;
 
-  if (handSize > 1) {
-    spacing = Math.min ((width - 2 * 15 - cardWidth) / (handSize - 1), cardWidth + 20);
+  if (size > 1) {
+    spacing = Math.min((width - 2 * 15 - cardWidth) / (size - 1), cardWidth + 20);
   } else {
     spacing = 0;
   }
 
-  let totalWidth = spacing * (handSize - 1) + cardWidth;
+  let totalWidth = spacing * (size - 1) + cardWidth;
   let startX = (width - totalWidth) / 2;
 
   for (let i = 0; i < hand.length; i++) {
     let card = hand[i];
-    if (!card) continue; // stops the game from crashing if there's no more cards to draw
+    if (!card ) continue; // stops the game from crashing if there's no more cards to draw
+    if (isDragging && card === heldCard) continue; // do not render the card if it is being dragged
 
     let x = startX + i * spacing;
     let y = height / 2;
     card.draw(x, y);
+  }
+
+  // Draw the dragged card last so it appears on top
+  if (heldCard && isDragging) {
+    heldCard.draw(mouseX - dragOffsetX, mouseY - dragOffsetY);
   }
 }
 
@@ -237,7 +243,7 @@ function drawUpgradeScreen() {
   }
 }
 
-function drawGameOver(){
+function drawGameOver() {
   fill(255);
   textAlign(CENTER);
   textSize(32);
@@ -246,16 +252,16 @@ function drawGameOver(){
   text(`Final Score: ${totalScore}`, width / 2, height / 2 - 60);
 
   textSize(16);
-  text("Enter your name (max 12 characters):", width / 2 , height / 2);
+  text("Enter your name (max 12 characters):", width / 2, height / 2);
   text(playerName, width / 2, height / 2 + 30);
 }
 
 function updatePassivePerkDisplay() {
   if (!passivePerkDisplayDiv) return;
   passivePerkDisplayDiv.innerHTML = '';
-  
+
   passivePerks.forEach((perk, index) => {
-    
+
     // defines the divs for the perks.
     const perkDiv = document.createElement('div');
     const perkDescDiv = document.createElement('div');
@@ -290,7 +296,7 @@ function removePassivePerk(index) {
 function updateDebuffDisplay() {
   if (!debuffDisplayDiv) return;
   debuffDisplayDiv.innerHTML = '';
-  
+
   const debuffMap = new Map();
 
   activeDebuffs.forEach(debuff => {

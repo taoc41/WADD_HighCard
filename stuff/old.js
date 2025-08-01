@@ -3,7 +3,7 @@ function drawCard(card, x, y, isSelected) {
 
   let sx = rankMap[card.rank] * cardWidth;
   let sy = suitMap[card.suit] * cardHeight;
-  
+
   if (isSelected) {
     fill(255, 255, 0, 100);
     rect(x, y, cardWidth, cardHeight, 10);
@@ -36,7 +36,7 @@ function evaluateHand(cards) {
 
   switch (cards.length) {
     case 1:
-      return { name: "High Card", score: 50};
+      return { name: "High Card", score: 50 };
 
     case 2:
       if (counts[0] === 2) return { name: "Pair", score: 100 };
@@ -44,28 +44,28 @@ function evaluateHand(cards) {
 
     case 3:
       if (counts[0] === 3) return { name: "Three of a Kind", score: 300 };
-      if (counts[0] === 2) return { name: "Pair", score: 100}
+      if (counts[0] === 2) return { name: "Pair", score: 100 }
       return { name: "High Card", score: 50 }
 
-    case 4: 
-    if (counts[0] === 4) return { name: "Four of a Kind", score: 500 };
-    if (counts[0] === 3) return { name: "Three of a Kind", score: 300 };
-    if (counts[0] === 2 && counts[1] === 2) return {name: "Two Pair", score: 200}
-    if (counts[0] === 2) return { name: "Pair", score: 100}
-    return { name: "High Card", score: 50 }
+    case 4:
+      if (counts[0] === 4) return { name: "Four of a Kind", score: 500 };
+      if (counts[0] === 3) return { name: "Three of a Kind", score: 300 };
+      if (counts[0] === 2 && counts[1] === 2) return { name: "Two Pair", score: 200 }
+      if (counts[0] === 2) return { name: "Pair", score: 100 }
+      return { name: "High Card", score: 50 }
 
-    case 5: 
-    if (isFlush && counts[0] === 5) return { name: "Flush Five", score: 1500 };
-    if (counts[0] === 5) return { name: "Five of a Kind", score: 1250};
-    if (isFlush && isStraight && sortedIndices[4] === 12) return { name: "Royal Flush", score: 1000};
-    if (isFlush && isStraight) return { name: "Straight Flush", score: 700};
-    if (counts[0] === 4) return { name: "Four of a Kind", score: 600 };
-    if (isFlush) return { name: "Flush", score: 500}
-    if (isStraight) return { name: "Straight", score: 450 }
-    if (counts[0] === 3) return { name: "Three of a Kind", score: 300 };
-    if (counts[0] === 2 && counts[1] === 2) return {name: "Two Pair", score: 200};
-    if (counts[0] === 2) return { name: "Pair", score: 100 };
-    return { name: "High Card", score: 50 };
+    case 5:
+      if (isFlush && counts[0] === 5) return { name: "Flush Five", score: 1500 };
+      if (counts[0] === 5) return { name: "Five of a Kind", score: 1250 };
+      if (isFlush && isStraight && sortedIndices[4] === 12) return { name: "Royal Flush", score: 1000 };
+      if (isFlush && isStraight) return { name: "Straight Flush", score: 700 };
+      if (counts[0] === 4) return { name: "Four of a Kind", score: 600 };
+      if (isFlush) return { name: "Flush", score: 500 }
+      if (isStraight) return { name: "Straight", score: 450 }
+      if (counts[0] === 3) return { name: "Three of a Kind", score: 300 };
+      if (counts[0] === 2 && counts[1] === 2) return { name: "Two Pair", score: 200 };
+      if (counts[0] === 2) return { name: "Pair", score: 100 };
+      return { name: "High Card", score: 50 };
   }
 }
 
@@ -100,12 +100,28 @@ function choosePassivePerk() {
 }
 
 // activeDebuffs.forEach((debuff) => {
-  //   const debuffDiv = document.createElement('div');
-  //   const debuffDescDiv = document.createElement('div');
-  //   debuffDiv.className = 'debuff-item';
-  //   debuffDescDiv.className = 'debuff-desc';
-  //   debuffDiv.innerHTML = `<strong>${debuff.name}</strong>`;
-  //   debuffDescDiv.innerHTML = `<p>${debuff.description}</p>`;
-  //   debuffDisplayDiv.appendChild(debuffDiv);
-  //   debuffDiv.appendChild(debuffDescDiv);
-  // })
+//   const debuffDiv = document.createElement('div');
+//   const debuffDescDiv = document.createElement('div');
+//   debuffDiv.className = 'debuff-item';
+//   debuffDescDiv.className = 'debuff-desc';
+//   debuffDiv.innerHTML = `<strong>${debuff.name}</strong>`;
+//   debuffDescDiv.innerHTML = `<p>${debuff.description}</p>`;
+//   debuffDisplayDiv.appendChild(debuffDiv);
+//   debuffDiv.appendChild(debuffDescDiv);
+// })
+
+/** CARD SELECTION HANDLER
+* Probably should be put in the card class. */
+for (let i = 0; i < hand.length; i++) { // Checks through every card in the current hand.
+  let card = hand[i];
+
+  if (card && card.contains(mouseX, mouseY)) {
+    if (card.selected) {
+      selected = selected.filter(n => n !== i);
+      card.selected = false;
+    } else if (selected.length < 5) {
+      selected.push(i);
+      card.selected = true;
+    }
+  }
+}

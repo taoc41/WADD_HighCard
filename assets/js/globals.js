@@ -44,9 +44,17 @@ let activeDebuffs = [];         // Array to hold all acquired debuff effects.
 let disabledPerk = [];        // Array to hold all currently disabled perks. For the "Perk Lockout" debuff
 
 // Preview and Current hand info are seperated as to not cause issues with overwriting.
-let previewHandInfo = null;   
-let currentHandInfo = null;   
+let previewHandInfo = null;
+let currentHandInfo = null;
 let lastHandInfo = null; // for repeated rhythm perk
+
+// Card sorting globals
+let heldCard = null;
+let holdStartTime = 0;
+let holdingCardIndex = -1;
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
 
 // add cards to deck
 let pickedCards = 0;
