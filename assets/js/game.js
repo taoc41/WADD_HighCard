@@ -311,7 +311,7 @@ function chooseUpgrade(index) {
     } else if (choice.type === "pack") {
         choice.data.apply();
         updatePassivePerkDisplay();
-    }
+    } else if (choice.type === "")
 
     upgradePoints--;
 
@@ -354,29 +354,35 @@ function addDebuff() {
 function generateUpgradeChoice() {
     const availablePerks = PASSIVE_PERKS.filter(p => !passivePerks.some(pp => pp.name === p.name));
     const availablePacks = [...PERKS];
+    const availableEdits = [...EDIT_PERKS];
 
     const mixedChoices = [];
 
     while (mixedChoices.length < 3) {
-        let isPerk = random() < 0.25;
+        let categoryRoll = random();
         let rarity = weightedRandomRarity();
 
-        if (isPerk && availablePerks.length > 0) {
-            let filtered = availablePerks.filter(p => p.rarity === rarity);
+        if (categoryRoll < 0.25 && availablePerks.length > 0) {
+            let filtered = availablePassives.filter(p => p.rarity === rarity);
             if (filtered.length > 0) {
                 let perk = random(filtered);
-                mixedChoices.push({ type: "passive", data: perk });
-                availablePerks.splice(availablePerks.indexOf(perk), 1);
+                mixedChoices.push({type: "passive", data: perk});
+                availablePassives.splice(availablePassives.indexOf(perk), 1);
                 continue;
             }
-        }
-
-        if (!isPerk && availablePacks.length > 0) {
-            let filtered = availablePacks.filter(p => p.rarity === rarity);
+        } else if (categoryRoll < 0.75 && availablePacks.length > 0) {
             if (filtered.length > 0) {
                 let pack = random(filtered);
-                mixedChoices.push({ type: "pack", data: pack });
+                mixedChoices.push({type: "pack", data: pack});
                 availablePacks.splice(availablePacks.indexOf(pack), 1);
+                continue;
+            }
+        } else if (availableEdits.length > 0) {
+            let filtered = availableEdits.filter (p => p.rarity === rarity);
+            if (filtered.length > 0) {
+                let edit = random(filtered);
+                mixedChoices.push({ type: "edit", data: edit });
+                availableEdits.splice(availableEdits.indexOf(edit), 1);
                 continue;
             }
         }

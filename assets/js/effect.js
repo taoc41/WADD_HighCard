@@ -285,6 +285,16 @@ const PASSIVE_PERKS = [
 
 ];
 
+const EDIT_PERKS = [
+  {
+    name: "Rank Up",
+    description: "Increase a card's rank by one.",
+    effect: (card) => {
+      let suitsCopy = suits.filter(s => s !== suit)
+    }
+  }
+]
+
 const DEBUFFS = [
   {
     name: "Score Leak",

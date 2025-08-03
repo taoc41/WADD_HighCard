@@ -299,6 +299,7 @@ function updateDebuffDisplay() {
 
   const debuffMap = new Map();
 
+  // checks if the buff exists already, +1 to the counter for the first instance.
   activeDebuffs.forEach(debuff => {
     if (!debuffMap.has(debuff.name)) {
       debuffMap.set(debuff.name, { count: 1, description: debuff.description });
