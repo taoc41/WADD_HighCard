@@ -125,6 +125,7 @@ const PERKS = [
     {
         name: "Straight Edge",
         description: "Add 3 sequential cards.",
+        rarity: "Common",
         apply: () => {
             let start = floor(random(0, ranks.length - 2)); // avoid overflow
             let suit = random(suits);
