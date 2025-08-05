@@ -1,0 +1,312 @@
+
+Rarities
+
+Common -> Uncommon -> Rare -> Super Rare -> Mythical -> Legendary
+
+----- DEBUFFS ------------------------------------------------------------------------------------------------
+
+-Simple (Max 2)
+You will have 1 less upgrade choice to choose from every ante.
+
+-Forbidden Knowledge (Max 1)
+Cursed Upgrades become more common.
+
+-Necronomicon (Max 1)
+Cursed Upgrades become more common. 
+Along with debuffs, you will gain a random cursed Perk every 5 antes.
+
+-Brainwashed (Max 1)
+Cursed Upgrades become more common. 
+You are forced to pick a Cursed Card Pack at least once every upgrade phase.
+
+-Scalper
+The score requirement is increased by 10%.
+
+-Card Rot
+Lose a random card from your deck every round.
+
+-Score Leak (Max 50).
+Lose 1% of your total score.
+
+----- PACKS --------------------------------------------------------------------------------------------------
+
+-Booster Pack : Common
+Add two random cards.
+
+-Underdog Pack : Common
+Add five low ranking cards (2-4) of random suits.
+
+-Flush Pack : Common
+Add three of the same suit.
+
+-Twin Pack : Common
+Add four cards consisting of 2 pairs.
+
+-High Low Pack : Common
+Add three cards: One low (2-5), one middle (6-10), and one high (J/Q/K/A).
+
+-Balanced Pack : Common
+Add one card of each suit.
+
+---
+
+-Mirror Pack : Uncommon
+Add 2 cards of the most frequent card (Card) in your deck.
+
+-Spade Pack : Uncommon
+Add 3 Spades of random ranks.
+
+-Clubs Pack : Uncommon
+Add 3 Clubs of random ranks.
+
+-Hearts Pack : Uncommon
+Add 3 Hearts of random ranks.
+
+-Diamonds Pack : Uncommon
+Add 3 Diamonds of random ranks.
+
+-Face Pack : Uncommon
+Add 3 random face cards.
+
+-Booster Box : Uncommon
+Add 5 random cards.
+
+---
+
+-Stratagem Pack : Rare
+Add 3 copies of your most played card (Card).
+
+-Royal Pack : Rare
+Add a Jack, Queen, and King, of the same suit.
+
+-Unity Pack : Rare
+Add 5 random cards of the same suit.
+
+---
+
+-High Ace's Pack : Mythical
+Add 2 Aces and increase your reshuffles by 1.
+
+-Echo Pack : Mythical
+Add the last scoring hand into your deck.
+
+-Cascade Pack : Super Rare
+Add 5 random cards consisting of a Full House.
+
+-Crowned Pack : Super Rare
+
+
+---
+
+
+
+--- CURSED : Packs that are intentionally unhelpful, designed to ruin deck synergy while appearing "normal".
+
+-Crimson Pack : Cursed
+Add 5 random red cards (Hearts/Diamonds).
+
+-Shadow Pack : Cursed
+Add 5 random black cards (Clubs/Spades).
+
+-Tarnished Royal Pack : Cursed
+Add a J, Q, and K, each from a difference suit and rank, with two random low (2-4) cards.
+
+-False Flush Pack:
+
+-Rotten Pack : Cursed
+Add one high ranking card (10-A) and four cards of the "2" rank.
+
+-"Oops, all 2s!" Pack : Cursed
+Add 10 cards of the "2" rank.
+
+
+
+
+----- PERKS --------------------------------------------------------------------------------------------------
+
+-Quick Palm : Common
+Increase your reshuffles by 1.
+
+-Loaded Sleeve : Uncommon.
+Increase your reshuffles by 3.
+
+-Phantom Thief : Rare
+Increase your reshuffles by 5.
+
+-Kleptomaniac : Mythical
+Increase your reshuffles by 10.
+
+-Scholar : Mythical
+Increase upgrade choice by 1 (Max 5)
+
+= = =
+
+-Cautious : Rare
+Decrease the current ante by 1.
+
+-Safety First : Mythical
+Decrease the current ante by 3.
+
+= = =
+
+-Open Mind : Rare
+Increase the amount of knowable Abilities by 1.
+
+= = =
+
+-Flicker : Common
+Increase your "Burns" by 1.
+
+-Wildfire : Uncommon
+Increase your "Burns" by 3.
+
+-Arsonist : Rare
+Increase your "Burns" amount by 5.
+
+-Pyromaniac : Mythical
+Increase your "Burns" amount by 10.
+
+= = =
+
+-Frost : Common
+Increase your "Freezes" by 1.
+
+-Blizzard : Uncommon
+Increase your "Freezes" by 3.
+
+-Perfrigerist : Rare
+Increase your "Freezes" by 5.
+
+-Cryomaniac : Mythical
+Increase your "Freezes" by 10
+
+= = =
+
+Equivilant Exchange (A) : Cursed
+Increase your knowable Abilities by 1, decrease your upgrade choices by 1.
+
+Equivilant Exchange (B) : Cursed
+Increase your upgrade choices increase by 1, decrease your knowable Abilities by 1.
+
+Elemental Mishap : Cursed
+Swap the amounts of your Burns and Freezes around.
+
+Ice Age : Cursed
+Your amount of Burns is merged into your Freezes.
+
+Hellscape : Cursed
+Your amount of Freezes is merged into your Burns.
+
+----- PASSIVES ----------------------------------------------------------------------------------------------
+
+-
+
+-Second Wind : Rare
+Continue onto the next ante even if you don't meet the score requirement with 5 upgrade points. 
+This ability is removed automatically when activated.
+
+-Lucky Find : Uncommon
+Add 1 random card to the deck every ante.
+
+-Autodidact : Legendary
+After every ante, you will additionally gain half the upgrade points you currently have.
+
+-All for One : Rare
+All played cards contribute to the rank multiplier.
+
+-Royal Decree : Rare
+1x Mult. This card gains 0.25 mult for every face card played. 
+If a non-face card is played, this card resets back to 1.
+
+-Royal Parade : Uncommon
++50 points per face card played.
+
+-Heart's Embrace : Rare
+For every 5 "♥" Cards (currently X), add 1 random card to the deck.
+
+-Diamond's Ambition : Rare
+1x Mult. This card gains 0.5 mult for every '♦' card in your deck.
+
+-Card Crawler : Rare
+Add a copy the first selected card in a hand that was reshuffled back to the deck, into the deck.
+
+-Four Kingdoms : Uncommon
++1
+
+-Transmutation : Legendary
+While you have this ability, choosing an upgrade will convert it's rarity to "Common". 
+This ability is removed when used.
+
+----- REFINEMENTS ------------------------------------------------------------------------------------------
+
+-Promotion : Common
+Increase the rank of up to 2 cards by 1
+
+-Mass Promotion : Rare
+Increase the rank of all cards in the hand by 1.
+
+-Reincarnation : Common
+Convert 3 cards into the same random suit.
+
+-Colour Shift (A) : Common
+Select up to 3 cards. Spades converts to Hearts, Clubs converts to Diamonds, and vise versa.
+
+-Colour Shift (B) : Common
+Select up to 3 cards. Spades converts to Diamonds, Clubs converts to Hearts, and vise versa.
+
+-Mathmatician : Common
+Select two cards of the same suits below 6. The left card's rank becomes the total sum of both cards.
+
+= = =
+
+-Midas' Touch : Uncommon
+Convert 3 cards into Diamonds
+
+-Gambler's Luck : Uncommon
+Convert 3 cards into Clubs
+
+-Lovers' Romance : Uncommon
+Convert 3 cards into Hearts
+
+-Warriors' Courage : Uncommon
+Convert 3 cards into Spaces
+
+= = =
+
+
+-Unity : Rare
+Convert all cards in hand into a random suit.
+
+-Strength in Numbers : Rare
+Convert all cards in hand into a random rank.
+
+-Mimicry : Common
+Convert the selected right-most card into the same as the selected left-most card
+
+-Rip Apart : Common
+Destroy up to 2 cards
+
+= = =
+
+-Give and Take (Recycle): Common
+Destroy one card. Gain +2 upgrade points.
+
+-Give and Take (Immolate) : Common
+Destroy one card. Gain +2 Burns
+
+-Give and Take (Shatter) : Common
+Destroy one card. Gain +2 Freezes
+
+= = =
+
+-Fragment : Legendary
+Destroy one card. Add a random card(s) of the same suit equal to half the rank of the destroyed card to your deck.
+
+-Usurper : Uncommon
+Convert up to 2 cards into a random face card(s).
+
+Amnesia : Cursed
+Randomize your entire deck.
+
+
+

@@ -30,7 +30,6 @@ function drawHand() {
     }
 }
 
-
 function mousePressed() {
 
     // Check if a card is being clicked (drag start)
@@ -58,15 +57,15 @@ function mousePressed() {
         return;
     }
 
+    // upgrade phase - handle upgrade selection
     if (gameState === "upgrade") {
         for (let i = 0; i < upgradeChoices.length; i++) {
-            let x = width / 2 - 250 + i * 250;
-            let y = height / 2;
-            if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 100 && mouseY < y + 100) {
+            if (upgradeChoices[i].contains(mouseX, mouseY)) {
                 chooseUpgrade(i);
                 return;
             }
         }
+        return;
     }
 }
 
@@ -117,7 +116,8 @@ function mouseReleased() {
     }
 
     // Updates the preview hand info 
-    if (selected.length >= 1) {
+    // gameState === "playing" because exiting upgrade phase causes visual bug
+    if (selected.length >= 1 && gameState === "playing") {
         let chosenCards = selected.map(i => hand[i]);
         previewHandInfo = evaluateHand(chosenCards);
         previewHandInfo.cards = chosenCards;
@@ -170,7 +170,6 @@ function playHand() {
     let multiplier = calculateRankMultiplier(currentHandInfo.usedCards);
     let finalScore = baseScore * multiplier;
 
-
     // Apply passive perks
     passivePerks.forEach(perk => {
         if (disabledPerk.includes(perk)) return; // Perk Lockout
@@ -203,8 +202,9 @@ function playHand() {
     updateDebuffDisplay();
 
     score += finalScore
-    previewHandInfo = null;
     lastHandInfo = currentHandInfo;
+    currentHandInfo = null;
+    previewHandInfo = null;
     round++;
 
     // Replace only the selected card indices
@@ -236,11 +236,7 @@ function playHand() {
                 gameState = "upgrade";
                 generateUpgradeChoice();
             } else {
-                addDebuff();
-                gameState = "playing";
-                ante++
-                round = 1;
-                drawHand();
+                nextAnte();
             }
         } else {
             drawHand();
@@ -293,39 +289,83 @@ function reshuffleHand() {
     });
 }
 
+function returnHand() {
+    for (let card of hand) {
+        card.selected = false; // unmark all cards as selected
+    }
+    selected = []; // clear selected cards
+    deck = deck.concat(hand); // move hand back into the deck
+    hand = []; // clear the hand
+    shuffle(deck); // shuffle the deck
+}
+
+function getUpgradeThreshold() {
+    const growthRate = 1.5; // Adjust to make the growth faster or slower
+
+    const threshold = baseUpgradeThreshold * Math.pow(growthRate, ante - 1);
+    return Math.round(threshold / 100) * 100; // Round to the nearest 100
+}
+
+function generateUpgradeChoice() {
+    returnHand();
+    drawHand();
+
+    const availablePassives = PASSIVE_PERKS.filter(p => !passivePerks.some(pp => pp.name === p.name));
+    const availablePacks = [...PACKS];
+    const availableEdits = [...EDIT_PERKS];
+
+    const mixedChoices = [];
+
+    while (mixedChoices.length < 3) {
+        const roll = random();
+        const rarity = weightedRandomRarity();
+
+        if (roll < 0.25 && availablePassives.length > 0) {
+            const pool = availablePassives.filter(p => p.rarity === rarity);
+            if (pool.length) {
+                const perk = random(pool);
+                mixedChoices.push(new UpgradeChoice("passive", perk));
+                availablePassives.splice(availablePassives.indexOf(perk), 1);
+                continue;
+            }
+        } else if (roll < 0.75 && availablePacks.length > 0) {
+            const pool = availablePacks.filter(p => p.rarity === rarity);
+            if (pool.length) {
+                const pack = random(pool);
+                mixedChoices.push(new UpgradeChoice("pack", pack));
+                availablePacks.splice(availablePacks.indexOf(pack), 1);
+                continue;
+            }
+        } else if (availableEdits.length > 0) {
+            const pool = availableEdits.filter(p => rarity === rarity);
+            if (pool.length) {
+                const edit = random(pool);
+                mixedChoices.push(new UpgradeChoice("edit", edit));
+                availableEdits.splice(availableEdits.indexOf(edit), 1);
+                continue;
+            }
+        }
+    }
+
+    upgradeChoices = mixedChoices;
+}
 
 function chooseUpgrade(index) {
-    let choice = upgradeChoices[index];
+    const choice = upgradeChoices[index];
     if (!choice) return;
 
-    if (choice.type === "passive") {
-        if (choice.type === "passive") {
-            if (passivePerks.length >= MAX_PASSIVE_PERKS) {
-                alert("You already have 5 passive perks. Remove one before adding another.");
-                return; // Prevents overflow
-            }
-
-            passivePerks.push(choice.data);
-            updatePassivePerkDisplay();
-        }
-    } else if (choice.type === "pack") {
-        choice.data.apply();
-        updatePassivePerkDisplay();
-    } else if (choice.type === "")
+    const ok = choice.apply();
+    if (!ok) return;
 
     upgradePoints--;
 
-    // If there are more upgrade points, generate the more upgrades.
     if (upgradePoints > 0) {
         generateUpgradeChoice();
     } else {
-        addDebuff();
-        gameState = "playing";
-        ante++
-        round = 1;
-        drawHand();
+        nextAnte();
     }
 }
+
 
 function addDebuff() {
 
@@ -351,53 +391,16 @@ function addDebuff() {
     updateDebuffDisplay();
 }
 
-function generateUpgradeChoice() {
-    const availablePerks = PASSIVE_PERKS.filter(p => !passivePerks.some(pp => pp.name === p.name));
-    const availablePacks = [...PERKS];
-    const availableEdits = [...EDIT_PERKS];
-
-    const mixedChoices = [];
-
-    while (mixedChoices.length < 3) {
-        let categoryRoll = random();
-        let rarity = weightedRandomRarity();
-
-        if (categoryRoll < 0.25 && availablePerks.length > 0) {
-            let filtered = availablePassives.filter(p => p.rarity === rarity);
-            if (filtered.length > 0) {
-                let perk = random(filtered);
-                mixedChoices.push({type: "passive", data: perk});
-                availablePassives.splice(availablePassives.indexOf(perk), 1);
-                continue;
-            }
-        } else if (categoryRoll < 0.75 && availablePacks.length > 0) {
-            if (filtered.length > 0) {
-                let pack = random(filtered);
-                mixedChoices.push({type: "pack", data: pack});
-                availablePacks.splice(availablePacks.indexOf(pack), 1);
-                continue;
-            }
-        } else if (availableEdits.length > 0) {
-            let filtered = availableEdits.filter (p => p.rarity === rarity);
-            if (filtered.length > 0) {
-                let edit = random(filtered);
-                mixedChoices.push({ type: "edit", data: edit });
-                availableEdits.splice(availableEdits.indexOf(edit), 1);
-                continue;
-            }
-        }
-    }
-
-    upgradeChoices = mixedChoices;
+// literally so i dont have to keep repeating this code over and over
+function nextAnte() {
+    addDebuff();
+    gameState = "playing";
+    ante++;
+    round = 1;
+    upgradePoints = 0;
+    returnHand();
+    drawHand();
 }
-
-function getUpgradeThreshold() {
-    const growthRate = 1.5; // Adjust to make the growth faster or slower
-
-    const threshold = baseUpgradeThreshold * Math.pow(growthRate, ante - 1);
-    return Math.round(threshold / 100) * 100; // Round to the nearest 100
-}
-
 
 /**
     * Evaluates the hand for scoring/typing
