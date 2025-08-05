@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Highcarder - How to Play</title>
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       overflow: auto;
@@ -11,111 +15,180 @@
       height: 100%;
     }
 
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+      text-align: center;
+      color: white;
+      z-index: 100;
+      transition: background-color 0.3s ease;
+
+      .nav-container a {
+        display: inline-flex;
+        color: white;
+      }
+
+      .navpage a {
+        padding: 1%;
+        margin: 1%;
+      }
+    }
+
     body {
-        background-color: #1b1b1b;
+      background-color: #1b1b1b;
     }
 
     main {
-        font-family: Arial, Helvetica, sans-serif;
-        margin-top: 7%;
-        padding-inline: 20%;
-        color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      margin-top: 7%;
+      padding-inline: 20%;
+      color: white;
 
-        div:nth-of-type(1) {
-            text-align: center;
-            font-size: 14px;
-            padding-inline: 25%;
-        }
-
-        div:nth-of-type(2) {
-
-            p {
-                text-align: center;
-            }
-
-            li {
-                margin-bottom: 1%;
-            }
-        }
-
-    }
-
-    h1 { 
-        margin-bottom: 20px;
-        text-decoration: underline; 
+      div:nth-of-type(1) {
         text-align: center;
+        font-size: 14px;
+        padding-inline: 25%;
+      }
+
+      div:nth-of-type(2) {
+
+        p {
+          text-align: center;
+        }
+
+        li {
+          margin-bottom: 1%;
+        }
+      }
+
     }
 
-    nav {
-      position: absolute;
-      width: 100%;
+    h1 {
+      margin-bottom: 20px;
+      text-decoration: underline;
       text-align: center;
     }
 
-    .nav-container a {
-      display: inline-flex;
-      color: white;
+    h2 {
+      margin-top: 50px;
     }
-
-    .navpage a {
-      padding: 1%;
-      margin: 1%;
-    }
-    
   </style>
+
   <script src="p5/p5.min.js"></script>
   <script src="/assets/js/background.js"></script>
 </head>
 
-<header>
-    <nav>
-      <div class="navpage">
-        <div class="nav-container">
-          <a href="leaderboard.html">LEADERBOARD</a>
-          <a href="index.html">HIGHCARDER</a>
-          <a href="howtoplay.html">HOW TO PLAY</a>
-        </div>
+<header id="header">
+  <nav>
+    <div class="navpage">
+      <div class="nav-container">
+        <a href="leaderboard.html">LEADERBOARD</a>
+        <a href="index.html">HIGHCARDER</a>
+        <a href="howtoplay.html">HOW TO PLAY</a>
       </div>
-    </nav>
+    </div>
+  </nav>
 </header>
 
 <body>
-    <main>
-        <div>
-            <h1>
-                Highcarder - How to Play
-            </h1>
-            <p>
-                Highcarder is a roguelike poker-inspired deckbuilder card game where the main goal is to earn 
-                as high of a score as possible through playing Poker Hands with an ever-dwindling deck of playing 
-                cards—earning packs, perks, and upgrades for your deck along the way—whilst trying not to run out of cards.
-            </p>
-        </div>
-        
-        <div>
-            <h2>
-                The Basics
-            </h2>
-            <p><b>In Highcarder, your main aim is to survive as many "antes" as possible without running out of cards.</b></p>
-            
-            <li>You start with a basic 52 card deck and 7 cards in your hand.</li>
-            <li>There are 5 rounds in every ante. You progress each round by playing a poker hand.</li>
-            <li>After every ante, you are able to upgrade your deck if your score is above the "Upgrade Threshold"</li>
-            <li>Exceeding the "Upgrade Threshold" allows you choose multiple upgrades—one for each multiple of the threshold.
-                 For example, if your score is 300 and the threshold is 300, you can choose 10 upgrades (3000 ÷ 300 = 10)</li>
-            <li>The upgrade threshold will increase every ante.</li>
-            <li>You cannot progress onto the next ante until you meet the threshold.</li>
-            <li>Every five antes, the difficulty will increase and a "debuff" will be added.</li>
-            <li>There is no win condition, only a lose condition: <b>Run out of cards to play.</b></li>
-        </div>
-        
-        <div>
-            <h2>
-                Poker Hands
-            </h2>
-            <p>image here or something</p>
-        </div>
-        
-    </main>
+  <main>
+    <div>
+      <h1>
+        Highcarder - How to Play
+      </h1>
+      <p>
+        Highcarder is a roguelike poker-inspired deckbuilder card game where the main goal is to earn
+        as high of a score as possible through playing Poker Hands with an ever-dwindling deck of playing
+        cards—earning packs, perks, and upgrades for your deck along the way—whilst trying not to run out of cards.
+      </p>
+    </div>
+
+    <div>
+      <h2>
+        The Basics
+      </h2>
+      <p><b>In Highcarder, your main aim is to survive as many "antes" as possible without running out of cards.</b>
+      </p>
+
+      <li>You start with a basic 52 card deck and 7 cards in your hand.</li>
+      <li>There are 5 rounds in every ante.</li>
+      <li>You progress each round by playing a poker hand.</li>
+      <li>The score threshold will increase every ante.</li>
+      <li>You cannot progress onto the next ante until you meet the score requirement.</li>
+      <li>Every five antes, the difficulty will further increase and a debuff will be added.</li>
+      <li>There is no win condition, only a lose condition: <b>Run out of cards to play.</b></li>
+    </div>
+
+    <div>
+      <h2>
+        Poker Hands
+      </h2>
+      <p>image here or something</p>
+    </div>
+
+    <div>
+      <h2>
+        Upgrading your Deck
+      </h2>
+
+      <p>After every ante, you are given the chance to "upgrade" your deck either by: adding more cards via
+        <b>Packs</b>; shaping your deck via <b>Refinements</b>; improving your chances of moving onto the next ante with
+        <b>Perks</b>; or creating synergies to better your deck's performance with <b>Abilities</b>. However...
+      </p>
+
+      <p><i>To be able to upgrade your deck, you need to meet the score requirement.</i></p>
+
+      <p>Exceeding the score requirement allows you choose multiple upgrades—one for each multiple of the requirement.
+        For example, if your score is 3000 and the requirement is 300, you can choose 10 upgrades (3000 ÷ 300 = 10)
+      </p>
+
+      <h3>Rarities</h3>
+      <p>Each upgrade has its own rarity, as common with many roguelike games. Some upgrades are more rarer than
+        others, and thus are more stronger than others. The rarities within Highcarder as followed.
+      </p>
+      <li>Common (70%) - The basic bunch, ordinary and simple.</li>
+      <li>Uncommon (15%) - More specialized, but nothing too special.</li>
+      <li>Rare (6%) - Often times key to strategies, the engine to get things going.</li>
+      <li>Mythical (2.5%) - "Event-tier" upgrades that can turn the tables.</li>
+      <li>Legendary (0.5%) - The rarest out of them all, often setting you up for several antes.</li>
+      <li>Cursed (1.5%) - High risk, high reward. They come with a heafty price, so don't be too greedy.</li>
+
+      <h3>Skip / Store</h3>
+      <p>If you don't like the current choice of upgrades, you are able to skip them and store the current upgrade
+        point for the next upgrade phase. Doing this comes at a price however, as if you're unable to progress to
+        the next ante within the round limit, you will lose the points you have stored.
+      </p>
+
+      <h3>Burning and Freezing Upgrades</h3>
+      <p>During the upgrade phase, you are able to "burn" or "freeze" an upgrade. You will start with 3 burns and 
+        freezes, and are able to gain more through Perks.
+        <br><br>
+        Burning an upgrade means to permanently remove it from your current playthrough entirely, allowing you to filter 
+        through and thin the immense amount of upgrades within the pool. Once an upgrade has been burnt, you can never recover 
+        it, so choose wisely. You are unable to burn Cursed upgrades however.
+        <br><br>
+        Freezing an upgrade means to keep it within your choices indefinately until you select it, allowing you to hold
+        onto an upgrade if you're feeling indecisive. You cannot have more than one frozen upgrade at any time. You are 
+        also able to unfreeze a frozen ability at any time, though this will not recover a freeze used, so choose wisely.
+      </p>
+
+    </div>
+
+  </main>
+
+  <script>
+    const header = document.getElementById("header");
+
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const maxScroll = 500;
+      const opacity = Math.min(scrollY / maxScroll, 1);
+
+      header.style.background = `linear-gradient(to bottom, rgba(0, 0, 0, ${opacity}), transparent)`
+    });
+  </script>
 </body>
+
 </html>

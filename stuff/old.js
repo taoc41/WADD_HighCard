@@ -125,3 +125,358 @@ for (let i = 0; i < hand.length; i++) { // Checks through every card in the curr
     }
   }
 }
+
+
+    // while (mixedChoices.length < 3) {
+    //     let isPerk = random() < 0.25;
+    //     let rarity = weightedRandomRarity();
+
+    //     if (isPerk && availablePerks.length > 0) {
+    //         let filtered = availablePerks.filter(p => p.rarity === rarity);
+    //         if (filtered.length > 0) {
+    //             let perk = random(filtered);
+    //             mixedChoices.push({ type: "passive", data: perk });
+    //             availablePerks.splice(availablePerks.indexOf(perk), 1);
+    //             continue;
+    //         }
+    //     }
+
+    //     if (!isPerk && availablePacks.length > 0) {
+    //         let filtered = availablePacks.filter(p => p.rarity === rarity);
+    //         if (filtered.length > 0) {
+    //             let pack = random(filtered);
+    //             mixedChoices.push({ type: "pack", data: pack });
+    //             availablePacks.splice(availablePacks.indexOf(pack), 1);
+    //             continue;
+    //         }
+    //     }
+    // }
+
+
+    // function generateUpgradeChoice() {
+//     const availablePassives = PASSIVE_PERKS.filter(p => !passivePerks.some(pp => pp.name === p.name));
+//     const availablePacks = [...PERKS];
+//     const availableEdits = [...EDIT_PERKS];
+
+//     const mixedChoices = [];
+
+//     while (mixedChoices.length < 3) {
+//         let categoryRoll = random();
+//         let rarity = weightedRandomRarity();
+
+//         if (categoryRoll < 0.25 && availablePassives.length > 0) {
+//             let filtered = availablePassives.filter(p => p.rarity === rarity);
+//             if (filtered.length > 0) {
+//                 let perk = random(filtered);
+//                 mixedChoices.push({type: "passive", data: perk});
+//                 availablePassives.splice(availablePassives.indexOf(perk), 1);
+//                 continue;
+//             }
+//         } else if (categoryRoll < 0.75 && availablePacks.length > 0) {
+//             let filtered = availablePacks.filter(p => p.rarity === rarity);
+//             if (filtered.length > 0) {
+//                 let pack = random(filtered);
+//                 mixedChoices.push({type: "pack", data: pack});
+//                 availablePacks.splice(availablePacks.indexOf(pack), 1);
+//                 continue;
+//             }
+//         } else if (availableEdits.length > 0) {
+//             let filtered = availableEdits.filter (p => p.rarity === rarity);
+//             if (filtered.length > 0) {
+//                 let edit = random(filtered);
+//                 mixedChoices.push({ type: "edit", data: edit });
+//                 availableEdits.splice(availableEdits.indexOf(edit), 1);
+//                 continue;
+//             }
+//         }
+//     }
+
+//     upgradeChoices = mixedChoices;
+// }
+
+function chooseUpgrade(index) {
+  let choice = upgradeChoices[index];
+  if (!choice) return;
+
+  if (choice.type === "passive") {
+      if (choice.type === "passive") {
+          if (passivePerks.length >= MAX_PASSIVE_PERKS) {
+              alert("You already have 5 passive perks. Remove one before adding another.");
+              return; // Prevents overflow
+          }
+
+          passivePerks.push(choice.data);
+          updatePassivePerkDisplay();
+      }
+  } else if (choice.type === "pack") {
+      choice.data.apply();
+      updatePassivePerkDisplay();
+  } else if (choice.type === "")
+
+      upgradePoints--;
+
+  // If there are more upgrade points, generate the more upgrades.
+  if (upgradePoints > 0) {
+      generateUpgradeChoice();
+  } else {
+      addDebuff();
+      gameState = "playing";
+      ante++
+      round = 1;
+      drawHand();
+  }
+}
+
+// deprecated
+function chooseUpgrade(index) {
+  const choice = upgradeChoices[index];
+  if (!choice) return;
+
+  const ok = choice.apply();
+  if (!ok) return;
+
+  upgradePoints--;
+
+  if (upgradePoints > 0) {
+      generateUpgradeChoice();
+  } else {
+      nextAnte();
+  }
+}
+
+function generateUpgradeChoice() {
+    
+  // reset everything - hand & current selected upgrade index.
+  selectedUpgradeIndex = null
+  burnUsed = false;
+  returnHand();
+  drawHand();
+
+  // because of how this works, upgrade names should be unique from one another.
+  const availablePassives = PASSIVE_PERKS.filter(p => 
+      !passivePerks.some(pp => pp.name === p.name && // Already have the passive perk?
+      !burnedUpgrades.includes(p.name) // Has the passive perk been burnt?
+  ));
+  const availablePacks = PACKS.filter(p => !burnedUpgrades.includes(p.name));
+  const availableEdits = EDIT_PERKS.filter(p => !burnedUpgrades.includes(p.name));
+
+  const mixedChoices = [];
+
+  while (mixedChoices.length < upgradeChoiceAmount) {
+      const roll = random();
+      const rarity = weightedRandomRarity();
+
+      if (roll < 0.25 && availablePassives.length > 0) {
+          const pool = availablePassives.filter(p => p.rarity === rarity);
+          if (pool.length) {
+              const perk = random(pool);
+              mixedChoices.push(new UpgradeChoice("passive", perk));
+              availablePassives.splice(availablePassives.indexOf(perk), 1);
+              continue;
+          }
+      } else if (roll < 0.75 && availablePacks.length > 0) {
+          const pool = availablePacks.filter(p => p.rarity === rarity);
+          if (pool.length) {
+              const pack = random(pool);
+              mixedChoices.push(new UpgradeChoice("pack", pack));
+              availablePacks.splice(availablePacks.indexOf(pack), 1);
+              continue;
+          }
+      } else if (availableEdits.length > 0) {
+          const pool = availableEdits.filter(p => rarity === rarity);
+          if (pool.length) {
+              const edit = random(pool);
+              mixedChoices.push(new UpgradeChoice("edit", edit));
+              availableEdits.splice(availableEdits.indexOf(edit), 1);
+              continue;
+          }
+      }
+  }
+
+  upgradeChoices = mixedChoices;
+}
+
+// function generateUpgradeChoice() {
+
+//     // reset everything - hand & current selected upgrade index.
+//     selectedUpgradeIndex = null
+//     burnUsed = false;
+//     returnHand();
+//     drawHand();
+
+//     // because of how this works, upgrade names should be unique from one another.
+//     const availablePassives = PASSIVE_PERKS.filter(p => 
+//         !passivePerks.some(pp => pp.name === p.name && // Already have the passive perk?
+//         !burnedUpgrades.includes(p.name) // Has the passive perk been burnt?
+//     ));
+//     const availablePacks = PACKS.filter(p => !burnedUpgrades.includes(p.name));
+//     const availableEdits = EDIT_PERKS.filter(p => !burnedUpgrades.includes(p.name));
+
+//     const mixedChoices = [];
+
+//     while (mixedChoices.length < upgradeChoiceAmount) {
+//         const roll = random();
+//         const rarity = weightedRandomRarity();
+
+//         if (roll < 0.25 && availablePassives.length > 0) {
+//             const pool = availablePassives.filter(p => p.rarity === rarity);
+//             if (pool.length) {
+//                 const perk = random(pool);
+//                 mixedChoices.push(new UpgradeChoice("passive", perk));
+//                 availablePassives.splice(availablePassives.indexOf(perk), 1);
+//                 continue;
+//             }
+//         } else if (roll < 0.75 && availablePacks.length > 0) {
+//             const pool = availablePacks.filter(p => p.rarity === rarity);
+//             if (pool.length) {
+//                 const pack = random(pool);
+//                 mixedChoices.push(new UpgradeChoice("pack", pack));
+//                 availablePacks.splice(availablePacks.indexOf(pack), 1);
+//                 continue;
+//             }
+//         } else if (availableEdits.length > 0) {
+//             const pool = availableEdits.filter(p => rarity === rarity);
+//             if (pool.length) {
+//                 const edit = random(pool);
+//                 mixedChoices.push(new UpgradeChoice("edit", edit));
+//                 availableEdits.splice(availableEdits.indexOf(edit), 1);
+//                 continue;
+//             }
+//         }
+//     }
+
+//     upgradeChoices = mixedChoices;
+// }
+
+
+function mouseReleased() {
+  if (isDragging && heldCard) {
+      // Determine closest index
+      let minDist = Infinity;
+      let targetIndex = holdingCardIndex;
+
+      for (let i = 0; i < hand.length; i++) {
+          if (i === holdingCardIndex) continue;
+          let card = hand[i];
+          let distToSlot = dist(heldCard.x, heldCard.y, card.x, card.y);
+          if (distToSlot < minDist) {
+              minDist = distToSlot;
+              targetIndex = i;
+          }
+      }
+
+      if (minDist > 150) {
+          // basically do nothing: too far - snap back
+      } else {
+          let movedCard = hand.splice(holdingCardIndex, 1)[0];
+          hand.splice(targetIndex, 0, movedCard);
+      }
+  } else if (heldCard) {
+      // click based selection fallback if drag is never triggered. 
+      // previously in mousePressed (before 30/07/25)
+      let idx = holdingCardIndex;
+      if (heldCard.selected) {
+          selected = selected.filter(n => n !== idx);
+          heldCard.selected = false;
+      } else if (selected.length < 5) {
+          selected.push(idx);
+          heldCard.selected = true;
+      }
+  }
+
+  // Updates the preview hand info 
+  // gameState === "playing" because exiting upgrade phase causes visual bug
+  if (selected.length >= 1 && gameState === "playing") {
+      let chosenCards = selected.map(i => hand[i]);
+      previewHandInfo = evaluateHand(chosenCards);
+      previewHandInfo.cards = chosenCards;
+      previewHandInfo.baseScore = previewHandInfo.score;
+  } else {
+      previewHandInfo = null;
+  }
+
+  // Reset drag state
+  isDragging = false;
+  heldCard = null;
+  holdingCardIndex = -1;
+}
+
+
+function mouseReleased() {
+  if (isDragging && heldCard) {
+      
+      // calculate insertion index using midpoints of between current slots
+      
+      // find the closest index
+      let minDist = Infinity;
+      let targetIndex = holdingCardIndex;
+
+      for (let i = 0; i < hand.length; i++) {
+          if (i === holdingCardIndex) continue;
+          const card = hand[i];
+          const d = dist(heldCard.x, heldCard.y, card.x, card.y);
+          if (d < minDist) {
+              minDist = d;
+              targetIndex = i;
+          }
+      }
+
+      if (minDist <= 150 && targetIndex !== holdingCardIndex) {
+          // remove held card
+          const movedCard = hand.splice(holdingCardIndex, 1)[0];
+          
+          // if removed before target, target index shifts left by 1
+          const insertAt = (targetIndex > holdingCardIndex) ? targetIndex - 1 : targetIndex;
+
+          // insert currently held card in new spot
+          hand.splice(insertAt, 0, movedCard);
+
+          // reindex `selected` array to reflect the move
+          selected = selected.map(idx => {
+              if (idx === holdingCardIndex) return insertAt;
+
+              // moved foward: shift indices in (oldIdx, new Idx] left by 1
+              if (holdingCardIndex < insertAt && idx > holdingCardIndex && idx <= insertAt) return idx - 1;
+              if (insertAt < holdingCardIndex && idx >= insertAt && idx < holdingCardIndex) return idx + 1;
+
+              return idx;
+          });
+
+          // dedupe, clamp, sort
+          selected = Array.from(new Set(selected))
+          .filter(i => i >= 0 && i < hand.length)
+          .sort((a, b) => a - b);
+      }
+
+  } else if (heldCard) {
+      // click based selection toggle (no drag)
+      const idx = holdingCardIndex;
+      if (heldCard.selected) {
+          selected = selected.filter(n => n !== idx);
+          heldCard.selected = false;
+      } else if (selected.length < 5) {
+          selected.push(idx);
+          heldCard.selected = true;
+      }
+  }
+
+  // resync `selected` from card flags to avoid ghosting
+  selected = hand.reduce((arr, c, i) => {
+      if (c && c.selected) arr.push(i);
+      return arr;
+  }, []);
+
+  if (gameState === "playing" && selected.length >= 1) {
+      const chosenCards = selected.map(i => hand[i]).filter(Boolean);
+      previewHandInfo = evaluateHand(chosenCards);
+      previewHandInfo.cards = chosenCards;
+      previewHandInfo.baseScore = previewHandInfo.score;
+  } else {
+      previewHandInfo = null;
+  }
+
+  // reset drag state
+  isDragging = false;
+  heldCard = null;
+  holdingCardIndex = -1;
+}

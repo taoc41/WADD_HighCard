@@ -182,10 +182,10 @@ Increase your "Freezes" by 10
 
 = = =
 
-Equivilant Exchange (A) : Cursed
+Devil's Deal (A) : Cursed
 Increase your knowable Abilities by 1, decrease your upgrade choices by 1.
 
-Equivilant Exchange (B) : Cursed
+Devil's Deal (B) : Cursed
 Increase your upgrade choices increase by 1, decrease your knowable Abilities by 1.
 
 Elemental Mishap : Cursed
@@ -274,10 +274,10 @@ Convert 3 cards into Spaces
 = = =
 
 
--Unity : Rare
+-Unity : Mythical
 Convert all cards in hand into a random suit.
 
--Strength in Numbers : Rare
+-Strength in Numbers : Mythical
 Convert all cards in hand into a random rank.
 
 -Mimicry : Common
@@ -291,11 +291,13 @@ Destroy up to 2 cards
 -Give and Take (Recycle): Common
 Destroy one card. Gain +2 upgrade points.
 
+-
+
 -Give and Take (Immolate) : Common
-Destroy one card. Gain +2 Burns
+Destroy one card. Gain +2 Burns.
 
 -Give and Take (Shatter) : Common
-Destroy one card. Gain +2 Freezes
+Destroy one card. Gain +2 Freezes.
 
 = = =
 

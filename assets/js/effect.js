@@ -1,30 +1,316 @@
 /**
- * This script holds all of the passive perks, packs, and debuffs
+ * this script holds all of the passive perks, packs, and debuffs
+ * none of this is sorted
+ * 
+ * 
  */
 
-/* —————————————————————————————— EFFECT LIST —————————————————————————————— */
-
-// USE CTRL + F TO FIND PERKS, PASSIVE_PERKS, AND DEBUFFS
-
-
-// PERKS —————————————— //
-const PERKS = [
-  {
-    name: "Backup Plan",
-    description: "Add 2 random cards to your deck.",
+/**
+ * { // TEMPLATE
+    name: "NAME",
+    description: "DESC",
     rarity: "Common",
     apply: () => {
-      for (let i = 0; i < 2; i++) deck.push(generateRandomCard());
     }
   },
-  {
-    name: "Card Fountain",
+ */
+
+//#region PACKS
+const PACKS = [
+
+  // COMMON --------------
+  // add maybe 6 more.
+
+  { // Booster Pack
+    name: "Booster Pack",
+    description: "Add 3 random cards to your deck.",
+    rarity: "Common",
+    apply: () => {
+      let added = [];
+      for (let i = 0; i < 2; i++) {
+        let card = generateRandomCard()
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Flush Pack
+    name: "Flush Pack",
+    description: "Add 3 cards of the same suit.",
+    rarity: "Common",
+    apply: () => {
+      let suit = random(suits);
+      let added = [];
+      for (let i = 0; i < 2; i++) {
+        let card = generateRandomCard(suit);
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Repeat Pack
+    name: "Repeat Pack",
+    description: "Add 3 copies of a random card from your hand.",
+    rarity: "Common",
+    apply: () => {
+      if (hand.length === 0) return;
+      let c = random(hand);
+      let added = [];
+      for (let i = 0; i < 3; i++) {
+        let copy = new Card(c.rank, c.suit);
+        deck.push(copy);
+        added.push(copy);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Balanced Pack
+    name: "Balanced Pack",
+    description: "Add 1 card of a random rank of each suit.",
+    rarity: "Common",
+    apply: () => {
+      let added = [];
+      suits.forEach(suit => {
+        let card = generateRandomCard(suit);
+        deck.push(card);
+        added.push(card);
+      });
+      logAddedCards(added);
+    }
+  },
+  { // Straight Pack
+    name: "Straight Pack",
+    rarity: "Common",
+    description: "Add 3 sequential cards.",
+    apply: () => {
+      let start = floor(random(0, ranks.length - 2));
+      let suit = random(suits);
+      let added = [];
+      for (let i = 0; i < 3; i++) {
+        let card = new Card(ranks[start + i], suit);
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Gambler's Pack
+    name: "Gambler's Pack",
+    description: "Add 3 cards to your deck. 50% chance each to be high (10-A) or low (2-6).",
+    rarity: "Common",
+    apply: () => {
+      let added = [];
+      for (let i = 0; i < 2; i++) {
+        const high = random() < 0.5;
+        const rankPool = high ? ranks.slice(8) : ranks.slice(0, 5);
+        const rank = random(rankPool);
+        const suit = random(suits);
+        const card = new Card(rank, suit);
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Even Pack
+    name: "Even Pack",
+    description: "Add 2 cards with even-numbered ranks.",
+    rarity: "Common",
+    apply: () => {
+      const evenRanks = ['2', '4', '6', '10', 'Q', 'A']
+      let added = [];
+      for (let i = 0; i < 2; i++) {
+        let card = new Card(random(evenRanks), random(suits));
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Odd Pack
+    name: "Odd Pack",
+    description: "Add 2 cards with odd-numbered ranks.",
+    rarity: "Common",
+    apply: () => {
+      const evenRanks = ['3', '5', '7', '9', 'J', 'K',]
+      let added = [];
+      for (let i = 0; i < 2; i++) {
+        let card = new Card(random(evenRanks), random(suits));
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Double Down Pack
+    name: "Double Down Pack",
+    description: "Add 2 random cards. If they're the same rank, add a third.",
+    rarity: "Common",
+    apply: () => {
+      let added = [];
+      let c1 = generateRandomCard();
+      let c2 = generateRandomCard();
+      deck.push(c1, c2);
+      added.push(c1, c2);
+
+      if (c1.rank === c2.rank) {
+        let c3 = new Card(c1.rank, random(suits));
+        deck.push(c3)
+        added.push(c3);
+      }
+
+      logAddedCards(added);
+    }
+  },
+  { // Ace Pack
+    name: "Ace Pack",
+    description: "Add 1 random Ace",
+    rarity: "Common",
+    apply: () => {
+      let card = new Card('A', random(suits));
+      deck.push(card);
+      logAddedCards([card]);
+    }
+  },
+
+  // UNCOMMON ------------
+  // add maybe 3 more
+
+  { // Booster Box
+    name: "Booster Box",
     description: "Add 5 random cards to your deck.",
+    rarity: "Uncommon",
+    apply: () => {
+      let added = [];
+      for (let i = 0; i < 5; i++) {
+        let card = generateRandomCard();
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Royal Pack
+    name: "Face Pack",
+    description: "Add 3 random face cards.",
+    rarity: "Uncommon",
+    apply: () => {
+      let faceRanks = ['J', 'Q', 'K'];
+      let added = [];
+      for (let i = 0; i < 2; i++) {
+        let suit = random(suits);
+        let rank = random(faceRanks);
+        let card = new Card(rank, suit);
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Mirror Pack
+    name: "Mirror Pack",
+    get description() {
+      const most = getMostFrequentCardInDeck();
+      return most
+        ? `Add 2 cards of the most frequent card: ${most}`
+        : "Add 2 cards of the most frequent card in your deck.";
+    },
+    rarity: "Uncommon",
+    apply: () => {
+      const most = getMostFrequentCardInDeck();
+      if (!most) return;
+
+      const rank = most.slice(0, -1);
+      const suit = most.slice(-1);
+
+      const added = [new Card(rank, suit), new Card(rank, suit)];
+      deck.push(...added);
+      logAddedCards(added);
+    }
+  },
+  { // Spade Pack
+    name: "Spade Pack",
+    description: "Add 3 random ♠ cards.",
+    rarity: "Uncommon",
+    apply: () => {
+      const added = [];
+      for (let i = 0; i < 3; i++) {
+        const card = new Card(random(ranks), '♠');
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Clubs Pack
+    name: "Clubs Pack",
+    description: "Add 3 random ♣ cards.",
+    rarity: "Uncommon",
+    apply: () => {
+      const added = [];
+      for (let i = 0; i < 3; i++) {
+        const card = new Card(random(ranks), '♣');
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Hearts Pack
+    name: "Hearts Pack",
+    description: "Add 3 random ♥ cards.",
+    rarity: "Uncommon",
+    apply: () => {
+      const added = [];
+      for (let i = 0; i < 3; i++) {
+        const card = new Card(random(ranks), '♥');
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+  { // Diamonds Pack
+    name: "Diamonds Pack",
+    description: "Add 3 random ♦ cards.",
+    rarity: "Uncommon",
+    apply: () => {
+      const added = [];
+      for (let i = 0; i < 3; i++) {
+        const card = new Card(random(ranks), '♦');
+        deck.push(card);
+        added.push(card);
+      }
+      logAddedCards(added);
+    }
+  },
+
+  // RARE -----------------
+  // 5 or 10?
+  
+  { // Mytosis Pack
+    name: "Mytosis Pack",
+    description: "Add 5 copies of a random card from your hand.",
     rarity: "Rare",
     apply: () => {
-      for (let i = 0; i < 5; i++) deck.push(generateRandomCard());
+      if (hand.length === 0) return;
+      let c = random(hand);
+      let added = [];
+      for (let i = 0; i < 5; i++) {
+        let copy = new Card(c.rank, c.suit);
+        deck.push(copy);
+        added.push(copy);
+      }
+      logAddedCards(added);
     }
-  },
+  }
+];
+
+//#region PERKS
+// stuff that effects things outside of cards
+const PERKS = [
   {
     name: "Extra Shuffle",
     description: "Add +1 reshuffle.",
@@ -39,73 +325,6 @@ const PERKS = [
     rarity: "Rare",
     apply: () => {
       reshuffleUses += 3;
-    }
-  },
-  {
-    name: "Flush Finder",
-    description: "Add 3 cards of the same suit.",
-    rarity: "Common",
-    apply: () => {
-      let suit = random(suits);
-      for (let i = 0; i < 3; i++) deck.push(generateRandomCard(suit));
-    }
-  },
-  {
-    name: "Straight Edge",
-    description: "Add 3 sequential cards.",
-    apply: () => {
-      let start = floor(random(0, ranks.length - 2)); // avoid overflow
-      let suit = random(suits);
-      for (let i = 0; i < 3; i++) {
-        deck.push(new Card(ranks[start + i], suit));
-      }
-    }
-  },
-  {
-    name: "Balanced Hand",
-    description: "Add 1 card of each suit.",
-    rarity: "Uncommon",
-    apply: () => {
-      suits.forEach(suit => {
-        deck.push(generateRandomCard(suit));
-      });
-    }
-  },
-  {
-    name: "High Stakes",
-    description: "Add 2 random face cards.",
-    rarity: "Uncommon",
-    apply: () => {
-      let faceRanks = ['J', 'Q', 'K'];
-      for (let i = 0; i < 2; i++) {
-        let suit = random(suits);
-        let rank = random(faceRanks);
-        deck.push(new Card(rank, suit));
-      }
-    }
-  },
-  {
-    name: "Duplicate",
-    description: "Add 2 copies of a random card from your deck.",
-    rarity: "Common",
-    apply: () => {
-      if (deck.length === 0) return;
-      let c = random(deck);
-      for (let i = 0; i < 2; i++) {
-        deck.push(new Card(c.rank, c.suit));
-      }
-    }
-  },
-  {
-    name: "Mytosis",
-    description: "Add 5 copies of a random card from your deck.",
-    rarity: "Rare",
-    apply: () => {
-      if (deck.length === 0) return;
-      let c = random(deck);
-      for (let i = 0; i < 5; i++) {
-        deck.push(new Card(c.rank, c.suit));
-      }
     }
   },
   {
@@ -149,7 +368,7 @@ const PERKS = [
   {
     name: "Panacea",
     description: "Remove all debuffs.",
-    rarity: "Rare",
+    rarity: "Legendary",
     apply: () => {
       activeDebuffs.forEach(d => {
         if (d.type === "once" && typeof d.revert === "function") {
@@ -170,8 +389,9 @@ const PERKS = [
       updateDebuffDisplay();
     }
   }
-];
+]
 
+//#region PASSIVE_PERKS
 const PASSIVE_PERKS = [
   {
     name: "Flush Bonus",
@@ -285,26 +505,162 @@ const PASSIVE_PERKS = [
 
 ];
 
+//#region EDIT_PERKS
 const EDIT_PERKS = [
   {
-    name: "Rank Up",
-    description: "Increase a card's rank by one.",
-    effect: (card) => {
-      let suitsCopy = suits.filter(s => s !== suit)
+    name: "Promotion",
+    description: "Increase the rank of up to 2 cards by 1",
+    rarity: "Common",
+    minReq: 1,
+    maxReq: 2,
+    apply: (selected) => {
+      for (let card of selected) {
+        let index = ranks.indexOf(card.rank);
+        card.rank = ranks[(index + 1) % ranks.length];
+      }
+      sendEventText(`Promoted: ${selected.map(c => c.rank + c.suit).join(', ')}`);
     }
-  }
-]
-
-const DEBUFFS = [
-  {
-    name: "Score Leak",
-    description: "Lose 10% of your total score after every hand.",
-    type: "perRound",
-    effect: () => {
-      score = floor(score * 0.9);
-    },
   },
   {
+    name: "Reincarnation",
+    description: "Convert 3 cards into the same random suit.",
+    rarity: "Common",
+    minReq: 3,
+    maxReq: 3,
+    apply: (selected) => {
+      let newSuit = random(suits);
+      for (let card of selected) {
+        card.suit = newSuit;
+      }
+      sendEventText(`All converted to ${newSuit}`);
+    }
+  },
+  {
+    name: "Colour Shift (A)",
+    description: "Spades→Hearts, Clubs→Diamonds, and vice versa (3 cards).",
+    rarity: "Common",
+    minReq: 1,
+    maxReq: 3,
+    apply: (selected) => {
+      const map = { '♠': '♥', '♥': '♠', '♣': '♦', '♦': '♣' }; // (for A)
+      for (let card of selected) {
+        card.suit = map[card.suit] || card.suit;
+      }
+      sendEventText(`Shifted colors: ${selected.map(c => c.rank + c.suit).join(', ')}`);
+    }
+  },
+  {
+    name: "Colour Shift (B)",
+    description: "Spades→Diamonds, Clubs→Hearts, and vice versa (3 cards).",
+    rarity: "Common",
+    minReq: 1,
+    maxReq: 3,
+    apply: (selected) => {
+      const map = { '♠': '♦', '♦': '♠', '♠': '♥', '♥': '♠' }; // (for B)
+      for (let card of selected) {
+        card.suit = map[card.suit] || card.suit;
+      }
+      sendEventText(`Shifted colors: ${selected.map(c => c.rank + c.suit).join(', ')}`);
+    }
+  },
+  {
+    name: "Mathematician",
+    description: "Select two cards of the same suit below 6. Left card becomes the sum.",
+    rarity: "Common",
+    minReq: 2,
+    maxReq: 2,
+    apply: (selected) => {
+      const lowIndex = ranks.findIndex(r => r === '6');
+      const idx1 = ranks.indexOf(selected[0].rank);
+      const idx2 = ranks.indexOf(selected[1].rank);
+    
+      if (selected[0].suit !== selected[1].suit || idx1 > lowIndex || idx2 > lowIndex) return;
+    
+      let sum = idx1 + idx2 + 4;
+      let newRank = ranks[min(sum, ranks.length - 1)];
+      selected[0].rank = newRank;
+    
+      sendEventText(`${selected[0].suit} sum = ${newRank}`);
+    }
+  },
+  {
+    name: "Mimicry",
+    description: "Convert the right-most card into a copy of the left-most.",
+    rarity: "Common",
+    minReq: 2,
+    maxReq: 2,
+    apply: (cards) => {
+      let [left, right] = cards;
+      right.rank = left.rank;
+      right.suit = left.suit;
+  
+      sendEventText(`Mimicked: ${right.rank}${right.suit}`)
+    }
+  },
+  {
+    name: "Rip Apart",
+    description: "Destroy up to 2 selected cards.",
+    rarity: "Common",
+    minReq: 1,
+    maxReq: 2,
+    apply: (selected) => {
+      for (let card of selected) {
+        hand.splice(hand.indexOf(card), 1);
+      }
+      sendEventText(`Destroyed: ${selected.map(c => c.rank + c.suit).join(', ')}`);
+    }
+  },
+  {
+    name: "Recycle",
+    description: "Destroy one card. Gain +2 upgrade points.",
+    rarity: "Common",
+    minReq: 1,
+    maxReq: 1,
+    apply: (selected) => {
+      hand.splice(hand.indexOf(selected[0]), 1);
+      upgradePoints += 2;
+      sendEventText(`Recycled ${selected[0].rank + selected[0].suit} → +2 upgrades`);
+    }
+  },
+  {
+    name: "Immolate",
+    description: "Destroy one card. Gain +2 burns.",
+    rarity: "Common",
+    minReq: 1,
+    maxReq: 1,
+    apply: (selected) => {
+      hand.splice(hand.indexOf(selected[0]), 1);
+      burnsRemaining += 2;
+      sendEventText(`Immolated ${selected[0].rank + selected[0].suit} → +2 burns`);
+    }
+  },
+  {
+    name: "Shatter",
+    description: "Destroy one card. Gain +2 freezes.",
+    rarity: "Common",
+    minReq: 1,
+    maxReq: 1,
+    apply: (selected) => {
+      hand.splice(hand.indexOf(selected[0]), 1);
+      freezesRemaining += 2;
+      sendEventText(`Shattered ${selected[0].rank + selected[0].suit} → +2 freezes`);
+    }
+  }
+
+]
+
+//#region EDIT_PERKS
+const DEBUFFS = [
+  { // Score Leak
+    name: "Score Leak",
+    max: 50,
+    description: "Lose 1% of your total score after every hand.",
+    type: "perRound",
+    effect: () => {
+      score = floor(score * 0.99);
+    },
+  },
+  { // Card Rot
     name: "Card Rot",
     description: "Removes 1 random card from your deck each round.",
     type: "perRound",
@@ -314,7 +670,7 @@ const DEBUFFS = [
       }
     },
   },
-  {
+  { // Perk Lockout
     name: "Perk Lockout",
     description: "A random passive perk is disabled this round.",
     type: "perRound",
@@ -335,8 +691,7 @@ const DEBUFFS = [
       disabledPerk.push(newDisabled);
     },
   },
-
-  {
+  { // Prolonged Rounds
     name: "Prolonged Rounds",
     description: "You need 1 extra round to progress.",
     type: "once",
@@ -347,7 +702,7 @@ const DEBUFFS = [
       maxRounds = max(maxRounds - 1, 1)
     }
   },
-  {
+  { // Cramped Hand
     name: "Cramped Hand",
     description: "Draw 2 fewer cards per hand (min 3).",
     type: "once",
@@ -357,24 +712,59 @@ const DEBUFFS = [
     revert: () => {
       handSize = min(handSize + 2, 10);
     }
-  }
+  },
 ]
 
 
+//#region RARITY_WEIGHTS
 // Rarity weights, to handle what's more common
 const RARITY_WEIGHTS = {
-  Common: 0.6,
-  Uncommon: 0.3,
-  Rare: 0.75,
-  Legendary: 0.25
+  Common: 0.70,
+  Uncommon: 0.15,
+  Rare: 0.06,
+  Mythical: 0.025,
+  Legendary: 0.005,
+  Cursed: 0.015
+};
+
+//#region Helpers
+
+function getMostFrequentCardInDeck() {
+  if (!deck || deck.length === 0) return null;
+
+  const countMap = {};
+  for (const card of deck) {
+    const key = `${card.rank}${card.suit}`;
+    countMap[key] = (countMap[key] || 0) + 1;
+  }
+
+  let mostFrequent = null;
+  let max = 0;
+  for (const key in countMap) {
+    if (countMap[key] > max) {
+      max = countMap[key];
+      mostFrequent = key;
+    }
+  }
+
+  return mostFrequent; // e.g., "10♣"
 }
 
-function weightedRandomRarity() {
-  let r = random();
-  let cumulative = 0;
-  for (let rarity in RARITY_WEIGHTS) {
-    cumulative += RARITY_WEIGHTS[rarity];
-    if (r < cumulative) return rarity;
-  }
-  return "Common";
+function logAddedCards(cards) {
+  if (cards.length === 0) return;
+  const text = `Added: ${cards.map(c => c.rank + c.suit).join(', ')}`;
+
+  const areaWidth = 400;
+  const areaHeight = 200;
+
+  const x = random((width - areaWidth) / 2, (width + areaWidth) / 2);
+  const y = random((height - areaHeight) / 4, (height + areaHeight) / 4);
+
+  eventTextAnimations.push({
+    text,
+    x,
+    y,
+    opacity: 255,
+    timer: 60
+  });
 }

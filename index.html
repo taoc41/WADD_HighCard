@@ -68,7 +68,7 @@
       }
 
       .debuff-desc {
-        display: inline-flex;
+        display: inline;
         align-items: center;
         margin-bottom: 1em;
       }
@@ -117,17 +117,14 @@
 
   <!-- P5.js LIBRARY -->
   <script src="/p5/p5.min.js"></script>
-  <!-- <script src="/p5/addons/p5.sound.js"></script> -->
 
   <!-- GAME SCRIPTS -->
-  <script src="/assets/js/globals.js"></script>
-  <script src="/assets/js/effect.js"></script>
-  <script src="/assets/js/card.js"></script>
-  <script src="/assets/js/buttons.js"></script>
-  <script src="/assets/js/sketch.js"></script>
-  <script src="/assets/js/game.js"></script>
-  <script src="/assets/js/debug.js"></script>
-  
+  <script src="/assets/js/globals.js"></script> <!-- Stores the global variables required for the game -->
+  <script src="/assets/js/effect.js"></script> <!-- Stores all arrays and data related to effects (perks, debuffs, packs, etc) -->
+  <script src="/assets/js/classes.js"></script> <!-- Stores all classes -->
+  <script src="/assets/js/sketch.js"></script> <!-- Stores rendering code and the "draw" loop -->
+  <script src="/assets/js/game.js"></script> <!-- Stores game code and input logic -->
+  <script src="/assets/js/debug.js"></script> <!-- Debug functions usable via console (Cheats mostly) -->
 </head>
 
 <header>
@@ -144,11 +141,9 @@
 
 <body>
   <main>
-    <div>
-      
-    </div>
 
     <div id="effectContainer">
+      
       <div id="perkContainer">
         <h3>Current Passive Perks:</h3>
         <div id="perkDisplay"></div>
@@ -158,7 +153,9 @@
         <h3>Current Debuffs:</h3>
         <div id="debuffDisplay"></div>
       </div>
+
     </div>
+
   </main>
 </body>
 
