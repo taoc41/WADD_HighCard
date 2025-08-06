@@ -1,3 +1,11 @@
+/**
+ * 
+ * this script stores the main game functions and code
+ * witness insanity and a lot of ramblings
+ * 
+ */
+
+//#region generateDeck()
 function generateDeck() {
     deck = [];
     for (let s of suits) {
@@ -8,12 +16,14 @@ function generateDeck() {
     shuffle(deck, true);
 }
 
+//#region generateRandomCard()
 function generateRandomCard(suit = null) {
     let chosenSuit = suit || random(suits);
     let rank = random(ranks); // uses string values like '7' or 'K'
     return new Card(rank, chosenSuit);
 }
 
+//#region drawHand()
 function drawHand() {
     // if hand has more than allowed size
     if (hand.length > handSize) {
@@ -30,6 +40,7 @@ function drawHand() {
     }
 }
 
+//#region mousePressed()
 function mousePressed() {
 
     // Check if a card is being clicked (drag start)
@@ -45,30 +56,52 @@ function mousePressed() {
         }
     }
 
-    // Handle play button click
-    if (playBtn && playBtn.visible && playBtn.contains(mouseX, mouseY)) {
-        playBtn.onClick();
-        return;
+    if (gameState === "playing") {
+        // Handle play button click
+        if (playBtn && playBtn.contains(mouseX, mouseY)) {
+            playBtn.onClick();
+            return;
+        }
+
+        // Handle shuffle button click
+        if (shuffleBtn && shuffleBtn.contains(mouseX, mouseY)) {
+            shuffleBtn.onClick();
+            return;
+        }
     }
 
-    // Handle shuffle button click
-    if (shuffleBtn && shuffleBtn.visible && shuffleBtn.contains(mouseX, mouseY)) {
-        shuffleBtn.onClick();
-        return;
-    }
 
     // upgrade phase - handle upgrade selection
     if (gameState === "upgrade") {
         for (let i = 0; i < upgradeChoices.length; i++) {
             if (upgradeChoices[i].contains(mouseX, mouseY)) {
-                chooseUpgrade(i);
-                return;
+                // select and deselect the current upgrade. 
+                selectedUpgradeIndex !== i
+                    ? selectedUpgradeIndex = i
+                    : selectedUpgradeIndex = null;
             }
         }
-        return;
+
+        if (confirmBtn && confirmBtn.contains(mouseX, mouseY)) {
+            confirmBtn.onClick();
+        }
+
+        if (skipBtn && skipBtn.contains(mouseX, mouseY)) {
+            skipBtn.onClick();
+        }
+
+        if (burnBtn && burnBtn.contains(mouseX, mouseY)) {
+            burnBtn.onClick();
+        }
+
+        if (freezeBtn && freezeBtn.contains(mouseX, mouseY)) {
+            freezeBtn.onClick();
+        }
+
     }
 }
 
+//#region mouseDragged()
 function mouseDragged() {
     if (heldCard && !isDragging && millis() - holdStartTime > 200) {
         isDragging = true;
@@ -80,32 +113,57 @@ function mouseDragged() {
     }
 }
 
+//#region mouseReleased()
+
 function mouseReleased() {
     if (isDragging && heldCard) {
-        // Determine closest index
+        
+        // calculate insertion index using midpoints of between current slots
+        
+        // find the closest index
         let minDist = Infinity;
         let targetIndex = holdingCardIndex;
-
+  
         for (let i = 0; i < hand.length; i++) {
             if (i === holdingCardIndex) continue;
-            let card = hand[i];
-            let distToSlot = dist(heldCard.x, heldCard.y, card.x, card.y);
-            if (distToSlot < minDist) {
-                minDist = distToSlot;
+            const card = hand[i];
+            const d = dist(heldCard.x, heldCard.y, card.x, card.y);
+            if (d < minDist) {
+                minDist = d;
                 targetIndex = i;
             }
         }
-
-        if (minDist > 150) {
-            // basically do nothing: too far - snap back
-        } else {
-            let movedCard = hand.splice(holdingCardIndex, 1)[0];
-            hand.splice(targetIndex, 0, movedCard);
+  
+        if (minDist <= 150 && targetIndex !== holdingCardIndex) {
+            // remove held card
+            const movedCard = hand.splice(holdingCardIndex, 1)[0];
+            
+            // if removed before target, target index shifts left by 1
+            const insertAt = (targetIndex > holdingCardIndex) ? targetIndex - 1 : targetIndex;
+  
+            // insert currently held card in new spot
+            hand.splice(insertAt, 0, movedCard);
+  
+            // reindex `selected` array to reflect the move
+            selected = selected.map(idx => {
+                if (idx === holdingCardIndex) return insertAt;
+  
+                // moved foward: shift indices in (oldIdx, new Idx] left by 1
+                if (holdingCardIndex < insertAt && idx > holdingCardIndex && idx <= insertAt) return idx - 1;
+                if (insertAt < holdingCardIndex && idx >= insertAt && idx < holdingCardIndex) return idx + 1;
+  
+                return idx;
+            });
+  
+            // dedupe, clamp, sort
+            selected = Array.from(new Set(selected))
+            .filter(i => i >= 0 && i < hand.length)
+            .sort((a, b) => a - b);
         }
+  
     } else if (heldCard) {
-        // click based selection fallback if drag is never triggered. 
-        // previously in mousePressed (before 30/07/25)
-        let idx = holdingCardIndex;
+        // click based selection toggle (no drag)
+        const idx = holdingCardIndex;
         if (heldCard.selected) {
             selected = selected.filter(n => n !== idx);
             heldCard.selected = false;
@@ -114,24 +172,81 @@ function mouseReleased() {
             heldCard.selected = true;
         }
     }
-
-    // Updates the preview hand info 
-    // gameState === "playing" because exiting upgrade phase causes visual bug
-    if (selected.length >= 1 && gameState === "playing") {
-        let chosenCards = selected.map(i => hand[i]);
+  
+    // resync `selected` from card flags to avoid ghosting
+    selected = hand.reduce((arr, c, i) => {
+        if (c && c.selected) arr.push(i);
+        return arr;
+    }, []);
+  
+    if (gameState === "playing" && selected.length >= 1) {
+        const chosenCards = selected.map(i => hand[i]).filter(Boolean);
         previewHandInfo = evaluateHand(chosenCards);
         previewHandInfo.cards = chosenCards;
         previewHandInfo.baseScore = previewHandInfo.score;
     } else {
         previewHandInfo = null;
     }
-
-    // Reset drag state
+  
+    // reset drag state
     isDragging = false;
     heldCard = null;
     holdingCardIndex = -1;
-}
+  }
 
+// function mouseReleased() {
+//     if (isDragging && heldCard) {
+//         // Determine closest index
+//         let minDist = Infinity;
+//         let targetIndex = holdingCardIndex;
+
+//         for (let i = 0; i < hand.length; i++) {
+//             if (i === holdingCardIndex) continue;
+//             let card = hand[i];
+//             let distToSlot = dist(heldCard.x, heldCard.y, card.x, card.y);
+//             if (distToSlot < minDist) {
+//                 minDist = distToSlot;
+//                 targetIndex = i;
+//             }
+//         }
+
+//         if (minDist > 150) {
+//             // basically do nothing: too far - snap back
+//         } else {
+//             let movedCard = hand.splice(holdingCardIndex, 1)[0];
+//             hand.splice(targetIndex, 0, movedCard);
+//         }
+//     } else if (heldCard) {
+//         // click based selection fallback if drag is never triggered. 
+//         // previously in mousePressed (before 30/07/25)
+//         let idx = holdingCardIndex;
+//         if (heldCard.selected) {
+//             selected = selected.filter(n => n !== idx);
+//             heldCard.selected = false;
+//         } else if (selected.length < 5) {
+//             selected.push(idx);
+//             heldCard.selected = true;
+//         }
+//     }
+
+//     // Updates the preview hand info 
+//     // gameState === "playing" because exiting upgrade phase causes visual bug
+//     if (selected.length >= 1 && gameState === "playing") {
+//         let chosenCards = selected.map(i => hand[i]);
+//         previewHandInfo = evaluateHand(chosenCards);
+//         previewHandInfo.cards = chosenCards;
+//         previewHandInfo.baseScore = previewHandInfo.score;
+//     } else {
+//         previewHandInfo = null;
+//     }
+
+//     // Reset drag state
+//     isDragging = false;
+//     heldCard = null;
+//     holdingCardIndex = -1;
+// }
+
+//#region keyTyped()
 function keyTyped() {
     if (gameState === "gameover") {
         if (playerName.length < 12 && key.match(/^[a-zA-Z0-9 ]$/)) {
@@ -140,6 +255,7 @@ function keyTyped() {
     }
 }
 
+//#region keyPressed()
 function keyPressed() {
     if (gameState === "gameover") {
         if (keyCode === BACKSPACE) {
@@ -152,6 +268,7 @@ function keyPressed() {
     }
 }
 
+//#region saveScore()
 function saveScore(name, score) {
     let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
     leaderboard.push({ name, score });
@@ -160,6 +277,7 @@ function saveScore(name, score) {
     localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
 }
 
+//#region playHand()
 function playHand() {
     selected = selected.filter(i => hand[i] !== null && hand[i] !== undefined);
     let chosenCards = selected.map(i => hand[i]);
@@ -225,7 +343,9 @@ function playHand() {
         if (score >= baseThreshold) {
 
             // Convert ante score into upgrades
-            upgradePoints = Math.floor(score / baseThreshold);
+            let gainedUpgrades = Math.floor(score / baseThreshold);
+            upgradePoints = gainedUpgrades + storedUpgradePoints;
+            storedUpgradePoints = 0;
 
             // Transfer score to totalScore
             totalScore += score;
@@ -239,16 +359,25 @@ function playHand() {
                 nextAnte();
             }
         } else {
+            // reset stored points if player didn't meet the threshold.
+            if (storedUpgradePoints > 0) {
+                eventTextAnimations.push({
+                    text: `Failed to reach score requirement, ${storedUpgradePoints} stored upgrades lost!`,
+                    x: width / 2,
+                    y: height / 2 - 100,
+                    opacity: 255,
+                    timer: 60
+                });
+            }
+            storedUpgradePoints = 0;
             drawHand();
-
         }
     } else {
-
-        // New hand if its not a new ante.
-        drawHand();
+        drawHand(); // new hand if its not a new ante.
     }
 }
 
+//#region reshuffleHand()
 function reshuffleHand() {
     selected = selected.filter(i => hand[i] !== null && hand[i] !== undefined);
 
@@ -289,6 +418,7 @@ function reshuffleHand() {
     });
 }
 
+//#region returnHand()
 function returnHand() {
     for (let card of hand) {
         card.selected = false; // unmark all cards as selected
@@ -306,67 +436,161 @@ function getUpgradeThreshold() {
     return Math.round(threshold / 100) * 100; // Round to the nearest 100
 }
 
+//#region weightedRandomRarity()
+function weightedRandomRarity() {
+    let r = random();
+    let cumulative = 0;
+    for (let rarity in RARITY_WEIGHTS) {
+        cumulative += RARITY_WEIGHTS[rarity];
+        if (r < cumulative) return rarity;
+    }
+    return "Common";
+}
+
+//#region generateUpgradeChoice()
+
+// this has genuinely caused me the most headaches
+// i wish death upon javascript
+// chatGPT was used here for debugging -> ended up being typos & generation returns null as a choice for some reason
 function generateUpgradeChoice() {
+    selectedUpgradeIndex = null;
+    burnUsed = false;
     returnHand();
     drawHand();
 
-    const availablePassives = PASSIVE_PERKS.filter(p => !passivePerks.some(pp => pp.name === p.name));
-    const availablePacks = [...PACKS];
-    const availableEdits = [...EDIT_PERKS];
+    const frozenNames = new Set(
+        [...frozenUpgrades.values()]
+            .map(choice => choice?.data?.name)
+            .filter(Boolean)
+    );
 
-    const mixedChoices = [];
+    // filters -> no duplicate choices with already owned passives + burned upgrades
+    const availablePassives = PASSIVE_PERKS.filter(p =>
+        !passivePerks.some(pp => pp.name === p.name) &&
+        !burnedUpgrades.includes(p.name) &&
+        !frozenNames.has(p.name)
+    );
+    const availablePacks = PACKS.filter(p =>
+        !burnedUpgrades.includes(p.name) &&
+        !frozenNames.has(p.name)
+    );
+    const availableEdits = EDIT_PERKS.filter(p =>
+        !burnedUpgrades.includes(p.name) &&
+        !frozenNames.has(p.name)
+    );
+    const availablePerks = PERKS.filter(p => 
+        !burnedUpgrades.includes(p.name) &&
+        !frozenNames.has(p.name)
+    );
 
-    while (mixedChoices.length < 3) {
-        const roll = random();
-        const rarity = weightedRandomRarity();
+    const slots = new Array(upgradeChoiceAmount).fill(null); // prepare output array & keep frozen upgrades
+    const usedNames = new Set(frozenNames); // already appeared in this roll
 
-        if (roll < 0.25 && availablePassives.length > 0) {
-            const pool = availablePassives.filter(p => p.rarity === rarity);
-            if (pool.length) {
-                const perk = random(pool);
-                mixedChoices.push(new UpgradeChoice("passive", perk));
-                availablePassives.splice(availablePassives.indexOf(perk), 1);
-                continue;
-            }
-        } else if (roll < 0.75 && availablePacks.length > 0) {
-            const pool = availablePacks.filter(p => p.rarity === rarity);
-            if (pool.length) {
-                const pack = random(pool);
-                mixedChoices.push(new UpgradeChoice("pack", pack));
-                availablePacks.splice(availablePacks.indexOf(pack), 1);
-                continue;
-            }
-        } else if (availableEdits.length > 0) {
-            const pool = availableEdits.filter(p => rarity === rarity);
-            if (pool.length) {
-                const edit = random(pool);
-                mixedChoices.push(new UpgradeChoice("edit", edit));
-                availableEdits.splice(availableEdits.indexOf(edit), 1);
-                continue;
-            }
+    // place frozen upgrades back into their respective slots
+    // burned upgrade? get rid of it
+    // frozen upgrade is overflowing? get rid of it
+    for (const [slotIdx, choice] of [...frozenUpgrades.entries()]) {
+        if (
+            slotIdx < upgradeChoiceAmount &&
+            choice &&
+            !burnedUpgrades.includes(choice.data?.name)
+        ) {
+            slots[slotIdx] = choice;
+            usedNames.add(choice.data.name);
+        } else {
+            // invalid/overflowed frozen – drop it
+            frozenUpgrades.delete(slotIdx);
         }
     }
 
-    upgradeChoices = mixedChoices;
-}
+    // helper - pick from a pool by rarity while avoiding duplicates
+    const tryPickByRarity = (pool, rarity) => {
+        const candidates = pool.filter(p => p.rarity === rarity
+            && !usedNames.has(p.name)
+        );
+        if (!candidates.length) return null;
+        const pick = random(candidates);
+        usedNames.add(pick.name);
+        return pick;
+    };
 
-function chooseUpgrade(index) {
-    const choice = upgradeChoices[index];
-    if (!choice) return;
+    const tryPickAny = (pool) => {
+        const pick = pool.find(p => !usedNames.has(p.name));
+        if (!pick) return null;
+        usedNames.add(pick.name);
+        return pick;
+    };
 
-    const ok = choice.apply();
-    if (!ok) return;
+    // fill empty slots.
+    for (let i = 0; i < slots.length; i++) {
+        if (slots[i]) continue;
 
-    upgradePoints--;
+        const roll = random();
+        const rarity = weightedRandomRarity();
 
-    if (upgradePoints > 0) {
-        generateUpgradeChoice();
-    } else {
-        nextAnte();
+        if (roll < 0.55 && availablePassives.length > 0) {
+            const passive = tryPickByRarity(availablePassives, rarity) || tryPickAny(availablePassives);
+            if (passive) {
+                slots[i] = new UpgradeChoice("passive", passive);
+                continue;
+            }
+        } else if (roll < 0.75 && availablePacks.length > 0) {
+            const pack = tryPickByRarity(availablePacks, rarity) || tryPickAny(availablePacks);
+            if (pack) {
+                slots[i] = new UpgradeChoice("pack", pack);
+                continue;
+            }
+        } else if (roll < 0.9 && availableEdits.length > 0) {
+            const edit = tryPickByRarity(availableEdits, rarity) || tryPickAny(availableEdits);
+            if (edit) {
+                slots[i] = new UpgradeChoice("edit", edit);
+                continue;
+            } 
+        } else if (availablePerks.length > 0) {
+            const perk = tryPickByRarity(availablePerks, rarity) || tryPickAny(availablePerks);
+            if (perk) {
+                slots[i] = new UpgradeChoice("perk", perk);
+                continue;
+            } 
+        }
     }
+
+    // fall back to prevent "nulls" from being generated
+    // i hate this so much
+    const classifyType = (item) => {
+        if (availablePassives.some(p => p.name === item.name)) return "passive";
+        if (availablePacks.some(p => p.name === item.name)) return "pack";
+        if (availableEdits.some(p => p.name === item.name)) return "edit";
+        if (availablePerks.some(p => p.name === item.name)) return "perk";
+    };
+
+    let fallbackPool = [
+        ...availablePassives,
+        ...availablePacks,
+        ...availableEdits,
+        ...availablePerks
+    ].filter(u => !usedNames.has(u.name)); // no dupes
+
+    for (let i = 0; i < slots.length; i++) {
+        if (slots[i]) continue; // already filled
+
+        if (fallbackPool.length === 0) break;
+
+        //pick one at random, classify and place
+        const pick = random(fallbackPool);
+        const type = classifyType(pick);
+
+        slots[i] = new UpgradeChoice(type, pick);
+        usedNames.add(pick.name);
+
+        fallbackPool = fallbackPool.filter(u => u.name !== pick.name);
+    }
+
+    upgradeChoices = slots.filter(Boolean); // last fallback to not return any nulls
+    upgradeChoices = slots;
 }
 
-
+//#region addDebuff()
 function addDebuff() {
 
     // Add a debuff every 5 antes
@@ -391,6 +615,7 @@ function addDebuff() {
     updateDebuffDisplay();
 }
 
+//#region nextAnte()
 // literally so i dont have to keep repeating this code over and over
 function nextAnte() {
     addDebuff();
@@ -398,10 +623,13 @@ function nextAnte() {
     ante++;
     round = 1;
     upgradePoints = 0;
+    selectedUpgradeIndex = null
     returnHand();
     drawHand();
 }
 
+
+//#region evaluateHand()
 /**
     * Evaluates the hand for scoring/typing
     * @param {*} cards The hand to evaluate, often always used with the hand variable.
@@ -430,10 +658,10 @@ function evaluateHand(cards) {
             .filter(([_, cnt]) => cnt === count)                                // keeps entries where the count matches the value that we are interested in
             .flatMap(([rank]) => getCardsByRank(rank));                         // for each matching rank, pull all cards with that rank using `getCardByRank`. flatMap flattens the array into single card objects.
 
-    // Checks for how many cards are selected and returns the appropriate object depending on the type of hand selected using the hand type checks
+    // checks for how many cards are selected and returns the appropriate object depending on the type of hand selected using the hand type checks
     // genuinely going to kms this looks ugly
     switch (cards.length) {
-        case 1: // 1 card selected ———————
+        case 1: // 1 card selected ————————————————————————————————————————————————————————
 
             // High Card
             return {
@@ -442,7 +670,7 @@ function evaluateHand(cards) {
                 usedCards: [cards[0]]
             };
 
-        case 2: // 2 cards selected ———————
+        case 2: // 2 cards selected ——————————————————————————————————————————————————————
 
             // Pair
             if (counts[0] === 2) {
@@ -453,7 +681,7 @@ function evaluateHand(cards) {
             // High Card
             return { name: "High Card", score: 5, usedCards: [cards[0]] };
 
-        case 3: // Three cards selected ———————
+        case 3: // Three cards selected —————————————————————————————————————————————————
 
             // Three of a Kind
             if (counts[0] === 3) {
@@ -499,7 +727,7 @@ function evaluateHand(cards) {
             // High Card
             return { name: "High Card", score: 5, usedCards: [cards[0]] };
 
-        case 5: // 5 Cards selected ———————
+        case 5: // 5 Cards selected —————————————————————————————————————————————————
 
             // Flush Five
             if (isFlush && counts[0] === 5) {
@@ -565,7 +793,7 @@ function evaluateHand(cards) {
     }
 }
 
-
+//#region calculateRankMultiplier()
 function calculateRankMultiplier(cards) {
     const rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
     let total = 0;

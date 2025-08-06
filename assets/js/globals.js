@@ -2,9 +2,17 @@
  * This stores all the global variables needed by the game.
 */
 
-let suits = ['♠', '♥', '♦', '♣'];                                                   // Defines all card suits.
-let ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];     // Defines all card ranks.
-let playBtn, shuffleBtn;
+const suits = ['♠', '♥', '♦', '♣'];                                                   // Defines all card suits.
+const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];     // Defines all card ranks.
+
+let playBtn, shuffleBtn, confirmBtn, skipBtn, burnBtn, freezeBtn, playAgainBtn, saveScoreBtn;  // Defines all game buttons
+
+// Game States
+const PLAYING = "playing";
+const UPGRADE = "upgrade";
+const GAMEOVER = "gameover";
+
+let gameState = PLAYING;  // "playing", "upgrade", or "gameover"
 
 // Rank Value Map, used for multiplier calculations
 const rankValueMap = {
@@ -20,25 +28,33 @@ let deck = [];                  // Array to hold all cards within the deck.
 let hand = [];                  // Array to hold all cards drawn into the hand.
 let selected = [];              // Array to hold all cards currently selected by the player.
 let handSize = 7;               // Amount of cards drawn into the hand.
+
 let reshuffleUses = 10;         // Amount of reshuffles the player can use.
+let burnsRemaining = 3;         // Amount of "burns" the player can use.
+let burnUsed = false;
+let freezesRemaining = 3;       // Amount of "freezes" the player can use.
 
 let eventTextAnimations = [];   // Array to hold currently playing event text.
 
-let totalScore = 0;             // Total score across the game
-let score = 0;                  // Score earned in the current ante
-let upgradePoints = 0;          // Number of upgrades allowed in this ante
+let totalScore = 0;                 // Total score across the game
+let score = 0;                      // Score earned in the current ante
+let upgradePoints = 0;              // Number of upgrades allowed in this ante
+let storedUpgradePoints = 0;        // Amount of upgrades that were skipped and stored.
 let baseUpgradeThreshold = 300;     // Base threshold score for one upgrade
 
 let round = 1;                  // Current round number.
 let ante = 1;                   // Current ante number.
 let maxRounds = 5;              // Maximum amount of rounds needed to play before proceeding onto the next ante.
-
-let gameState = "playing";      // "playing", "upgrade", or "gameover"
 let lastAction = "none"         // "none", "playhand", "reshuffle"
 
 let passivePerks = [];          // Array to hold all acquired passive perks
-let upgradeChoices = [];        // Array to hold all upgrade choices that the player can select, used for upgrade phase
 let activeDebuffs = [];         // Array to hold all acquired debuff effects.
+let burnedUpgrades = [];        // Array to record all "burned" upgrades
+let frozenUpgrades = new Map();
+
+let selectedUpgradeIndex = null;  // To record which upgrade choice is currently selected.
+let upgradeChoices = [];          // Array to hold all upgrade choices that the player can select, used for upgrade phase
+let upgradeChoiceAmount = 3;
 
 // Globals for effects;
 let disabledPerk = [];        // Array to hold all currently disabled perks. For the "Perk Lockout" debuff
@@ -64,8 +80,8 @@ let pickedIndices = [];
 let bgColours;
 let blobs = [];
 
-let playerName = ""; // for final score;
+let playerName = ""; // leaderboard
 
-const MAX_PASSIVE_PERKS = 5;
+const MAX_PASSIVE_PERKS = 5; // change to 
 let passivePerkDisplayDiv;
 let debuffDisplayDiv;

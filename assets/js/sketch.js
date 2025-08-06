@@ -1,12 +1,10 @@
 /**
  * 
  * This script handles the rendering and UI elements of the game.
- * 
- * 
- * 
+ *
 */
 
-console.error(`%cOI GET OUT OF THE CONSOLE GET THE FUCK OUT GET OUT GET OUT GET OUT`, 'color: red; font-size: 50px; background-color: white;')
+console.error(`%cfuck off`, 'color: red; font-size: 50px; background-color: white;')
 
 
 function preload() {
@@ -14,28 +12,44 @@ function preload() {
 }
 
 function setup() {
+
+  // canvas setup;
   let canvasWidth = max(windowWidth, 1200);
   let canvasHeight = max(windowHeight, 800);
-
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.position(0, 0)
   canvas.style('z-index', '-1')
   canvas.id("gameCanvas");
 
+  // HTML perk/debuff display setup.
   passivePerkDisplayDiv = document.getElementById('perkDisplay');
   debuffDisplayDiv = document.getElementById('debuffDisplay')
   updatePassivePerkDisplay();
 
-  playBtn = new PlayHandButton(width / 2 - 65, height - 75);
-  shuffleBtn = new ShuffleButton(width - 200, height - 75);
+  // button setup
+  // positions are set within the class because i am lazy and
+  // having it out here is pretty redundant imo
+  playBtn = new PlayHandButton();
+  shuffleBtn = new ShuffleButton();
+  confirmBtn = new ConfirmButton();
+  skipBtn = new SkipButton();
+  burnBtn = new BurnButton();
+  freezeBtn = new FreezeButton();
 
+  // ui setup.
   noSmooth();
   textAlign(CENTER, CENTER);
   textSize(20);
+
+  // game setup
   generateDeck();
   drawHand();
+  
+  // debug stuff here
+  upgradePoints = 999999
+  debugUpgrade(); // temp
 
-  // background stuff
+  // background setup
   bgColours = [
     color(128, 15, 60),  // deep purple
     color(50, 5, 25)    // dark blue
@@ -51,9 +65,12 @@ function setup() {
       offset: random(TWO_PI)
     });
   }
+
 }
 
 function draw() {
+
+  // draws the background
   drawGradientBackground();
 
   blendMode(SOFT_LIGHT);
@@ -68,15 +85,21 @@ function draw() {
     drawGlowingBlob(x, y, r);
   }
   blendMode(BLEND);
+
+  // draws the game ui
   drawUI();
+
 }
 
+// resizes the canvas + limits it to a minimum size of 1200 x 800
+// the html displays would overlap onto the actual play area.
 function windowResized() {
   let newWidth = max(windowWidth, 1200);
   let newHeight = max(windowHeight, 800);
   resizeCanvas(newWidth, newHeight);
 }
 
+// draws the glowing pulsing blobs in the backgrounds
 function drawGlowingBlob(x, y, r) {
   let layers = 4;
   let c = lerpColor(bgColours[0], bgColours[1], 0.5);
@@ -85,7 +108,7 @@ function drawGlowingBlob(x, y, r) {
     let radius = r * (i / layers);
     let alpha = 15 * i;
 
-    // Optional: fade out edges near canvas border
+    // fade out edges near canvas border
     let d = dist(x, y, width / 2, height / 2);
     let edgeFade = map(d, 0, width * 0.75, 1, 0);
     edgeFade = constrain(edgeFade, 0, 1);
@@ -95,6 +118,7 @@ function drawGlowingBlob(x, y, r) {
   }
 }
 
+// draws and shifts the gradient background colours.
 function drawGradientBackground() {
   noStroke();
 
@@ -112,23 +136,20 @@ function drawGradientBackground() {
   }
 }
 
+// draws the whole game ui
 function drawUI() {
   if (gameState === "playing") {
     textSize(20);
     fill(255);
-    text(`[ Score: ${score} ] [ Total Score: ${totalScore} ]`, width / 2, 90);
-    text(`[ Upgrade Threshold: ${getUpgradeThreshold()} ]`, width / 2, 120);
-    text(`[ Round: ${round}/${maxRounds} ] [ Ante: ${ante} ]`, width / 2, 150);
-    text(`Deck: ${deck.length} cards left`, width / 2, 180);
+    text(`[ Score: ${score} / ${getUpgradeThreshold()} ] [ Total Score: ${totalScore} ]`, width / 2, 90);
+    text(`[ Round: ${round}/${maxRounds} ] [ Ante: ${ante} ]`, width / 2, 120);
+    text(`Deck: ${deck.length} cards left`, width / 2, 150);
 
     if (previewHandInfo && previewHandInfo.usedCards) {
       let baseScore = previewHandInfo.score;
       let multiplier = calculateRankMultiplier(previewHandInfo.usedCards);
       text(`Selected Hand: ${previewHandInfo.name} (${baseScore} x ${multiplier})`, width / 2, height - 100);
     }
-
-    //
-    drawHandUI();
 
     // Reshuffle button
     if (gameState === "playing" && reshuffleUses > 0 && selected.length >= 1 && selected.length <= 5) {
@@ -138,18 +159,20 @@ function drawUI() {
 
     // Play Hand button
     if (gameState === "playing" && selected.length >= 1 && selected.length <= 5) {
-      playBtn.updatePosition(width / 2 - 65, height - 75);
+      // playBtn.updatePosition(width / 2 - 65, height - 75);
       playBtn.draw();
     }
   }
 
+  drawHandUI(); // draw the hand UI
+
   if (gameState === "upgrade") {
-    drawUpgradeScreen();
-  }
+    drawUpgradeScreen(); 
+  } 
 
   if (gameState === "gameover") {
     drawGameOver();
-  }
+  } 
 
   // Event Text
   for (let i = eventTextAnimations.length - 1; i >= 0; i--) {
@@ -164,20 +187,41 @@ function drawUI() {
 
     anim.opacity -= 4;
     anim.y -= 0.5;
-    anim.timer--;
+    anim.timer--; // probably shouldn't be tied to frame rate but im lazy
 
     if (anim.timer <= 0 || 0) {
-      eventTextAnimations.splice(i, 1);
+      eventTextAnimations.splice(i, 1); // remove the text from the array when timer expires.
     }
   }
 }
 
+// sends the event text because i realise writing this exact same code everywhere is a pain.
+function sendEventText(text) {
+  const areaWidth = 400;
+  const areaHeight = 200;
+
+  const x = random((width - areaWidth) / 2, (width + areaWidth) / 2);
+  const y = random((height - areaHeight) / 4, (height + areaHeight) / 4);
+
+  eventTextAnimations.push({
+    text: text,
+    x,
+    y,
+    opacity: 255,
+    timer: 60
+  });
+}
+
 function drawHandUI() {
   let size = hand.length;
+  const pad = 15;
+  const stepMax = cardWidth + 20;
+
   let spacing;
+  
 
   if (size > 1) {
-    spacing = Math.min((width - 2 * 15 - cardWidth) / (size - 1), cardWidth + 20);
+    spacing = Math.min((width - 2 * pad - cardWidth) / (size - 1), stepMax);
   } else {
     spacing = 0;
   }
@@ -187,11 +231,19 @@ function drawHandUI() {
 
   for (let i = 0; i < hand.length; i++) {
     let card = hand[i];
-    if (!card ) continue; // stops the game from crashing if there's no more cards to draw
+    if (!card) continue; // stops the game from crashing if there's no more cards to draw
     if (isDragging && card === heldCard) continue; // do not render the card if it is being dragged
 
+    // calcuate the start
     let x = startX + i * spacing;
     let y = height / 2;
+
+    if (gameState === "playing") {
+      y = height / 2;
+    } else if (gameState === "upgrade") {
+      y = height / 2 + 75;
+    }
+
     card.draw(x, y);
   }
 
@@ -201,12 +253,16 @@ function drawHandUI() {
   }
 }
 
+// just a switch statement that returns colors lol
 function getRarityColor(rarity) {
   switch (rarity) {
-    case "Common": return color(200);
-    case "Uncommon": return color(100, 200, 255); // blue
-    case "Rare": return color(255, 100, 200); // pinkish purple
-    default: return color(255);
+    case "Common":   return color(200);                     // light gray
+    case "Uncommon": return color(100, 200, 255);           // blue
+    case "Rare":     return color(255, 100, 200);           // pinkish purple
+    case "Mythical": return color(255, 215, 0);             // gold (bright)
+    case "Legendary":return color(255, 140, 0);             // orange (burnished gold)
+    case "Cursed":   return color(150, 0, 255);             // vivid purple
+    default:         return color(255);                     // fallback white
   }
 }
 
@@ -218,29 +274,13 @@ function drawUpgradeScreen() {
   text(`Upgrades remaining: ${upgradePoints}`, width / 2, 140);
 
   for (let i = 0; i < upgradeChoices.length; i++) {
-    let x = width / 2 - 250 + i * 250;
-    let y = height / 2;
-
-    fill(60);
-    rect(x - 100, y - 100, 200, 200, 20);
-
-    let choice = upgradeChoices[i];
-    let rarityColor = getRarityColor(choice.data.rarity);
-
-    // Draw name
-    fill(rarityColor);
-    textSize(16);
-    text(choice.data.name, x, y - 40);
-
-    // Draw rarity label
-    textSize(12);
-    text(`[${choice.data.rarity}]`, x, y - 20);
-
-    // Draw description
-    fill(255);
-    textSize(12);
-    text(choice.data.description, x - 90, y + 10, 180, 100);
+    upgradeChoices[i].draw(i);
   }
+
+  confirmBtn.draw();
+  skipBtn.draw();
+  burnBtn.draw();
+  freezeBtn.draw();
 }
 
 function drawGameOver() {

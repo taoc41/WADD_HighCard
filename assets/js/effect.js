@@ -289,7 +289,7 @@ const PACKS = [
 
   // RARE -----------------
   // 5 or 10?
-  
+
   { // Mytosis Pack
     name: "Mytosis Pack",
     description: "Add 5 copies of a random card from your hand.",
@@ -396,6 +396,7 @@ const PASSIVE_PERKS = [
   {
     name: "Flush Bonus",
     description: "Gain 50 bonus points if all cards are the same suit.",
+    trigger: "playHand",
     rarity: "Common",
     condition: (playedCards, _) => new Set(playedCards.map(c => c.suit)).size === 1,
     effect: (score) => score + 50
@@ -403,6 +404,7 @@ const PASSIVE_PERKS = [
   {
     name: "Face Card Fan",
     description: "Double score if hand contains only J, Q, K.",
+    trigger: "playHand",
     rarity: "Uncommon",
     condition: (playedCards, _) => playedCards.every(c => ['J', 'Q', 'K'].includes(c.rank)),
     effect: (score) => score * 2
@@ -410,6 +412,7 @@ const PASSIVE_PERKS = [
   {
     name: "Low Roll",
     description: "Add 1 random card to your deck if all ranks are 6 or lower.",
+    trigger: "playHand",
     rarity: "Uncommon",
     condition: (playedCards, _) => playedCards.every(c => ranks.indexOf(c.rank) <= 4),
     effect: (score) => {
@@ -420,6 +423,7 @@ const PASSIVE_PERKS = [
   {
     name: "Repeated Rhythm",
     description: "Multiply score by 2 if you played the same hand type as last round.",
+    trigger: "playHand",
     rarity: "Common",
     condition: (_, __) => currentHandInfo.name && lastHandInfo.name === currentHandInfo.name,
     effect: (score) => score * 2
@@ -427,6 +431,7 @@ const PASSIVE_PERKS = [
   {
     name: "Thick Stack",
     description: "At the start of every ante, gain 3 random cards to your deck.",
+    condition: "playHand",
     rarity: "Uncommon",
     condition: () => round === 1,
     effect: (score) => {
@@ -507,7 +512,10 @@ const PASSIVE_PERKS = [
 
 //#region EDIT_PERKS
 const EDIT_PERKS = [
-  {
+
+  // COMMON --------------
+
+  { // Promotion
     name: "Promotion",
     description: "Increase the rank of up to 2 cards by 1",
     rarity: "Common",
@@ -521,11 +529,11 @@ const EDIT_PERKS = [
       sendEventText(`Promoted: ${selected.map(c => c.rank + c.suit).join(', ')}`);
     }
   },
-  {
+  { // Reincarnation
     name: "Reincarnation",
-    description: "Convert 3 cards into the same random suit.",
+    description: "Select up to 3 cards. Convert them into the same random suit.",
     rarity: "Common",
-    minReq: 3,
+    minReq: 1,
     maxReq: 3,
     apply: (selected) => {
       let newSuit = random(suits);
@@ -535,9 +543,9 @@ const EDIT_PERKS = [
       sendEventText(`All converted to ${newSuit}`);
     }
   },
-  {
+  { // Colour Shift (A)
     name: "Colour Shift (A)",
-    description: "Spades→Hearts, Clubs→Diamonds, and vice versa (3 cards).",
+    description: "Select up to 3 cards. Spades → Hearts, Clubs → Diamonds, and vice versa.",
     rarity: "Common",
     minReq: 1,
     maxReq: 3,
@@ -546,12 +554,12 @@ const EDIT_PERKS = [
       for (let card of selected) {
         card.suit = map[card.suit] || card.suit;
       }
-      sendEventText(`Shifted colors: ${selected.map(c => c.rank + c.suit).join(', ')}`);
+      sendEventText(`Shifted colours: ${selected.map(c => c.rank + c.suit).join(', ')}`);
     }
   },
-  {
+  { // Colour Shift (B)
     name: "Colour Shift (B)",
-    description: "Spades→Diamonds, Clubs→Hearts, and vice versa (3 cards).",
+    description: "Select up to 3 cards. Spades → Diamonds, Clubs → Hearts, and vice versa.",
     rarity: "Common",
     minReq: 1,
     maxReq: 3,
@@ -560,10 +568,10 @@ const EDIT_PERKS = [
       for (let card of selected) {
         card.suit = map[card.suit] || card.suit;
       }
-      sendEventText(`Shifted colors: ${selected.map(c => c.rank + c.suit).join(', ')}`);
+      sendEventText(`Shifted colours: ${selected.map(c => c.rank + c.suit).join(', ')}`);
     }
   },
-  {
+  { // Mathematician
     name: "Mathematician",
     description: "Select two cards of the same suit below 6. Left card becomes the sum.",
     rarity: "Common",
@@ -573,17 +581,17 @@ const EDIT_PERKS = [
       const lowIndex = ranks.findIndex(r => r === '6');
       const idx1 = ranks.indexOf(selected[0].rank);
       const idx2 = ranks.indexOf(selected[1].rank);
-    
+
       if (selected[0].suit !== selected[1].suit || idx1 > lowIndex || idx2 > lowIndex) return;
-    
+
       let sum = idx1 + idx2 + 4;
       let newRank = ranks[min(sum, ranks.length - 1)];
       selected[0].rank = newRank;
-    
+
       sendEventText(`${selected[0].suit} sum = ${newRank}`);
     }
   },
-  {
+  { // Mimicry
     name: "Mimicry",
     description: "Convert the right-most card into a copy of the left-most.",
     rarity: "Common",
@@ -593,11 +601,11 @@ const EDIT_PERKS = [
       let [left, right] = cards;
       right.rank = left.rank;
       right.suit = left.suit;
-  
+
       sendEventText(`Mimicked: ${right.rank}${right.suit}`)
     }
   },
-  {
+  { // Rip Apart
     name: "Rip Apart",
     description: "Destroy up to 2 selected cards.",
     rarity: "Common",
@@ -610,7 +618,7 @@ const EDIT_PERKS = [
       sendEventText(`Destroyed: ${selected.map(c => c.rank + c.suit).join(', ')}`);
     }
   },
-  {
+  { // Recycle
     name: "Recycle",
     description: "Destroy one card. Gain +2 upgrade points.",
     rarity: "Common",
@@ -622,8 +630,8 @@ const EDIT_PERKS = [
       sendEventText(`Recycled ${selected[0].rank + selected[0].suit} → +2 upgrades`);
     }
   },
-  {
-    name: "Immolate",
+  { // Kindling
+    name: "Kindling",
     description: "Destroy one card. Gain +2 burns.",
     rarity: "Common",
     minReq: 1,
@@ -634,7 +642,7 @@ const EDIT_PERKS = [
       sendEventText(`Immolated ${selected[0].rank + selected[0].suit} → +2 burns`);
     }
   },
-  {
+  { // Shatter
     name: "Shatter",
     description: "Destroy one card. Gain +2 freezes.",
     rarity: "Common",
@@ -645,6 +653,190 @@ const EDIT_PERKS = [
       freezesRemaining += 2;
       sendEventText(`Shattered ${selected[0].rank + selected[0].suit} → +2 freezes`);
     }
+  },
+
+  // UNCOMMON --------------
+  
+
+  { // Midas' Touch
+    name: "Midas' Touch",
+    description: "Select up to 3 cards, convert them into the ♦ suit.",
+    rarity: "Uncommon",
+    minReq: 1,
+    maxReq: 3,
+    apply: (cards) => {
+      const changes = [];
+      for (let card of cards) {
+        const before = card.rank + card.suit;
+        card.suit = '♦';
+        const after = card.rank + card.suit;
+        changes.push(`${before} → ${after}`);
+      }
+      sendEventText(`${changes.join('; ')}`);
+    }
+  },
+  { // Gambler's Luck
+    name: "Gambler's Luck",
+    description: "Select up to 3 cards, convert them into the ♣ suit.",
+    rarity: "Uncommon",
+    minReq: 1,
+    maxReq: 3,
+    apply: (cards) => {
+      const changes = [];
+      for (let card of cards) {
+        const before = card.rank + card.suit;
+        card.suit = '♣';
+        const after = card.rank + card.suit;
+        changes.push(`${before} → ${after}`);
+      }
+      sendEventText(`${changes.join('; ')}`);
+    }
+  },
+  { // Lovers' Romance
+    name: "Lovers' Romance",
+    description: "Select up to 3 cards, convert them into the ♥ suit.",
+    rarity: "Uncommon",
+    minReq: 1,
+    maxReq: 3,
+    apply: (cards) => {
+      const changes = [];
+      for (let card of cards) {
+        const before = card.rank + card.suit;
+        card.suit = '♥';
+        const after = card.rank + card.suit;
+        changes.push(`${before} → ${after}`);
+      }
+      sendEventText(`${changes.join('; ')}`);
+    }
+  },
+  { // Warriors' Courage
+    name: "Warriors' Courage",
+    description: "Select up to 3 cards, convert them into the ♠ suit.",
+    rarity: "Uncommon",
+    minReq: 1,
+    maxReq: 3,
+    apply: (cards) => {
+      const changes = [];
+      for (let card of cards) {
+        const before = card.rank + card.suit;
+        card.suit = '♠';
+        const after = card.rank + card.suit;
+        changes.push(`${before} → ${after}`);
+      }
+      sendEventText(`${changes.join('; ')}`);
+    }
+  },
+  { // Usurper
+    name: "Usurper",
+    description: "Convert up to 2 cards into random face cards.",
+    rarity: "Uncommon",
+    minReq: 1,
+    maxReq: 2,
+    apply: (cards) => {
+      const faceRanks = ['J', 'Q', 'K'];
+      const changes = [];
+  
+      for (let card of cards) {
+        const old = card.rank + card.suit;
+        card.rank = random(faceRanks);
+        const updated = card.rank + card.suit;
+        changes.push(`${old} → ${updated}`);
+      }
+  
+      sendEventText(`Usurped: ${changes.join(', ')}`);
+    }
+  },
+
+  // RARE ------------------
+
+
+
+  // MYTHICAL --------------
+
+  { // Strength in Unity
+    name: "Strength in Unity",
+    description: "Convert all cards in hand into a random suit.",
+    rarity: "Mythical",
+    minReq: 0,
+    maxReq: 0,
+    apply: () => {
+      const newSuit = random(suits);
+      const changes = [];
+  
+      for (let card of hand) {
+        const before = card.rank + card.suit;
+        card.suit = newSuit;
+        const after = card.rank + card.suit;
+        changes.push(`${before} → ${after}`);
+      }
+  
+      sendEventText(`Unity: ${changes.join(', ')}`);
+    }
+  },
+  { // Strength in Numbers
+    name: "Strength in Numbers",
+    description: "Convert all cards in hand into a random rank.",
+    rarity: "Mythical",
+    minReq: 0,
+    maxReq: 0,
+    apply: () => {
+      const newRank = random(ranks);
+      const changes = [];
+  
+      for (let card of hand) {
+        const before = card.rank + card.suit;
+        card.rank = newRank;
+        const after = card.rank + card.suit;
+        changes.push(`${before} → ${after}`);
+      }
+  
+      sendEventText(`Strength in Numbers: ${changes.join(', ')}`);
+    }
+  },
+
+  // LEGENDARY -------------
+
+  { // Fragment
+    name: "Fragment",
+    description: "Destroy one card. Add random cards of the same suit equal to half the rank value.",
+    rarity: "Legendary",
+    minReq: 1,
+    maxReq: 1,
+    apply: (cards) => {
+      const card = cards[0];
+      const rankIndex = ranks.indexOf(card.rank);
+      if (rankIndex === -1) return;
+  
+      const numNewCards = floor((rankIndex + 2) / 2); // index 0 = '2' → value 2
+      hand.splice(hand.indexOf(card), 1);
+  
+      let added = [];
+      for (let i = 0; i < numNewCards; i++) {
+        const newCard = new Card(random(ranks), card.suit);
+        deck.push(newCard);
+        added.push(newCard);
+      }
+  
+      sendEventText(`Fragmented ${card.rank + card.suit} → +${added.length} ${card.suit} cards`);
+    }
+  },
+
+  // CURSED ----------------
+  
+  {
+    name: "Amnesia",
+    description: "Randomize your entire deck.",
+    rarity: "Cursed",
+    minReq: 0,
+    maxReq: 0,
+    apply: () => {
+      for (let i = 0; i < deck.length; i++) {
+        deck[i].rank = random(ranks);
+        deck[i].suit = random(suits);
+      }
+  
+      sendEventText(`Your entire deck was randomized.`);
+    }
   }
 
 ]
@@ -653,8 +845,8 @@ const EDIT_PERKS = [
 const DEBUFFS = [
   { // Score Leak
     name: "Score Leak",
-    max: 50,
-    description: "Lose 1% of your total score after every hand.",
+    max: 10,
+    description: "Lose 5% of your total score after every hand.",
     type: "perRound",
     effect: () => {
       score = floor(score * 0.99);
@@ -663,6 +855,7 @@ const DEBUFFS = [
   { // Card Rot
     name: "Card Rot",
     description: "Removes 1 random card from your deck each round.",
+    max: 99,
     type: "perRound",
     effect: () => {
       if (deck.length > 0) {
@@ -673,6 +866,7 @@ const DEBUFFS = [
   { // Perk Lockout
     name: "Perk Lockout",
     description: "A random passive perk is disabled this round.",
+    max: 5,
     type: "perRound",
     effect: () => {
       if (passivePerks.length === 0) {
@@ -694,6 +888,7 @@ const DEBUFFS = [
   { // Prolonged Rounds
     name: "Prolonged Rounds",
     description: "You need 1 extra round to progress.",
+    max: 99,
     type: "once",
     effect: () => {
       maxRounds += 1;
@@ -705,6 +900,7 @@ const DEBUFFS = [
   { // Cramped Hand
     name: "Cramped Hand",
     description: "Draw 2 fewer cards per hand (min 3).",
+    max: 5,
     type: "once",
     effect: () => {
       handSize = max(handSize - 2, 3);

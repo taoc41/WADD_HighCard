@@ -1,7 +1,9 @@
 
+
+
 Rarities
 
-Common -> Uncommon -> Rare -> Super Rare -> Mythical -> Legendary
+Common -> Uncommon -> Rare -> -> Mythical -> Legendary
 
 ----- DEBUFFS ------------------------------------------------------------------------------------------------
 
@@ -30,14 +32,17 @@ Lose 1% of your total score.
 
 ----- PACKS --------------------------------------------------------------------------------------------------
 
--Booster Pack : Common
+-Booster Pack : Common *
 Add two random cards.
 
 -Underdog Pack : Common
-Add five low ranking cards (2-4) of random suits.
+Add three low ranking cards (2-4) of random suits.
 
 -Flush Pack : Common
 Add three of the same suit.
+
+-Face Pack : Common
+Add 2 random face cards.
 
 -Twin Pack : Common
 Add four cards consisting of 2 pairs.
@@ -47,6 +52,13 @@ Add three cards: One low (2-5), one middle (6-10), and one high (J/Q/K/A).
 
 -Balanced Pack : Common
 Add one card of each suit.
+
+-Gambler's Pack : Common
+Add 2 cards to your deck. 
+50% chance each to be high (10–A) or low (2–6).
+
+-Repeat Pack : Common
+Add 2 copies of a random card from your hand.
 
 ---
 
@@ -65,11 +77,10 @@ Add 3 Hearts of random ranks.
 -Diamonds Pack : Uncommon
 Add 3 Diamonds of random ranks.
 
--Face Pack : Uncommon
-Add 3 random face cards.
-
 -Booster Box : Uncommon
 Add 5 random cards.
+
+
 
 ---
 
@@ -108,10 +119,8 @@ Add 5 random red cards (Hearts/Diamonds).
 -Shadow Pack : Cursed
 Add 5 random black cards (Clubs/Spades).
 
--Tarnished Royal Pack : Cursed
+-Tarnished Pack : Cursed
 Add a J, Q, and K, each from a difference suit and rank, with two random low (2-4) cards.
-
--False Flush Pack:
 
 -Rotten Pack : Cursed
 Add one high ranking card (10-A) and four cards of the "2" rank.
@@ -119,7 +128,8 @@ Add one high ranking card (10-A) and four cards of the "2" rank.
 -"Oops, all 2s!" Pack : Cursed
 Add 10 cards of the "2" rank.
 
-
+-New Deck : Cursed
+Replace your entire deck with a new 52-standard deck.
 
 
 ----- PERKS --------------------------------------------------------------------------------------------------
@@ -242,9 +252,6 @@ This ability is removed when used.
 -Promotion : Common
 Increase the rank of up to 2 cards by 1
 
--Mass Promotion : Rare
-Increase the rank of all cards in the hand by 1.
-
 -Reincarnation : Common
 Convert 3 cards into the same random suit.
 
@@ -256,6 +263,21 @@ Select up to 3 cards. Spades converts to Diamonds, Clubs converts to Hearts, and
 
 -Mathmatician : Common
 Select two cards of the same suits below 6. The left card's rank becomes the total sum of both cards.
+
+-Mimicry : Common
+Convert the selected right-most card into the same as the selected left-most card
+
+-Rip Apart : Common
+Destroy up to 2 cards
+
+-Recycle: Common
+Destroy one card. Gain +2 upgrade points.
+
+-Kindling : Common
+Destroy one card. Gain +2 Burns.
+
+-Shatter : Common
+Destroy one card. Gain +2 Freezes.
 
 = = =
 
@@ -271,44 +293,73 @@ Convert 3 cards into Hearts
 -Warriors' Courage : Uncommon
 Convert 3 cards into Spaces
 
-= = =
-
-
--Unity : Mythical
-Convert all cards in hand into a random suit.
-
--Strength in Numbers : Mythical
-Convert all cards in hand into a random rank.
-
--Mimicry : Common
-Convert the selected right-most card into the same as the selected left-most card
-
--Rip Apart : Common
-Destroy up to 2 cards
-
-= = =
-
--Give and Take (Recycle): Common
-Destroy one card. Gain +2 upgrade points.
-
--
-
--Give and Take (Immolate) : Common
-Destroy one card. Gain +2 Burns.
-
--Give and Take (Shatter) : Common
-Destroy one card. Gain +2 Freezes.
-
-= = =
-
--Fragment : Legendary
-Destroy one card. Add a random card(s) of the same suit equal to half the rank of the destroyed card to your deck.
+-Sequencing : Rare
+Convert 5 cards into a perfect straight (random starting rank & suit)
 
 -Usurper : Uncommon
 Convert up to 2 cards into a random face card(s).
 
+= = =
+
+-Mass Promotion : Rare
+Increase the rank of all cards in the hand by 1.
+
+
+
+= = =
+
+
+-Requiem : Mythical
+Select up to 3 cards of a low rank (2-4). Convert them into an Ace.
+
+-Tithe : Mythical
+Destroy 10 random cards. Add 5 Aces to your deck.
+
+-Strength in Unity : Mythical
+Select a card. All cards in the hand become the selected card's suit.
+
+-Strength in Numbers : Mythical
+Select a card. All cards in the hand become the selected card's rank.
+
+-Royal Blood : Mythical.
+Convert all cards in the hand into a random face card, keeping their suits.
+
+-Perfected Suit : Mythical
+Convert the entire hand into the suit with the highest count in your deck.
+
+
+= = =
+
+// Only 5
+
+-Last Rites : Legendary
+Destroy the 13 lowest-ranked cards in your deck.
+
+-Crystalize : Legendary
+Select a card. Convert 10 random cards in the deck into the selected card.
+
+-Bloom : Legendary
+Choose one card. Convert all other cards in the hand into the selected card.
+
+-Immolate : Legendary
+Select up to 5 cards. Destroy them, and gain 3 Burns for each card destroyed.
+
+-Cryosis : Legendary
+Select up to 5 cards. Destroy them, and gain 3 Freezes for each card destroyed.
+
+
+
+= = =
+
 Amnesia : Cursed
 Randomize your entire deck.
 
+Hivemind : Cursed
+Convert all cards in hand into a random suit.
 
+Singularity : Cursed
+Convert all cards in hand into a random suit.
+
+-Erosion : Cursed
+Lower the ranks of all cards in the hand by 1.
 
