@@ -1,0 +1,160 @@
+
+
+-Pair Up : Common
++40 points if your hand contained a Pair.
+
+-Twinning : Common
++80 points if your hand contained a Two Pair.
+
+-Thrice is Nice : Common
++120 points if your hand contained a Three of a Kind.
+
+-Suit Yourself : Common
++160 points if your hand contained a Flush.
+
+-Stair Step : Common
++160 points if your hand contained a Straight
+
+-Housekeeping : Common
++200 points if your hand contained a Full House
+
+-Minimalist : Common
++25 mult if you played 3 or fewer cards.
+
+-Lone Star : Common
++25 points if your hand was a High Card containing a high-ranking card (J-A)
+
+-Royal Parade : Common
++30 points for every face card played.
+
+-Lone Wolf : Common
+Add 2 random cards if you play only a single card.
+
+-Backup Draw : Common
+Add 1 random card if you played 3 or fewer cards.
+
+-Flush Growth : Common
+Add 1 random card of the same suit if you play a Flush.
+
+-Crowd Favourite : Common
+Add 1 copy of your most frequent card (card) in your deck if played.
+
+-Bookends : Common
+Add a card of the same rank if you play a hand that includes both a 2 and an Ace.
+
+-Card Collector : Common
+Every 3 hands played, add a random card.
+
+-Multiplicity : Common
+Add 1 card for every duplicate rank played this hand.
+
+-Card Ace
+
+--
+
+-Tidal Wave : Uncommon
+Add 2 cards of the same suit if your played hand was a Flush.
+
+-Set Bonus : Uncommon
+Add 1 random card if your play a Three of a Kind, 2 random cards if it is a Four of a Kind.
+
+-Repetitive Rhythm : Uncommon
+x3 Mult if the played hand was the same as last round.
+
+-Conservative : Uncommon
++20 points for every reshuffles remaining.
+
+-Lucky Find : Uncommon
+50% chance every round for a random card to the deck every ante.
+
+-Favour of the Court : Uncommon.
+Add 1 random face card if a your played hand contains a face card.
+
+-Fan Favourite : Uncommon
+If you play a single card, add a copy of it and a random card of the same suit.
+
+-Face to Face : Uncommon
++100 points if the hand contains both Jack and Queen.
+
+-Lucky Spread : Uncommon
++5 Mult for each different suit played.
+
+-Crestling Wave : Uncommon
+Add 2 cards to your deck if the played hand was a Straight or Flush.
+
+-Last Stand : Uncommon
++250 points if your played hand contains exactly 1 card and it's an Ace.
+
+-Revolution : Uncommon
+Add a random face card if your played hand contained 4 or more cards under rank 6.
+
+-Speedrun : Uncommon
++150 points if your played hand contained 3 or fewer cards for 2 turns (or more) in a row.
+
+-Blunt Edge : Uncommon
++100 points if your played hand didn't contain any face cards.
+
+-Queen's Blessing : Uncommon
+Add 2 cards if your played hand contained a Queen as your highest ranked card.
+
+-Family Tree : Uncommon
+Add 1 face card if you play a hand that contains both a Pair and a face card.
+
+---
+
+-Perfect Pattern : Rare
+x4 Mult if your hand is a Straight Flush
+
+-Repeat Loyalty : Rare
+If you play a face card and the last card played was a face card, gain +2 random cards.
+
+-Flash Draw : Rare
+Add 2 cards every time you play a 3 card hand.
+
+-Specialist : Rare
++100 points for every card played that matches the suit of your most frequent card in your deck
+
+-Royal Tax : Rare
++250 points if your played hand contains a King, and then destroy the lowest ranked card in your hand.
+
+-Firestarter : Rare
+Burning an upgrade will add a random card to the deck. Burning a Booster will add their cards to the deck instead.
+
+-Card Crawler : Rare
+Add a copy the first selected card in a hand that was reshuffled back to the deck, to the deck.
+
+-Gilded Chain : Rare
+x4 Mult if your played hand contains a Straight with a J, Q, and K.
+
+-Pureblood : Rare
+If your played hand was a Flush containing 2 face cards, add 3 cards of the same suit to your deck.
+
+
+---
+
+-All for One : Mythical
+All played cards contribute to the rank multiplier.
+
+-Second Wind : Mythical
+Continue onto the next ante even if you don't meet the score requirement with 5 upgrade points. 
+This ability is removed automatically when activated.
+
+-Royal Decree : Mythical
+x1.25 Mult. This card gains x0.25 mult for every face card played. 
+
+-Royal Pact : Mythical
+Every time you play a face card, add a random card. Every time you play all 3 (J/Q/K), x3 Mult.
+
+-Monochrome : Mythical
+If all cards in your played hand are the same suit, add 5 cards of that suit and x3 Mult.
+
+---
+
+-Autodidact : Legendary
+After every ante, you will additionally gain half the upgrade points you currently have.
+
+-Transmutation : Legendary
+While you have this ability, choosing an upgrade will convert it's rarity to "Common". 
+This ability is removed when used.
+
+

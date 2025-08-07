@@ -62,7 +62,22 @@ function debugAddDebuff(name) {
 // use via console, example below.
 // debugAddUpgrade("pack", PACKS.find(p => p.name === "Booster Pack"), 1);
 
-function debugAddUpgrade(type, upgradeData, slotIndex = 0) {
+function debugAddUpgrade(name, slotIndex = 0) {
     if (!upgradeChoices || slotIndex >= upgradeChoices.length) return;
-    upgradeChoices[slotIndex] = new UpgradeChoice(type, upgradeData);
-  }
+  
+    // Search for the upgrade across all pools
+    const allUpgrades = [
+      ...PACKS.map(u => ({ ...u, type: "pack" })),
+      ...EDIT_PERKS.map(u => ({ ...u, type: "edit" })),
+      ...PERKS.map(u => ({ ...u, type: "perk" })),
+      ...PASSIVE_PERKS.map(u => ({ ...u, type: "passive" }))
+    ];
+    
+    const match = allUpgrades.find(u => u.name.toLowerCase() === name.toLowerCase());
+    if (!match) {
+      console.warn(`Upgrade "${name}" not found.`);
+      return;
+    }
+  
+    upgradeChoices[slotIndex] = new UpgradeChoice(match.type, match);
+}

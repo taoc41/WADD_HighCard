@@ -36,9 +36,8 @@ const rankMap = {
 
 
 //#region Card
-/**
- * 
- */
+// class for storing card
+// handles drawing the card + stores rank + suit information
 class Card {
   constructor(rank, suit) {
     this.rank = rank;
@@ -51,7 +50,7 @@ class Card {
   }
 
   /** 
-   * Draws the playing card into the UI.
+   * draws the playing card into the UI.
    * @param {*} x The X position of the card.
    * @param {*} y The Y position of the card. */
   draw(x, y) {
@@ -60,14 +59,14 @@ class Card {
     this.x = x;
     this.y = y;
 
-    // Sets the origin X and Y positions of the specific sprite within the sprite sheet.
+    // sets the origin X and Y positions of the specific sprite within the sprite sheet.
     let sx = rankMap[this.rank] * this.width;
     let sy = suitMap[this.suit] * this.height;
 
     /** 
-     * Is the card selected? (Shortened If statement for clarity.)
-     * Change the color of the card to gold if YES.
-     * Otherwise default to white if NO. */
+     * is the card selected?
+     * change the color of the card to gold if YES.
+     * otherwise default to white if NO. */
     fill(this.selected ? 'gold' : 'white');
     rect(x, y, cardWidth, cardHeight, 5);
 
@@ -320,17 +319,7 @@ class ConfirmButton extends GameButton {
   }
 
   onClick() {
-    if (selectedUpgradeIndex === null) return;
-
-    const choice = upgradeChoices[selectedUpgradeIndex];
-    const ok = choice.apply();
-    if (!ok) return;
-    
-    if (ok) {
-      frozenUpgrades.delete(selectedUpgradeIndex);
-      upgradePoints--;
-      upgradePoints > 0 ? generateUpgradeChoice() : nextAnte();
-    }
+    confirmUpgrade();
   }
 }
 
@@ -368,52 +357,7 @@ class BurnButton extends GameButton {
 
 
   onClick() {
-    if (burnUsed) {
-      eventTextAnimations.push({
-        text: "You can only burn once per upgrade point!",
-        x: width / 2,
-        y: height / 2 - 80,
-        opacity: 255,
-        timer: 60
-      });
-      return;
-    }
-
-    if (selectedUpgradeIndex == null) return;
-
-    const selectedUpgrade = upgradeChoices[selectedUpgradeIndex];
-
-    if (!selectedUpgrade.isBurnable()) {
-      eventTextAnimations.push({
-        text: `Cannot burn a Cursed upgrade!`,
-        x: width / 2,
-        y: height / 2 - 80,
-        opacity: 255,
-        timer: 60
-      });
-      return;
-    }
-
-    if (burnsRemaining <= 0) {
-      eventTextAnimations.push({
-        text: `No burns remaining!!`,
-        x: width / 2,
-        y: height / 2 - 80,
-        opacity: 255,
-        timer: 60
-      });
-      return;
-    }
-
-    // i hate how ugly this looks
-    const burned = upgradeChoices[selectedUpgradeIndex]; // get the selected upgrade
-    burnedUpgrades.push(burned.name); // push it into the list of burned upgrades
-    frozenUpgrades.delete(selectedUpgradeIndex); // get rid of the freeze if there is one.
-    sendEventText(`${burned.name} has been burned!`)
-    upgradeChoices.splice(selectedUpgradeIndex, 1); // remove from selectable list
-    selectedUpgradeIndex = null; // reset burned index back to null
-    burnsRemaining--; // decrease amount of burns by 1
-    burnUsed = true // cannot use burn again until another upgrade is chosen, or the upgrade is skipped.
+    burnUpgrade();
   }
 }
 
@@ -437,25 +381,6 @@ class FreezeButton extends GameButton {
   }
 
   onClick() {
-    if (selectedUpgradeIndex == null) return;
-
-    const idx = selectedUpgradeIndex;
-
-    if (frozenUpgrades.has(idx)) {
-      frozenUpgrades.delete(idx);
-      this.label = `Freeze (${freezesRemaining})`
-      return;
-    }
-
-    if (freezesRemaining <= 0) {
-      sendEventText(`No more freezes remaining!`);
-      return;
-    }
-
-    const choice = upgradeChoices[idx];
-    if (!choice) return;
-    frozenUpgrades.set(idx, choice);
-    this.label = "Unfreeze"
-    freezesRemaining--;
+    freezeUpgrade()
   }
 }

@@ -194,58 +194,6 @@ function mouseReleased() {
     holdingCardIndex = -1;
 }
 
-// function mouseReleased() {
-//     if (isDragging && heldCard) {
-//         // Determine closest index
-//         let minDist = Infinity;
-//         let targetIndex = holdingCardIndex;
-
-//         for (let i = 0; i < hand.length; i++) {
-//             if (i === holdingCardIndex) continue;
-//             let card = hand[i];
-//             let distToSlot = dist(heldCard.x, heldCard.y, card.x, card.y);
-//             if (distToSlot < minDist) {
-//                 minDist = distToSlot;
-//                 targetIndex = i;
-//             }
-//         }
-
-//         if (minDist > 150) {
-//             // basically do nothing: too far - snap back
-//         } else {
-//             let movedCard = hand.splice(holdingCardIndex, 1)[0];
-//             hand.splice(targetIndex, 0, movedCard);
-//         }
-//     } else if (heldCard) {
-//         // click based selection fallback if drag is never triggered. 
-//         // previously in mousePressed (before 30/07/25)
-//         let idx = holdingCardIndex;
-//         if (heldCard.selected) {
-//             selected = selected.filter(n => n !== idx);
-//             heldCard.selected = false;
-//         } else if (selected.length < 5) {
-//             selected.push(idx);
-//             heldCard.selected = true;
-//         }
-//     }
-
-//     // Updates the preview hand info 
-//     // gameState === "playing" because exiting upgrade phase causes visual bug
-//     if (selected.length >= 1 && gameState === "playing") {
-//         let chosenCards = selected.map(i => hand[i]);
-//         previewHandInfo = evaluateHand(chosenCards);
-//         previewHandInfo.cards = chosenCards;
-//         previewHandInfo.baseScore = previewHandInfo.score;
-//     } else {
-//         previewHandInfo = null;
-//     }
-
-//     // Reset drag state
-//     isDragging = false;
-//     heldCard = null;
-//     holdingCardIndex = -1;
-// }
-
 //#region keyTyped()
 function keyTyped() {
     if (gameState === "gameover") {
@@ -286,9 +234,15 @@ function playHand() {
 
     let baseScore = currentHandInfo.score;
     let passiveAddScore = 0;
-    let passiveMultiplier = 1;
-    let rankMultiplier = calculateRankMultiplier(currentHandInfo.usedCards);
+    let passiveAddMult = 1;
+    let passiveXMult = 1;
 
+    const allForOne = passivePerks.some(p => p.name === "All for One")
+    let rankMult = allForOne
+        ? calculateRankMultiplier(chosenCards)
+        : calculateRankMultiplier(currentHandInfo.usedCards);
+
+    // activate all current perks
     passivePerks.forEach(perk => {
         if (disabledPerk.includes(perk)) return;
 
@@ -297,8 +251,8 @@ function playHand() {
 
             switch (perk.result) {
                 case "addScore": passiveAddScore += result; break;
-                case "addMult": passiveMultiplier += result; break;
-                case "xMult": passiveMultiplier *= result; break;
+                case "addMult": passiveAddMult += result; break;
+                case "xMult": passiveXMult *= result; break;
                 default: perk.effect(); break; // if not specified, then effect is not score related.
             }
 
@@ -306,7 +260,10 @@ function playHand() {
         }
     });
 
-    let finalScore = Math.floor((baseScore + passiveAddScore) * rankMultiplier * passiveMultiplier);
+    // math for how scoring should be calculated
+    // should be simple enough to understand
+    let finalScore = Math.floor
+        ((baseScore + passiveAddScore) * ((rankMult + passiveAddMult) * passiveXMult));
 
     // for "silenced" debuff - clears previous round's locks
     disabledPerk = [];
@@ -336,66 +293,78 @@ function playHand() {
     gameStateLogic();
 }
 
-//#
-function scoringLogic(baseScore, playedCards) {
-}
 
 //#region gameStateLogic()
-// handles what should happen after rounds = maxRound, and also game over condition
-// just a bunch of if statements really
+// main function that handles everything
+// below funtions are helper functions (to refactor so it all isn't a bunch of if statements)
 function gameStateLogic() {
-
-    if (deck.length === 0 && hand.every(card => card === null)) {
+    if (isGameOver()) {
         gameState = "gameover";
+        return;
     }
 
-    if (round > maxRounds) {
-        let baseThreshold = getUpgradeThreshold();
-
-        if (score >= baseThreshold) {
-
-            // convert ante score into upgrades
-            let gainedUpgrades = Math.floor(score / baseThreshold);
-            upgradePoints = gainedUpgrades + storedUpgradePoints;
-            storedUpgradePoints = 0;
-
-            // transfer score to totalScore
-            totalScore += score;
-            score = 0;
-
-            // if there's more than 0 upgrade points, then choose another upgrade.
-            if (upgradePoints > 0) {
-
-                // logic for "oblivious" debuff. skips the upgrade phase
-                const oblivious = activeDebuffs.find(d => d.name === "Oblivious"); // checks if oblivious exists in activeDebuff array.
-                if (oblivious) {
-                    oblivious.effect();
-                    nextAnte();
-                    return;
-                }
-
-                gameState = "upgrade";
-                generateUpgradeChoice();
-            } else {
-                nextAnte();
-            }
-
-        } else {
-
-            // reset stored points if player didn't meet the threshold.
-            if (storedUpgradePoints > 0) {
-                sendEventText(`Failed to reach score requirement, ${storedUpgradePoints} stored upgrades lost!`)
-            } else if (round === 6) {
-                sendEventText(`You must meet the score requirement to progress!`);
-            }
-            storedUpgradePoints = 0;
-            drawHand();
-        }
-
+    if (isAnteOver()) {
+        handleAnteEnd();
     } else {
-        drawHand(); // new hand if its not a new ante.
+        drawHand(); // new hand if it's not a new ante
     }
 }
+
+// checks if the game is over
+function isGameOver() {
+    return deck.length === 0 && hand.every(card => card === null);
+}
+
+// checks if the ante is over
+function isAnteOver() {
+    return round > maxRounds;
+}
+
+// handles what to do when the ante is over
+function handleAnteEnd() {
+    const baseThreshold = getUpgradeThreshold();
+
+    if (score >= baseThreshold) {
+        handleSuccessfulAnte(baseThreshold);
+    } else {
+        handleFailedAnte();
+    }
+}
+
+// handles a sucessful ante - if the player meets the score requirement
+function handleSuccessfulAnte(baseThreshold) {
+    upgradePoints = Math.floor(score / baseThreshold) + storedUpgradePoints;
+    storedUpgradePoints = 0;
+    totalScore += score;
+    score = 0;
+
+    if (upgradePoints > 0) {
+        const oblivious = activeDebuffs.find(d => d.name === "Oblivious");
+        if (oblivious) {
+            oblivious.effect();
+            nextAnte();
+        } else {
+            gameState = "upgrade";
+            generateUpgradeChoice();
+        }
+    } else {
+        nextAnte();
+    }
+}
+
+// handles a failed ante - if the played didn't meet the score requirement
+function handleFailedAnte() {
+    if (storedUpgradePoints > 0) {
+        sendEventText(`Failed to reach score requirement, ${storedUpgradePoints} stored upgrades lost!`);
+    } else if (round === maxRounds + 1) {
+        sendEventText(`You must meet the score requirement to progress!`);
+    }
+
+    storedUpgradePoints = 0;
+    drawHand();
+}
+
+/* -------------------------------------------- */
 
 //#region reshuffleHand()
 function reshuffleHand() {
@@ -423,19 +392,15 @@ function reshuffleHand() {
     previewHandInfo = null;
     reshuffleUses--;
 
-    // For shuffle based perks (Card Crawler for now)
-    passivePerks.forEach(perk => {
-        if (perk.name === "Card Crawler") {
-            perk.effect(0); // score doesn't matter here
-            eventTextAnimations.push({
-                text: `${perk.name} activated!`,
-                x: width / 2,
-                y: height / 2 - 100 + (eventTextAnimations.length * 30),
-                opacity: 255,
-                timer: 60
-            });
+    for (let perk of passivePerks) {
+        if (perk.trigger === "onShuffle" && !disabledPerk.includes(perk)) {
+            if (!perk.condition || perk.condition(chosenCards)) {
+                perk.effect(chosenCards);
+                sendEventText(`${perk.name} activated!`);
+            }
         }
-    });
+    }
+
 }
 
 //#region returnHand()
@@ -615,7 +580,81 @@ function generateUpgradeChoice() {
     upgradeChoices = slots;
 }
 
-function addDebuff() {
+function confirmUpgrade() {
+    if (selectedUpgradeIndex === null) return;
+
+    const choice = upgradeChoices[selectedUpgradeIndex];
+    const ok = choice.apply();
+    if (!ok) return;
+
+    if (ok) {
+        frozenUpgrades.delete(selectedUpgradeIndex);
+        upgradePoints--;
+        upgradePoints > 0 ? generateUpgradeChoice() : nextAnte();
+    }
+}
+
+//#region burnUpgrade()
+function burnUpgrade() {
+    if (burnUsed) {
+        sendEventText("You can only burn once per upgrade!")
+        return;
+    }
+
+    if (selectedUpgradeIndex == null) return;
+
+    const selectedUpgrade = upgradeChoices[selectedUpgradeIndex];
+
+    if (!selectedUpgrade.isBurnable()) {
+        sendEventText("Cannot burn a Cursed upgrade!")
+        return;
+    }
+
+    if (burnsRemaining <= 0) {
+        sendEventText("No burns remaining!!")
+        return;
+    }
+
+    // handles burning the upgrade
+    const burned = upgradeChoices[selectedUpgradeIndex]; // get the selected upgrade
+    burnedUpgrades.push(burned.name); // push it into the list of burned upgrades
+    frozenUpgrades.delete(selectedUpgradeIndex); // get rid of the freeze if there is one.
+    sendEventText(`${burned.name} has been burned!`)
+    upgradeChoices.splice(selectedUpgradeIndex, 1); // remove from selectable list
+    selectedUpgradeIndex = null; // reset burned index back to null
+    burnsRemaining--; // decrease amount of burns by 1
+    burnUsed = true // cannot use burn again until another upgrade is chosen, or the upgrade is skipped.
+
+    for (let perk of passivePerks) {
+        if (perk.trigger === "onBurn" && (!disabledPerk.includes(perk))) {
+            perk.effect(burned);
+            sendEventText(`${perk.name} activated!`)
+        }
+    }
+}
+
+//#region freezeUpgrade();
+function freezeUpgrade() {
+    if (selectedUpgradeIndex == null) return;
+
+    const idx = selectedUpgradeIndex;
+
+    if (frozenUpgrades.has(idx)) {
+        frozenUpgrades.delete(idx);
+        this.label = `Freeze (${freezesRemaining})`
+        return;
+    }
+
+    if (freezesRemaining <= 0) {
+        sendEventText(`No more freezes remaining!`);
+        return;
+    }
+
+    const choice = upgradeChoices[idx];
+    if (!choice) return;
+    frozenUpgrades.set(idx, choice);
+    this.label = "Unfreeze"
+    freezesRemaining--;
 
 }
 
@@ -630,8 +669,8 @@ function addDebuffAnte() {
     });
 
     // do nothing if there's no debuffs available to add / all debuffs hit max limit.
-    if (validDebuffs.length === 0) return; 
-    
+    if (validDebuffs.length === 0) return;
+
     // add the debuff (push into activeDebuff array)
     const debuff = random(validDebuffs);
     activeDebuffs.push(debuff);
@@ -651,14 +690,14 @@ function addDebuffAnte() {
 //#region nextAnte()
 // literally so i dont have to keep repeating this code over and over
 function nextAnte() {
-    addDebuffAnte();
-    gameState = "playing";
-    ante++;
-    round = 1;
-    upgradePoints = 0;
-    selectedUpgradeIndex = null
-    returnHand();
-    drawHand();
+    addDebuffAnte(); // adds a debuff every 5 antes
+    gameState = "playing"; // sets game state
+    ante++; // next ante
+    round = 1; // reset back to round 1
+    upgradePoints = 0; // reset upgrade points
+    selectedUpgradeIndex = null // resets upgrade selection
+    returnHand(); // return the hand from upgrade screen back into deck
+    drawHand(); // redraw a new hand
 }
 
 
@@ -838,4 +877,3 @@ function calculateRankMultiplier(cards) {
 
     return Math.max(1, total); // Ensure multiplier is at least 1
 }
-

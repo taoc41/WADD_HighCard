@@ -4,13 +4,12 @@
  *
 */
 
-console.error(`%cfuck off`, 'color: red; font-size: 50px; background-color: white;')
-
-
+//#region preload()
 function preload() {
   cardSpriteSheet = loadImage("assets/deck.png");
 }
 
+//#region setup()
 function setup() {
 
   // canvas setup;
@@ -149,8 +148,14 @@ function drawUI() {
     text(`Deck: ${deck.length} cards left`, width / 2, 150);
 
     if (previewHandInfo && previewHandInfo.usedCards) {
-      let baseScore = previewHandInfo.score;
-      let multiplier = calculateRankMultiplier(previewHandInfo.usedCards);
+      let baseScore = previewHandInfo.score; // defines the base score.
+      let chosenCards = selected.map(i => hand[i]); // defines the selected hand.
+
+      // if all for one is active -> use all ranks in selected cards
+      let allForOne = passivePerks.some(p => p.name === "All for One")
+      let multiplier = allForOne ? calculateRankMultiplier(chosenCards) : calculateRankMultiplier(previewHandInfo.usedCards);
+      
+      // display text information
       text(`Selected Hand: ${previewHandInfo.name} (${baseScore} x ${multiplier})`, width / 2, height - 100);
     }
 
