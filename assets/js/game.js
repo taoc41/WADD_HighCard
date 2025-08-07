@@ -117,13 +117,13 @@ function mouseDragged() {
 
 function mouseReleased() {
     if (isDragging && heldCard) {
-        
+
         // calculate insertion index using midpoints of between current slots
-        
+
         // find the closest index
         let minDist = Infinity;
         let targetIndex = holdingCardIndex;
-  
+
         for (let i = 0; i < hand.length; i++) {
             if (i === holdingCardIndex) continue;
             const card = hand[i];
@@ -133,34 +133,34 @@ function mouseReleased() {
                 targetIndex = i;
             }
         }
-  
+
         if (minDist <= 150 && targetIndex !== holdingCardIndex) {
             // remove held card
             const movedCard = hand.splice(holdingCardIndex, 1)[0];
-            
+
             // if removed before target, target index shifts left by 1
             const insertAt = (targetIndex > holdingCardIndex) ? targetIndex - 1 : targetIndex;
-  
+
             // insert currently held card in new spot
             hand.splice(insertAt, 0, movedCard);
-  
+
             // reindex `selected` array to reflect the move
             selected = selected.map(idx => {
                 if (idx === holdingCardIndex) return insertAt;
-  
+
                 // moved foward: shift indices in (oldIdx, new Idx] left by 1
                 if (holdingCardIndex < insertAt && idx > holdingCardIndex && idx <= insertAt) return idx - 1;
                 if (insertAt < holdingCardIndex && idx >= insertAt && idx < holdingCardIndex) return idx + 1;
-  
+
                 return idx;
             });
-  
+
             // dedupe, clamp, sort
             selected = Array.from(new Set(selected))
-            .filter(i => i >= 0 && i < hand.length)
-            .sort((a, b) => a - b);
+                .filter(i => i >= 0 && i < hand.length)
+                .sort((a, b) => a - b);
         }
-  
+
     } else if (heldCard) {
         // click based selection toggle (no drag)
         const idx = holdingCardIndex;
@@ -172,13 +172,13 @@ function mouseReleased() {
             heldCard.selected = true;
         }
     }
-  
+
     // resync `selected` from card flags to avoid ghosting
     selected = hand.reduce((arr, c, i) => {
         if (c && c.selected) arr.push(i);
         return arr;
     }, []);
-  
+
     if (gameState === "playing" && selected.length >= 1) {
         const chosenCards = selected.map(i => hand[i]).filter(Boolean);
         previewHandInfo = evaluateHand(chosenCards);
@@ -187,12 +187,12 @@ function mouseReleased() {
     } else {
         previewHandInfo = null;
     }
-  
+
     // reset drag state
     isDragging = false;
     heldCard = null;
     holdingCardIndex = -1;
-  }
+}
 
 // function mouseReleased() {
 //     if (isDragging && heldCard) {
@@ -285,29 +285,30 @@ function playHand() {
     currentHandInfo = evaluateHand(chosenCards);
 
     let baseScore = currentHandInfo.score;
-    let multiplier = calculateRankMultiplier(currentHandInfo.usedCards);
-    let finalScore = baseScore * multiplier;
+    let passiveAddScore = 0;
+    let passiveMultiplier = 1;
+    let rankMultiplier = calculateRankMultiplier(currentHandInfo.usedCards);
 
-    // Apply passive perks
     passivePerks.forEach(perk => {
-        if (disabledPerk.includes(perk)) return; // Perk Lockout
+        if (disabledPerk.includes(perk)) return;
 
-        if (perk.condition(chosenCards, finalScore)) {
-            finalScore = Math.floor(perk.effect(finalScore));
-            let activeCount = eventTextAnimations.length;
+        if (perk.trigger === "playHand" && perk.condition(chosenCards)) {
+            const result = perk.effect(chosenCards); // playedCards inputs 
 
-            // Trigger text animations
-            eventTextAnimations.push({
-                text: perk.name + " activated!",
-                x: width / 2,
-                y: height / 2 - 100 + (activeCount * 30),
-                opacity: 255,
-                timer: 60
-            });
+            switch (perk.result) {
+                case "addScore": passiveAddScore += result; break;
+                case "addMult": passiveMultiplier += result; break;
+                case "xMult": passiveMultiplier *= result; break;
+                default: perk.effect(); break; // if not specified, then effect is not score related.
+            }
+
+            sendEventText(`${perk.name} activated!`);
         }
     });
 
-    // for Perk Lockout - clears previous round's locks
+    let finalScore = Math.floor((baseScore + passiveAddScore) * rankMultiplier * passiveMultiplier);
+
+    // for "silenced" debuff - clears previous round's locks
     disabledPerk = [];
 
     activeDebuffs.forEach(debuff => {
@@ -332,6 +333,17 @@ function playHand() {
     }
 
     selected = [];
+    gameStateLogic();
+}
+
+//#
+function scoringLogic(baseScore, playedCards) {
+}
+
+//#region gameStateLogic()
+// handles what should happen after rounds = maxRound, and also game over condition
+// just a bunch of if statements really
+function gameStateLogic() {
 
     if (deck.length === 0 && hand.every(card => card === null)) {
         gameState = "gameover";
@@ -342,36 +354,44 @@ function playHand() {
 
         if (score >= baseThreshold) {
 
-            // Convert ante score into upgrades
+            // convert ante score into upgrades
             let gainedUpgrades = Math.floor(score / baseThreshold);
             upgradePoints = gainedUpgrades + storedUpgradePoints;
             storedUpgradePoints = 0;
 
-            // Transfer score to totalScore
+            // transfer score to totalScore
             totalScore += score;
             score = 0;
 
-            // If there's more than 0 upgrade points, then choose another upgrade.
+            // if there's more than 0 upgrade points, then choose another upgrade.
             if (upgradePoints > 0) {
+
+                // logic for "oblivious" debuff. skips the upgrade phase
+                const oblivious = activeDebuffs.find(d => d.name === "Oblivious"); // checks if oblivious exists in activeDebuff array.
+                if (oblivious) {
+                    oblivious.effect();
+                    nextAnte();
+                    return;
+                }
+
                 gameState = "upgrade";
                 generateUpgradeChoice();
             } else {
                 nextAnte();
             }
+
         } else {
+
             // reset stored points if player didn't meet the threshold.
             if (storedUpgradePoints > 0) {
-                eventTextAnimations.push({
-                    text: `Failed to reach score requirement, ${storedUpgradePoints} stored upgrades lost!`,
-                    x: width / 2,
-                    y: height / 2 - 100,
-                    opacity: 255,
-                    timer: 60
-                });
+                sendEventText(`Failed to reach score requirement, ${storedUpgradePoints} stored upgrades lost!`)
+            } else if (round === 6) {
+                sendEventText(`You must meet the score requirement to progress!`);
             }
             storedUpgradePoints = 0;
             drawHand();
         }
+
     } else {
         drawHand(); // new hand if its not a new ante.
     }
@@ -426,7 +446,7 @@ function returnHand() {
     selected = []; // clear selected cards
     deck = deck.concat(hand); // move hand back into the deck
     hand = []; // clear the hand
-    shuffle(deck); // shuffle the deck
+    shuffle(deck, true); // shuffle the deck
 }
 
 function getUpgradeThreshold() {
@@ -478,7 +498,7 @@ function generateUpgradeChoice() {
         !burnedUpgrades.includes(p.name) &&
         !frozenNames.has(p.name)
     );
-    const availablePerks = PERKS.filter(p => 
+    const availablePerks = PERKS.filter(p =>
         !burnedUpgrades.includes(p.name) &&
         !frozenNames.has(p.name)
     );
@@ -526,50 +546,55 @@ function generateUpgradeChoice() {
         if (slots[i]) continue;
 
         const roll = random();
-        const rarity = weightedRandomRarity();
+        let rarity = weightedRandomRarity();
 
-        if (roll < 0.55 && availablePassives.length > 0) {
-            const passive = tryPickByRarity(availablePassives, rarity) || tryPickAny(availablePassives);
-            if (passive) {
-                slots[i] = new UpgradeChoice("passive", passive);
-                continue;
+        if (forcedCursedCount > 0) {
+            rarity = "Cursed";
+            forcedCursedCount--
+            sendEventText(`An upgrade had become cursed!`);
+        }
+
+        const typePools = [
+            { chance: 0.55, type: "pack", pool: availablePacks }, // 55% chance
+            { chance: 0.75, type: "edit", pool: availableEdits }, // 25% chance
+            { chance: 0.9, type: "passive", pool: availablePassives }, // 10% chance
+            { change: 1.0, type: "perk", pool: availablePerks } // 10% chance
+        ];
+
+        for (let { chance, type, pool } of typePools) {
+            if (roll < chance && pool.length > 0) {
+                const filteredPool = rarity === "Cursed"
+                    ? pool.filter(p => p.rarity === "Cursed")
+                    : pool;
+
+                const pick = tryPickByRarity(filteredPool, rarity) || tryPickAny(filteredPool);
+                if (pick) {
+                    slots[i] = new UpgradeChoice(type, pick);
+                    break;
+                }
             }
-        } else if (roll < 0.75 && availablePacks.length > 0) {
-            const pack = tryPickByRarity(availablePacks, rarity) || tryPickAny(availablePacks);
-            if (pack) {
-                slots[i] = new UpgradeChoice("pack", pack);
-                continue;
-            }
-        } else if (roll < 0.9 && availableEdits.length > 0) {
-            const edit = tryPickByRarity(availableEdits, rarity) || tryPickAny(availableEdits);
-            if (edit) {
-                slots[i] = new UpgradeChoice("edit", edit);
-                continue;
-            } 
-        } else if (availablePerks.length > 0) {
-            const perk = tryPickByRarity(availablePerks, rarity) || tryPickAny(availablePerks);
-            if (perk) {
-                slots[i] = new UpgradeChoice("perk", perk);
-                continue;
-            } 
         }
     }
 
     // fall back to prevent "nulls" from being generated
     // i hate this so much
     const classifyType = (item) => {
-        if (availablePassives.some(p => p.name === item.name)) return "passive";
         if (availablePacks.some(p => p.name === item.name)) return "pack";
         if (availableEdits.some(p => p.name === item.name)) return "edit";
+        if (availablePassives.some(p => p.name === item.name)) return "passive";
         if (availablePerks.some(p => p.name === item.name)) return "perk";
     };
 
     let fallbackPool = [
-        ...availablePassives,
         ...availablePacks,
         ...availableEdits,
+        ...availablePassives,
         ...availablePerks
     ].filter(u => !usedNames.has(u.name)); // no dupes
+
+    if (forcedCursedCount > 0) {
+        fallbackPool = fallbackPool.filter(u => u.rarity === "Cursed");
+    }
 
     for (let i = 0; i < slots.length; i++) {
         if (slots[i]) continue; // already filled
@@ -590,35 +615,43 @@ function generateUpgradeChoice() {
     upgradeChoices = slots;
 }
 
-//#region addDebuff()
 function addDebuff() {
 
-    // Add a debuff every 5 antes
-    if (ante % 5 === 0) {
-        let debuff = random(DEBUFFS);
-        activeDebuffs.push(debuff);
+}
 
-        if (debuff.type === "once" && typeof debuff.effect === "function") {
-            debuff.effect();
-        }
+//#region addDebuffPer5Ante()
+function addDebuffAnte() {
+    if (ante % 5 !== 0) return; // do nothing if ante is not a multiple of 5
 
-        // Optional animation or UI alert
-        eventTextAnimations.push({
-            text: `Debuff Gained: ${debuff.name}`,
-            x: width / 2,
-            y: height / 2 - 50,
-            opacity: 255,
-            timer: 60
-        });
+    // filter debuffs that haven't hit the max count
+    const validDebuffs = DEBUFFS.filter(d => {
+        const count = activeDebuffs.filter(ad => ad.name === d.name).length;
+        return !d.max || count < d.max;
+    });
+
+    // do nothing if there's no debuffs available to add / all debuffs hit max limit.
+    if (validDebuffs.length === 0) return; 
+    
+    // add the debuff (push into activeDebuff array)
+    const debuff = random(validDebuffs);
+    activeDebuffs.push(debuff);
+
+    // activate the debuff effect now if the type is defined as "once"
+    if (debuff.type === "once" && typeof debuff.effect === "function") {
+        debuff.effect();
     }
 
+    // event text for visual clarity
+    sendEventText(`Difficulty increase... the "${debuff.name}" debuff was added.`)
+
+    // update the HTMl display
     updateDebuffDisplay();
 }
 
 //#region nextAnte()
 // literally so i dont have to keep repeating this code over and over
 function nextAnte() {
-    addDebuff();
+    addDebuffAnte();
     gameState = "playing";
     ante++;
     round = 1;

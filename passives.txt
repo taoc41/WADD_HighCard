@@ -1,0 +1,38 @@
+
+
+
+
+-Lucky Find : Uncommon
+Add 1 random card to the deck every ante.
+
+-Autodidact : Legendary
+After every ante, you will additionally gain half the upgrade points you currently have.
+
+-All for One : Rare
+All played cards contribute to the rank multiplier.
+
+-Royal Decree : Rare
+1x Mult. This card gains 0.25 mult for every face card played. 
+If a non-face card is played, this card resets back to 1.
+
+-Royal Parade : Uncommon
++50 points per face card played.
+
+-Heart's Embrace : Rare
+For every 5 "♥" Cards (currently X), add 1 random card to the deck.
+
+-Diamond's Ambition : Rare
+1x Mult. This card gains 0.5 mult for every '♦' card in your deck.
+
+-Card Crawler : Rare
+Add a copy the first selected card in a hand that was reshuffled back to the deck, into the deck.
+
+
+
+-Second Wind : Mythical
+Continue onto the next ante even if you don't meet the score requirement with 5 upgrade points. 
+This ability is removed automatically when activated.
+
+-Transmutation : Legendary
+While you have this ability, choosing an upgrade will convert it's rarity to "Common". 
+This ability is removed when used.

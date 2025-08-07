@@ -182,8 +182,9 @@ class UpgradeChoice {
 
     // if perk type is "pack"
     if (this.type === "pack" || this.type === "perk") {
-      this.data.apply?.();
-      updatePassivePerkDisplay?.();
+      this.data.apply?.(); // apply pack
+      this.type === "pack" ? shuffle(deck, true) : null; // shuffle the deck if pack
+      updatePassivePerkDisplay?.(); // update perk display
       return true;
     }
 
@@ -214,6 +215,7 @@ class UpgradeChoice {
 
       this.data.apply?.(selectedCards);
       updatePassivePerkDisplay?.();
+      shuffle(deck, true);
       return true;
     }
 

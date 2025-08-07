@@ -5,115 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Highcarder</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: auto;
-      width: 100%;
-      height: 100%;
-      min-width: 1200px;
-      min-height: 800px;
-    }
-
-    body {
-      justify-content: center;
-      background-color: #1b1b1b;
-    }
-
-    main {
-      display: inline;
-    }
-
-    nav {
-      position: absolute;
-      width: 100%;
-      min-width: 1200px;
-      text-align: center;
-    }
-
-    .nav-container a {
-      display: inline-flex;
-      color: white;
-    }
-
-    .navpage a {
-      padding: 1%;
-      margin: 1%;
-    }
-
-    #gameCanvas{
-      display: inline-flex;
-    }
-
-    #effectContainer {
-      display: flex;
-      width: 100%;
-    }
-
-    #debuffContainer {
-      color: white;
-      padding: 1em;
-      text-align: right;
-      width: 20%;
-      margin-left: auto;
-    }
-
-    .debuff-item {
-      display: inline-block;
-      text-align: right;
-
-      strong {
-        font-size: 18px;
-      }
-
-      .debuff-desc {
-        display: inline;
-        align-items: center;
-        margin-bottom: 1em;
-      }
-
-      p {
-        font-size: 12px;
-        padding: 0;
-        margin: 0;
-      }
-    }
-
-    #perkContainer {
-      color: white; 
-      padding: 1em; 
-      width: 20%;
-    }
-
-    .perk-item{
-      display: inline-block;
-      
-      strong {
-        font-size: 18px;
-      }
-
-      .perk-desc{
-      display: inline-flex;
-      align-items: center;
-      margin-bottom: 1em;
-
-      p {
-        font-size: 12px;
-        padding: 0;
-        margin: 0;
-      }
-      
-      button {
-        width: 70px;
-        margin-left: 1em;
-      }
-    }
-  }
-
-    
-
-  </style>
+  <link href="index.css" type="text/css" rel="stylesheet">
 
   <!-- P5.js LIBRARY -->
   <script src="/p5/p5.min.js"></script>
@@ -140,23 +32,25 @@
 </header>
 
 <body>
+
   <main>
 
-    <div id="effectContainer">
+    <div id="effectContainer" class=".prevent-select">
       
       <div id="perkContainer">
-        <h3>Current Passive Perks:</h3>
+        <h3 id="perkCount">Abilities [ 0 / 5 ]:</h3>
         <div id="perkDisplay"></div>
       </div>
   
       <div id="debuffContainer">
-        <h3>Current Debuffs:</h3>
+        <h3>Debuffs:</h3>
         <div id="debuffDisplay"></div>
       </div>
 
     </div>
 
   </main>
+
 </body>
 
 </html>

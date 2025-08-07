@@ -14,12 +14,10 @@ You will have 1 less upgrade choice to choose from every ante.
 Cursed Upgrades become more common.
 
 -Necronomicon (Max 1)
-Cursed Upgrades become more common. 
-Along with debuffs, you will gain a random cursed Perk every 5 antes.
+Along with debuffs, you will a random cursed Perk will be applied every 5 antes.
 
 -Brainwashed (Max 1)
-Cursed Upgrades become more common. 
-You are forced to pick a Cursed Card Pack at least once every upgrade phase.
+The first choices of upgrades are 
 
 -Scalper
 The score requirement is increased by 10%.
@@ -35,35 +33,38 @@ Lose 1% of your total score.
 -Booster Pack : Common *
 Add two random cards.
 
--Underdog Pack : Common
-Add three low ranking cards (2-4) of random suits.
+-Underdog Pack : Common 
+Add four low ranking cards (2-6) of random suits.
 
--Flush Pack : Common
+-Flush Pack : Common *
 Add three of the same suit.
 
--Face Pack : Common
-Add 2 random face cards.
-
--Twin Pack : Common
+-Twin Pack : Common *
 Add four cards consisting of 2 pairs.
 
--High Low Pack : Common
-Add three cards: One low (2-5), one middle (6-10), and one high (J/Q/K/A).
-
--Balanced Pack : Common
+-Balanced Pack : Common *
 Add one card of each suit.
 
--Gambler's Pack : Common
+-Gambler's Pack : Common *
 Add 2 cards to your deck. 
 50% chance each to be high (10–A) or low (2–6).
 
--Repeat Pack : Common
-Add 2 copies of a random card from your hand.
+-Repeat Pack : Common *
+Add 3 copies of a random card from your hand.
+
+-Pair Pack : Common *
+Add 2 cards with the same suit and rank.
+
+-Offsuit Pack : Common *
+Add 3 cards of the same rank but different suits
 
 ---
 
+-Flush Box : Uncommon
+Add 5 cards of a randomly chosen suit.
+
 -Mirror Pack : Uncommon
-Add 2 cards of the most frequent card (Card) in your deck.
+Add 2 cards of the most common card (Card) in your deck.
 
 -Spade Pack : Uncommon
 Add 3 Spades of random ranks.
@@ -80,9 +81,22 @@ Add 3 Diamonds of random ranks.
 -Booster Box : Uncommon
 Add 5 random cards.
 
+-Two Pair Pack : Uncommon
+Add 2 pairs (4 cards total) with random suits and ranks.
 
+-Pulse Pack : Uncommon
+Add 3 cards, all ranked 5, 7, and 9.
+
+Tier Pack : Uncommon
+Add 1 low (2–4), 1 mid (6–8), and 1 high (10–K) card.
 
 ---
+
+-Face Box : Rare
+Add 5 random face cards.
+
+-Quad Pack : Rare
+Add 4 cards of the same rank, each a different suit.
 
 -Stratagem Pack : Rare
 Add 3 copies of your most played card (Card).
@@ -93,25 +107,43 @@ Add a Jack, Queen, and King, of the same suit.
 -Unity Pack : Rare
 Add 5 random cards of the same suit.
 
+-Cascade Pack : Rare
+Add 5 cards consisting of a Full House.
+
+-Gradient Pack : Rare
+Add 5 cards of ascending ranks, all with random suits.
+
 ---
 
 -High Ace's Pack : Mythical
 Add 2 Aces and increase your reshuffles by 1.
 
 -Echo Pack : Mythical
-Add the last scoring hand into your deck.
+Add 3 of the highest-scoring card from your hand.
 
--Cascade Pack : Super Rare
-Add 5 random cards consisting of a Full House.
+-Crowned Pack : Mythical
+Add a 10, J, Q, K, and A of a random suit to your deck.
 
--Crowned Pack : Super Rare
+-Blooming Flush Pack : Mythical
+Add 6 cards of the same suit, all in random sequential order.
 
+-Chaos Pack : Mythical
+Add 7 random cards.
 
 ---
 
+-Grandmaster Pack :
+Add 5 cards of the same rank and suit.
+
+-Four Kingdoms Pack : Legendary
+Add 1 J, K, Q for each suit.
+
+-First Edition Pack : Legendary
+Add 13 cards: One of each rank (2-A) of the same suit.
 
 
---- CURSED : Packs that are intentionally unhelpful, designed to ruin deck synergy while appearing "normal".
+--- 
+
 
 -Crimson Pack : Cursed
 Add 5 random red cards (Hearts/Diamonds).
@@ -120,7 +152,7 @@ Add 5 random red cards (Hearts/Diamonds).
 Add 5 random black cards (Clubs/Spades).
 
 -Tarnished Pack : Cursed
-Add a J, Q, and K, each from a difference suit and rank, with two random low (2-4) cards.
+Add a J, Q, and K, each from a different suit and rank, with two random low (2-4) cards.
 
 -Rotten Pack : Cursed
 Add one high ranking card (10-A) and four cards of the "2" rank.
@@ -128,8 +160,15 @@ Add one high ranking card (10-A) and four cards of the "2" rank.
 -"Oops, all 2s!" Pack : Cursed
 Add 10 cards of the "2" rank.
 
--New Deck : Cursed
-Replace your entire deck with a new 52-standard deck.
+-Fractured Pack : Cursed
+Add 5 unique cards of random suits and ranks.
+
+-Driftwood Pack : Cursed
+Add 6 cards of ranks 2 through 7.
+
+-Overgrowth Pack : Cursed
+Add 10-20 low ranking (2-4) cards.
+
 
 
 ----- PERKS --------------------------------------------------------------------------------------------------
@@ -137,58 +176,76 @@ Replace your entire deck with a new 52-standard deck.
 -Quick Palm : Common
 Increase your reshuffles by 1.
 
--Loaded Sleeve : Uncommon.
-Increase your reshuffles by 3.
-
--Phantom Thief : Rare
-Increase your reshuffles by 5.
-
--Kleptomaniac : Mythical
-Increase your reshuffles by 10.
-
--Scholar : Mythical
-Increase upgrade choice by 1 (Max 5)
-
-= = =
-
--Cautious : Rare
-Decrease the current ante by 1.
-
--Safety First : Mythical
-Decrease the current ante by 3.
-
-= = =
-
--Open Mind : Rare
-Increase the amount of knowable Abilities by 1.
-
-= = =
+-Frost : Common
+Increase your "Freezes" by 1.
 
 -Flicker : Common
 Increase your "Burns" by 1.
 
--Wildfire : Uncommon
-Increase your "Burns" by 3.
-
--Arsonist : Rare
-Increase your "Burns" amount by 5.
-
--Pyromaniac : Mythical
-Increase your "Burns" amount by 10.
-
 = = =
 
--Frost : Common
-Increase your "Freezes" by 1.
+-Loaded Sleeve : Uncommon.
+Increase your reshuffles by 3.
+
+-Wildfire : Uncommon
+Increase your "Burns" by 3.
 
 -Blizzard : Uncommon
 Increase your "Freezes" by 3.
 
+= = =
+
+-Phantom Thief : Rare
+Increase your reshuffles by 5.
+
+-Arsonist : Rare
+Increase your "Burns" amount by 5.
+
 -Perfrigerist : Rare
 Increase your "Freezes" by 5.
 
+-Open Mind : Rare
+Increase the amount of knowable Abilities by 1.
+
+-Elixir : Rare
+Remove a random debuff
+
+- Bonus Draw : Rare
+Your hand size increases by 1. (Max 10.)
+
+= = =
+
+-Cautious : Mythical
+Decrease the current ante by 1.
+
+-Arcane Library : Mythical
+Increase the amount of knowable Abilities by 2.
+
+-Scholar : Mythical
+Increase upgrade choice by 1 (Max 5)
+
+-Kleptomaniac : Mythical
+Increase your reshuffles by 10.
+
+-Pyromaniac : Mythical
+Increase your "Burns" amount by 10.
+
 -Cryomaniac : Mythical
 Increase your "Freezes" by 10
+
+= = =
+
+-Elementalist : Legendary
+Increase your Reshuffles, Burns, and Freezes by 10.
+
+-Blueprint : Legendary
+Gain a random Legendary Ability.
+
+-Panacea : Legendary
+Remove all debuffs.
+
+-Safety First : Legendary
+Decrease the current ante by 3.
 
 = = =
 
@@ -207,7 +264,22 @@ Your amount of Burns is merged into your Freezes.
 Hellscape : Cursed
 Your amount of Freezes is merged into your Burns.
 
+Time Dilation : Cursed
+Increase the amount of rounds needed to progress by 1.
+
+Luck Rot : Cursed
+Gain +10 upgrade points. Your next 3 upgrade choices become Cursed. 
+
+Time Tax : Cursed
+Gain +5 Upgrade Points. Ante increases by 1.
+
+Short Fuse : Cursed
+Gain +10 upgrade points. Gain the "Oblivious" debuff.
+
+
 ----- PASSIVES ----------------------------------------------------------------------------------------------
+
+= = =
 
 -
 
@@ -255,17 +327,14 @@ Increase the rank of up to 2 cards by 1
 -Reincarnation : Common
 Convert 3 cards into the same random suit.
 
--Colour Shift (A) : Common
-Select up to 3 cards. Spades converts to Hearts, Clubs converts to Diamonds, and vise versa.
+-Trade : Common
+Select up to 2 cards. Swap their suits.
 
--Colour Shift (B) : Common
-Select up to 3 cards. Spades converts to Diamonds, Clubs converts to Hearts, and vise versa.
+-Barter : Common
+Select up to 2 cards. Swap their ranks.
 
 -Mathmatician : Common
 Select two cards of the same suits below 6. The left card's rank becomes the total sum of both cards.
-
--Mimicry : Common
-Convert the selected right-most card into the same as the selected left-most card
 
 -Rip Apart : Common
 Destroy up to 2 cards
@@ -278,6 +347,9 @@ Destroy one card. Gain +2 Burns.
 
 -Shatter : Common
 Destroy one card. Gain +2 Freezes.
+
+-Give and Take : Common
+Destroy one card. Gain +2 Reshuffles
 
 = = =
 
@@ -293,18 +365,40 @@ Convert 3 cards into Hearts
 -Warriors' Courage : Uncommon
 Convert 3 cards into Spaces
 
--Sequencing : Rare
-Convert 5 cards into a perfect straight (random starting rank & suit)
-
 -Usurper : Uncommon
 Convert up to 2 cards into a random face card(s).
 
+-Syncronize : Uncommon
+Select up to 3 cards. They all become the same randomly chosen rank.
+
+-Unify : Uncommon
+Select up to 3 cards. They become the same randomly chosen suit.
+
+-Colour Shift : Uncommon
+Select up to 3 cards. Convert them into the next suit in rotation (♠ → ♥ → ♦ → ♣ → ♠)
+
+-Mimicry : Uncommon
+Convert the selected right-most card into the same as the selected left-most card.
+
 = = =
+
+-Echochamber : Rare
+Select up to 2 cards. Convert them into the most common card in your deck.
 
 -Mass Promotion : Rare
 Increase the rank of all cards in the hand by 1.
 
+-Sequencing : Rare
+Convert up to selected 5 cards into a perfect straight (random starting rank & suit)
 
+-Competition : Rare
+Select up to 5 cards. Convert them into the same rank as the left most selected card.
+
+-Mob Mentality : Rare
+Select up to 5 cards. Convert them into the same suit as the left most selected card.
+
+-Bloodline : Rare
+All face cards in the hand are converted into the same suit.
 
 = = =
 
@@ -315,24 +409,24 @@ Select up to 3 cards of a low rank (2-4). Convert them into an Ace.
 -Tithe : Mythical
 Destroy 10 random cards. Add 5 Aces to your deck.
 
--Strength in Unity : Mythical
-Select a card. All cards in the hand become the selected card's suit.
-
--Strength in Numbers : Mythical
-Select a card. All cards in the hand become the selected card's rank.
-
 -Royal Blood : Mythical.
 Convert all cards in the hand into a random face card, keeping their suits.
 
 -Perfected Suit : Mythical
 Convert the entire hand into the suit with the highest count in your deck.
 
+-Strength in Unity : Mythical
+Select a card. All cards in the hand become the selected card's suit.
+
+-Strength in Numbers : Mythical
+Select a card. All cards in the hand become the selected card's rank.
+
 
 = = =
 
 // Only 5
 
--Last Rites : Legendary
+-Purge : Legendary
 Destroy the 13 lowest-ranked cards in your deck.
 
 -Crystalize : Legendary
@@ -344,21 +438,23 @@ Choose one card. Convert all other cards in the hand into the selected card.
 -Immolate : Legendary
 Select up to 5 cards. Destroy them, and gain 3 Burns for each card destroyed.
 
--Cryosis : Legendary
+-Frostbitten : Legendary
 Select up to 5 cards. Destroy them, and gain 3 Freezes for each card destroyed.
-
 
 
 = = =
 
-Amnesia : Cursed
+-Amnesia : Cursed
 Randomize your entire deck.
 
-Hivemind : Cursed
-Convert all cards in hand into a random suit.
+-Factory Reset : Cursed
+Your current hand is destroyed. Your entire deck is replaced with a fresh 52-card deck.
 
-Singularity : Cursed
-Convert all cards in hand into a random suit.
+-Hivemind : Cursed
+Convert all cards in hand into a single random suit.
+
+-Singularity : Cursed
+Convert all cards in hand into a single random rank.
 
 -Erosion : Cursed
 Lower the ranks of all cards in the hand by 1.

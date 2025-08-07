@@ -58,6 +58,8 @@ let upgradeChoiceAmount = 3;
 
 // Globals for effects;
 let disabledPerk = [];        // Array to hold all currently disabled perks. For the "Perk Lockout" debuff
+let forcedCursedCount = 0;    // Amount of times that upgrades should be Cursed.
+let skipUpgradePhase = false; // defines whether the upgrade phase is skipped this ante.
 
 // Preview and Current hand info are seperated as to not cause issues with overwriting.
 let previewHandInfo = null;
@@ -82,6 +84,6 @@ let blobs = [];
 
 let playerName = ""; // leaderboard
 
-const MAX_PASSIVE_PERKS = 5; // change to 
+let MAX_PASSIVE_PERKS = 5; 
 let passivePerkDisplayDiv;
 let debuffDisplayDiv;

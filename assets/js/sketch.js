@@ -27,8 +27,7 @@ function setup() {
   updatePassivePerkDisplay();
 
   // button setup
-  // positions are set within the class because i am lazy and
-  // having it out here is pretty redundant imo
+  // positions are set within the class because i am lazy and having it out here is pretty redundant imo
   playBtn = new PlayHandButton();
   shuffleBtn = new ShuffleButton();
   confirmBtn = new ConfirmButton();
@@ -44,10 +43,10 @@ function setup() {
   // game setup
   generateDeck();
   drawHand();
-  
-  // debug stuff here
-  upgradePoints = 999999
-  debugUpgrade(); // temp
+
+  // debug stuff goes here for testing
+  // upgradePoints = 999999
+  // debugUpgrade(); // temp
 
   // background setup
   bgColours = [
@@ -73,16 +72,20 @@ function draw() {
   // draws the background
   drawGradientBackground();
 
+  // makes it look nicer
   blendMode(SOFT_LIGHT);
+
+  // go thru all blobs in bg
   for (let b of blobs) {
-    let t = millis() * b.speed + b.offset;
-    let pulse = sin(millis() * b.pulseSpeed + b.offset) * 20;
+    let t = millis() * b.speed + b.offset; // define the time
+    let pulse = sin(millis() * b.pulseSpeed + b.offset) * 20; // pulsing
+
 
     let x = b.x + sin(t) * 30;
     let y = b.y + cos(t * 1.1) * 30;
     let r = b.baseR + pulse;
 
-    drawGlowingBlob(x, y, r);
+    drawGlowingBlob(x, y, r); // draws the blob
   }
   blendMode(BLEND);
 
@@ -167,12 +170,12 @@ function drawUI() {
   drawHandUI(); // draw the hand UI
 
   if (gameState === "upgrade") {
-    drawUpgradeScreen(); 
-  } 
+    drawUpgradeScreen();
+  }
 
   if (gameState === "gameover") {
     drawGameOver();
-  } 
+  }
 
   // Event Text
   for (let i = eventTextAnimations.length - 1; i >= 0; i--) {
@@ -218,7 +221,7 @@ function drawHandUI() {
   const stepMax = cardWidth + 20;
 
   let spacing;
-  
+
 
   if (size > 1) {
     spacing = Math.min((width - 2 * pad - cardWidth) / (size - 1), stepMax);
@@ -256,13 +259,13 @@ function drawHandUI() {
 // just a switch statement that returns colors lol
 function getRarityColor(rarity) {
   switch (rarity) {
-    case "Common":   return color(200);                     // light gray
+    case "Common": return color(200);                     // light gray
     case "Uncommon": return color(100, 200, 255);           // blue
-    case "Rare":     return color(255, 100, 200);           // pinkish purple
+    case "Rare": return color(255, 100, 200);           // pinkish purple
     case "Mythical": return color(255, 215, 0);             // gold (bright)
-    case "Legendary":return color(255, 140, 0);             // orange (burnished gold)
-    case "Cursed":   return color(150, 0, 255);             // vivid purple
-    default:         return color(255);                     // fallback white
+    case "Legendary": return color(255, 140, 0);             // orange (burnished gold)
+    case "Cursed": return color(150, 0, 255);             // vivid purple
+    default: return color(255);                     // fallback white
   }
 }
 
@@ -315,6 +318,7 @@ function updatePassivePerkDisplay() {
     perkDescDiv.innerHTML = `<p>${perk.description}</p>
     <button id="removePerk" onclick="removePassivePerk(${index})">Remove</button>`;
 
+    // changes style to reflect disabled state
     if (disabledPerk.includes(perk)) {
       perkDiv.style.opacity = "0.5";
       perkDiv.style.textDecoration = "line-through";
@@ -325,6 +329,8 @@ function updatePassivePerkDisplay() {
     // sets the divs into the perk display.
     passivePerkDisplayDiv.appendChild(perkDiv);
     perkDiv.appendChild(perkDescDiv);
+    document.getElementById("perkCount").textContent =
+      `Abilities [ ${passivePerks.length} / ${MAX_PASSIVE_PERKS} ]:`
   })
 }
 

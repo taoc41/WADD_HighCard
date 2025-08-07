@@ -58,3 +58,11 @@ function debugAddDebuff(name) {
     updateDebuffDisplay();
     updatePassivePerkDisplay();
 }
+
+// use via console, example below.
+// debugAddUpgrade("pack", PACKS.find(p => p.name === "Booster Pack"), 1);
+
+function debugAddUpgrade(type, upgradeData, slotIndex = 0) {
+    if (!upgradeChoices || slotIndex >= upgradeChoices.length) return;
+    upgradeChoices[slotIndex] = new UpgradeChoice(type, upgradeData);
+  }

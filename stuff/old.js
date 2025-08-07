@@ -480,3 +480,194 @@ function mouseReleased() {
   heldCard = null;
   holdingCardIndex = -1;
 }
+
+
+function generateUpgradeChoice() {
+  selectedUpgradeIndex = null;
+  burnUsed = false;
+  returnHand();
+  drawHand();
+
+  const frozenNames = new Set(
+      [...frozenUpgrades.values()]
+          .map(choice => choice?.data?.name)
+          .filter(Boolean)
+  );
+
+  // filters -> no duplicate choices with already owned passives + burned upgrades
+  const availablePassives = PASSIVE_PERKS.filter(p =>
+      !passivePerks.some(pp => pp.name === p.name) &&
+      !burnedUpgrades.includes(p.name) &&
+      !frozenNames.has(p.name)
+  );
+  const availablePacks = PACKS.filter(p =>
+      !burnedUpgrades.includes(p.name) &&
+      !frozenNames.has(p.name)
+  );
+  const availableEdits = EDIT_PERKS.filter(p =>
+      !burnedUpgrades.includes(p.name) &&
+      !frozenNames.has(p.name)
+  );
+  const availablePerks = PERKS.filter(p => 
+      !burnedUpgrades.includes(p.name) &&
+      !frozenNames.has(p.name)
+  );
+
+  const slots = new Array(upgradeChoiceAmount).fill(null); // prepare output array & keep frozen upgrades
+  const usedNames = new Set(frozenNames); // already appeared in this roll
+
+  // place frozen upgrades back into their respective slots
+  // burned upgrade? get rid of it
+  // frozen upgrade is overflowing? get rid of it
+  for (const [slotIdx, choice] of [...frozenUpgrades.entries()]) {
+      if (
+          slotIdx < upgradeChoiceAmount &&
+          choice &&
+          !burnedUpgrades.includes(choice.data?.name)
+      ) {
+          slots[slotIdx] = choice;
+          usedNames.add(choice.data.name);
+      } else {
+          // invalid/overflowed frozen – drop it
+          frozenUpgrades.delete(slotIdx);
+      }
+  }
+
+  // helper - pick from a pool by rarity while avoiding duplicates
+  const tryPickByRarity = (pool, rarity) => {
+      const candidates = pool.filter(p => p.rarity === rarity
+          && !usedNames.has(p.name)
+      );
+      if (!candidates.length) return null;
+      const pick = random(candidates);
+      usedNames.add(pick.name);
+      return pick;
+  };
+
+  const tryPickAny = (pool) => {
+      const pick = pool.find(p => !usedNames.has(p.name));
+      if (!pick) return null;
+      usedNames.add(pick.name);
+      return pick;
+  };
+
+  // fill empty slots.
+  for (let i = 0; i < slots.length; i++) {
+      if (slots[i]) continue;
+
+      const roll = random();
+      let rarity = weightedRandomRarity();
+
+
+      if (forcedCursedCount > 0) {
+          rarity = "Cursed";
+          forcedCursedCount--
+          sendEventText(`An upgrade had becom cursed!`);
+      }
+
+      if (roll < 0.55 && availablePassives.length > 0) {
+          const passive = tryPickByRarity(availablePassives, rarity) || tryPickAny(availablePassives);
+          if (passive) {
+              slots[i] = new UpgradeChoice("passive", passive);
+              continue;
+          }
+      } else if (roll < 0.75 && availablePacks.length > 0) {
+          const pack = tryPickByRarity(availablePacks, rarity) || tryPickAny(availablePacks);
+          if (pack) {
+              slots[i] = new UpgradeChoice("pack", pack);
+              continue;
+          }
+      } else if (roll < 0.9 && availableEdits.length > 0) {
+          const edit = tryPickByRarity(availableEdits, rarity) || tryPickAny(availableEdits);
+          if (edit) {
+              slots[i] = new UpgradeChoice("edit", edit);
+              continue;
+          } 
+      } else if (availablePerks.length > 0) {
+          const perk = tryPickByRarity(availablePerks, rarity) || tryPickAny(availablePerks);
+          if (perk) {
+              slots[i] = new UpgradeChoice("perk", perk);
+              continue;
+          } 
+      }
+  }
+
+  // fall back to prevent "nulls" from being generated
+  // i hate this so much
+  const classifyType = (item) => {
+      if (availablePassives.some(p => p.name === item.name)) return "passive";
+      if (availablePacks.some(p => p.name === item.name)) return "pack";
+      if (availableEdits.some(p => p.name === item.name)) return "edit";
+      if (availablePerks.some(p => p.name === item.name)) return "perk";
+  };
+
+  let fallbackPool = [
+      ...availablePassives,
+      ...availablePacks,
+      ...availableEdits,
+      ...availablePerks
+  ].filter(u => !usedNames.has(u.name)); // no dupes
+
+  if (forcedCursedCount > 0) {
+      fallbackPool = fallbackPool.filter(u => u.rarity === "Cursed");
+  }
+
+  for (let i = 0; i < slots.length; i++) {
+      if (slots[i]) continue; // already filled
+
+      if (fallbackPool.length === 0) break;
+
+      //pick one at random, classify and place
+      const pick = random(fallbackPool);
+      const type = classifyType(pick);
+
+      slots[i] = new UpgradeChoice(type, pick);
+      usedNames.add(pick.name);
+
+      fallbackPool = fallbackPool.filter(u => u.name !== pick.name);
+  }
+
+  upgradeChoices = slots.filter(Boolean); // last fallback to not return any nulls
+  upgradeChoices = slots;
+}
+
+// if (roll < 0.55 && availablePassives.length > 0) {
+//   const passive = tryPickByRarity(availablePassives, rarity) || tryPickAny(availablePassives);
+//   if (passive) {
+//       slots[i] = new UpgradeChoice("passive", passive);
+//       continue;
+//   }
+// } else if (roll < 0.75 && availablePacks.length > 0) {
+//   const pack = tryPickByRarity(availablePacks, rarity) || tryPickAny(availablePacks);
+//   if (pack) {
+//       slots[i] = new UpgradeChoice("pack", pack);
+//       continue;
+//   }
+// } else if (roll < 0.9 && availableEdits.length > 0) {
+//   const edit = tryPickByRarity(availableEdits, rarity) || tryPickAny(availableEdits);
+//   if (edit) {
+//       slots[i] = new UpgradeChoice("edit", edit);
+//       continue;
+//   } 
+// } else if (availablePerks.length > 0) {
+//   const perk = tryPickByRarity(availablePerks, rarity) || tryPickAny(availablePerks);
+//   if (perk) {
+//       slots[i] = new UpgradeChoice("perk", perk);
+//       continue;
+//   } 
+
+let baseScore = currentHandInfo.score;
+let multiplier = calculateRankMultiplier(currentHandInfo.usedCards);
+let finalScore = baseScore * multiplier;
+
+// Apply passive perks
+passivePerks.forEach(perk => {
+    if (disabledPerk.includes(perk)) return; // Perk Lockout
+
+    if (perk.trigger === "playHand" && perk.condition(chosenCards, finalScore)) {
+        finalScore = Math.floor(perk.effect(finalScore));
+
+        // Trigger text animations
+        sendEventText(`${perk.name} activated!`)
+    }
+});

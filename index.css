@@ -1,0 +1,115 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    min-width: 1200px;
+    min-height: 800px;
+  }
+
+  body {
+    justify-content: center;
+    background-color: #1b1b1b;
+  }
+
+  main {
+    display: inline;
+  }
+
+  nav {
+    position: absolute;
+    width: 100%;
+    min-width: 1200px;
+    text-align: center;
+  }
+
+  /* prevents text from being highlighted - 
+  for the perk containers 
+  CSS from: https://www.w3schools.com/howto/howto_css_disable_text_selection.asp*/
+  .prevent-select {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+  }
+
+  .nav-container a {
+    display: inline-flex;
+    color: white;
+  }
+
+  .navpage a {
+    padding: 1%;
+    margin: 1%;
+  }
+
+  #gameCanvas{
+    display: inline-flex;
+  }
+
+  #effectContainer {
+    display: flex;
+    width: 100%;
+  }
+
+  #debuffContainer {
+    color: white;
+    padding: 1em;
+    text-align: right;
+    width: 20%;
+    margin-left: auto;
+  }
+
+  .debuff-item {
+    display: inline-block;
+    text-align: right;
+
+    strong {
+      font-size: 18px;
+    }
+
+    .debuff-desc {
+      display: inline;
+      align-items: center;
+      margin-bottom: 1em;
+    }
+
+    p {
+      font-size: 12px;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  #perkContainer {
+    color: white; 
+    padding: 1em; 
+    width: 20%;
+  }
+
+  .perk-item{
+    display: inline-block;
+    
+    strong {
+      font-size: 18px;
+    }
+
+    .perk-desc{
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 1em;
+
+    p {
+      font-size: 12px;
+      padding: 0;
+      margin: 0;
+    }
+    
+    button {
+      width: 70px;
+      margin-left: 1em;
+    }
+  }
+}
+
+  
