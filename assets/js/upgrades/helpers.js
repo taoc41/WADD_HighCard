@@ -1,16 +1,5 @@
 // this script stores all the helper functions for some upgrades
 
-//#region RARITY_WEIGHTS
-// Rarity weights, to handle what's more common
-const RARITY_WEIGHTS = {
-    Common: 0.70,
-    Uncommon: 0.15,
-    Rare: 0.06,
-    Mythical: 0.025,
-    Legendary: 0.005,
-    Cursed: 0.015
-  };
-  
   //#region Helpers
   function getMostFrequentCardInDeck() {
     if (!deck || deck.length === 0) return null;

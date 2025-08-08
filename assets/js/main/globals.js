@@ -1,9 +1,10 @@
 // this script stores all global variables needed for the game
 
 const suits = ['♠', '♥', '♦', '♣'];                                                   // Defines all card suits.
-const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];     // Defines all card ranks.
+const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];     // Defines all card ranks + the order.
 
-let playBtn, shuffleBtn, confirmBtn, skipBtn, burnBtn, freezeBtn, playAgainBtn, saveScoreBtn;  // Defines all game buttons
+let playBtn, shuffleBtn, confirmBtn, skipBtn, burnBtn, freezeBtn, playAgainBtn, saveScoreBtn, endUpgradeBtn;  // Defines all game buttons
+
 
 let gameState = "playing";  // "playing", "upgrade", or "gameover"
 
@@ -19,6 +20,7 @@ const cardHeight = 95;
 
 let deck = [];                  // Array to hold all cards within the deck.
 let hand = [];                  // Array to hold all cards drawn into the hand.
+
 let selected = [];              // Array to hold all cards currently selected by the player.
 let handSize = 7;               // Amount of cards drawn into the hand.
 
@@ -74,6 +76,15 @@ let blobs = [];
 
 let playerName = ""; // leaderboard
 
+let passivePerkDisplayDiv; // define the HTML element (done in setup)
+let debuffDisplayDiv; // define the HTML element (done in setup)
 
-let passivePerkDisplayDiv;
-let debuffDisplayDiv;
+// rarity rates and how common a rarity should be based on percentage
+const RARITY_WEIGHTS = {
+  Common: 0.70, // this is actually 0.745 due to a 0.045 gap.
+  Uncommon: 0.15,
+  Rare: 0.06,
+  Mythical: 0.025,
+  Legendary: 0.005,
+  Cursed: 0.015
+};
