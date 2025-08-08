@@ -11,30 +11,6 @@ main {
   display: flex;
 }
 
-/* ============= resolution warning ============= */
-
-/* Fullscreen resolution warning */
-#resolution-warning {
-  display: none; /* hidden by default */
-  position: fixed;
-  inset: 0; /* fill screen */
-  background: rgba(0, 0, 0, 0.95);
-  color: white;
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  z-index: 9999;
-  padding: 2rem;
-}
-
-/* Optional: style the text */
-#resolution-warning p {
-  max-width: 600px;
-  line-height: 1.4;
-}
-
 
 /* ============= Shared accordion styles ============= */
 
@@ -110,7 +86,8 @@ main {
 
 /* ============= Container-specific layout ============= */
 
-#perkContainer, #debuffContainer{
+#perkContainer, #debuffContainer {
+  font-family: 'PT Serif', serif;
   color: white;
   margin: 1em;
   padding: 1em;

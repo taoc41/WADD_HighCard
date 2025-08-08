@@ -254,7 +254,7 @@ function evaluateHand(cards) {
             // Four of a Kind
             if (counts[0] === 4) {
                 let used = getUsedCards(rankCounts, 4);
-                return { name: "Four of a Kind", score: 70, usedCards: used };
+                return { name: "Four of a Kind", score: 60, usedCards: used };
             }
 
             // Full House

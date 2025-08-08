@@ -1,3 +1,7 @@
+/* FONT FAMILIES
+FROM GOOGLE FONTS:
+https://fonts.google.com/specimen/PT+Serif?categoryFilters=Serif:%2FSerif%2F*,%2FSlab%2F**/
+
 html,
 body {
     margin: 0;
@@ -16,7 +20,7 @@ body {
 .nav-container {
     /* so it centers in the screen */
     width: 600px;
-    position: relative;
+    position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
@@ -27,6 +31,7 @@ body {
 }
 
 .nav-container a {
+    font-family: "PT Serif", serif;
     color: white;
 }
 
@@ -47,5 +52,8 @@ body {
 
 body {
     background-color: #1b1b1b;
+}
 
+footer {
+    margin: 20%;
 }

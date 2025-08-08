@@ -4,13 +4,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
   <title>Highcarder - How to Play</title>
   <link href="styles.css" type="text/css" rel="stylesheet">
   <link href="howtoplay.css" type="text/css" rel="stylesheet">
 
 
   <script src="p5/p5.min.js"></script>
-  <script src="./assets/js/background.js"></script>
+  <script src="./assets/js/website/background.js"></script>
 
 </head>
 
@@ -59,16 +64,84 @@
       <h2>
         Poker Hands & Scoring
       </h2>
-      <p>Scoring in Highcarder is as followed: </p>
-      <p>( Base Hand Score + Total of "Add Score" Passive(s) ) * Total Ranks Played * Total of "Add Mult" Passives </p>
+      <p>Scoring in Highcarder is done by playing poker hands. The stronger the poker hand, the higher the score. 
+        Each poker hand has their own base score, however, they can be increased by playing high ranking cards!
+      </p>
+
+      <section id="poker-hands">
+        <div class="table-wrapper">
+          <table class="poker-table" aria-describedby="poker-hands">
+            <caption class="sr-only">Poker hands with required cards and base scores</caption>
+            <thead>
+              <tr>
+                <th scope="col">Hand</th>
+                <th scope="col">Cards needed</th>
+                <th scope="col">Base score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>High Card</td>
+                <td>Any 5 cards that don’t form a listed hand</td>
+                <td>5</td>
+              </tr>
+              <tr>
+                <td>Pair</td>
+                <td>2 cards of the same rank + 3 kickers</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Two Pair</td>
+                <td>Two different pairs + 1 kicker</td>
+                <td>20</td>
+              </tr>
+              <tr>
+                <td>Three of a Kind</td>
+                <td>3 cards of the same rank + 2 kickers</td>
+                <td>30</td>
+              </tr>
+              <tr>
+                <td>Straight</td>
+                <td>5 consecutive ranks (suits don’t matter)</td>
+                <td>35</td>
+              </tr>
+              <tr>
+                <td>Flush</td>
+                <td>5 cards of the same suit (ranks don’t matter)</td>
+                <td>40</td>
+              </tr>
+              <tr>
+                <td>Full House</td>
+                <td>3 of a kind + 1 pair</td>
+                <td>50</td>
+              </tr>
+              <tr>
+                <td>Four of a Kind</td>
+                <td>4 cards of the same rank + 1 kicker</td>
+                <td>60</td>
+              </tr>
+              <tr>
+                <td>Straight Flush</td>
+                <td>5 consecutive cards of the same suit</td>
+                <td>75</td>
+              </tr>
+              <tr>
+                <td>Royal Flush</td>
+                <td>10–J–Q–K–A of the same suit</td>
+                <td>100</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <p>A card's rank contributes to the "Multiplier", which multiplies the base score by the total sum of ranks
+        played that make up the poker hand. Higher ranks, mean a higher multiplier!</p>
+
+        <img src="./assets/images/hand.png" alt="Highcarder Gameplay">
+        <span></span>
     </div>
 
-    <div>
-      <h2>
-        Scoring
-      </h2>
-      <p>image here or something</p>
-    </div>
 
     <div>
       <h2>
@@ -86,16 +159,18 @@
         For example, if your score is 3000 and the requirement is 300, you can choose 10 upgrades (3000 ÷ 300 = 10)
       </p>
 
+      <img src="./assets/image/upgrade.png" alt="The Upgrade Screen">
+
       <h3>Rarities</h3>
       <p>Each upgrade has its own rarity, as common with many roguelike games. Some upgrades are more rarer than
         others, and thus are more stronger than others. The rarities within Highcarder as followed.
       </p>
-      <li>Common (70%) - The basic bunch, ordinary and simple.</li>
-      <li>Uncommon (15%) - More specialized, but nothing too special.</li>
-      <li>Rare (6%) - Often times key to strategies, the engine to get things going.</li>
-      <li>Mythical (2.5%) - "Event-tier" upgrades that can turn the tables.</li>
-      <li>Legendary (0.5%) - The rarest out of them all, often setting you up for several antes.</li>
-      <li>Cursed (1.5%) - High risk, high reward. They come with a heafty price, so don't be too greedy.</li>
+      <li><b>Common (74.5%)</b> - The basic bunch, ordinary and simple.</li>
+      <li><b>Uncommon (15%)</b> - More specialized, but nothing too special.</li>
+      <li><b>Rare (6%)</b> - Often times key to strategies, the engine to get things going.</li>
+      <li><b>Mythical (2.5%)</b> - "Event-tier" upgrades that can turn the tables.</li>
+      <li><b>Legendary (0.5%)</b> - The rarest out of them all, often setting you up for several antes.</li>
+      <li><b>Cursed (1.5%)</b> - High risk, high reward. They come with a heafty price, so don't be too greedy.</li>
 
       <h3>Skip / Store</h3>
       <p>If you don't like the current choice of upgrades, you are able to skip them and store the current upgrade
@@ -120,6 +195,7 @@
 
     </div>
 
+    <footer></footer>
   </main>
 </body>
 
