@@ -11,91 +11,136 @@ main {
   display: flex;
 }
 
-/* */
+/* ============= resolution warning ============= */
 
-
-/* Debuff container */
-#debuffContainer {
+/* Fullscreen resolution warning */
+#resolution-warning {
+  display: none; /* hidden by default */
+  position: fixed;
+  inset: 0; /* fill screen */
+  background: rgba(0, 0, 0, 0.95);
   color: white;
-  padding: 1em;
-  text-align: right;
-  width: 15%;
-  margin-left: auto;
-}
-
-#debuffContainer .debuff-item {
-  display: inline-block;
-  text-align: right;
-}
-
-#debuffContainer .debuff-item strong {
-  font-size: 18px;
-}
-
-#debuffContainer .debuff-item .debuff-desc {
-  display: inline;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 1em;
+  text-align: center;
+  z-index: 9999;
+  padding: 2rem;
 }
 
-#debuffContainer .debuff-item p {
-  font-size: 12px;
-  padding: 0;
-  margin: 0;
+/* Optional: style the text */
+#resolution-warning p {
+  max-width: 600px;
+  line-height: 1.4;
 }
 
 
-/* Perk container */
-#perkContainer {
+/* ============= Shared accordion styles ============= */
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
   color: white;
-  padding: 1em;
-  width: 250px;
-  margin-right: auto;
+  margin: 0;           /* reset h3 defaults if needed */
+  user-select: none;
+
+  
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 0.5em;
 }
 
-#perkDisplay {
+.accordion-header .arrow {
+  display: inline-block;
+  transition: transform 0.25s ease;
+}
+
+.accordion-header .arrow.open {
+  transform: rotate(90deg);  /* ▶ turns downward when open */
+}
+
+.accordion-header .count-label {
+  margin-left: 4px;
+  opacity: 0.9;
+}
+
+/* The collapsible panel */
+.accordion-display {
   max-height: 100%;
   overflow: hidden;
   transition: max-height 0.3s ease;
 }
 
-#perkDisplay.closed {
+.accordion-display.closed {
   max-height: 0;
 }
 
-/* ---------- Arrow for accordion ---------- */
-#perkContainer .arrow {
-  display: inline-block;
-  transition: transform 0.3s ease;
-  margin-right: 8px;
+/* Common list item styling */
+
+.perk-item,
+.debuff-item {
+  color: white;
+  margin-top: 0.75em;
 }
 
-#perkContainer .arrow.open {
-  transform: rotate(-90deg);
-}
-
-/* ---------- Perk items ---------- */
-#perkContainer .perk-item {
-  display: inline-block;
-}
-
-#perkContainer .perk-item strong {
+.perk-item strong,
+.debuff-item strong {
   font-size: 18px;
 }
 
-#perkContainer .perk-item p {
-  font-size: 12px;
-  padding: 0;
-  margin: 0;
-}
-
-#perkContainer .perk-item button {
-  width: 70px;
-  margin-left: 1em;
-}
-
-#perkContainer .perk-desc {
+.perk-desc,
+.debuff-desc {
   display: inline-flex;
   align-items: center;
-  margin-bottom: 1em;
+  gap: 12px;
+}
+
+.perk-desc p,
+.debuff-desc p {
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.perk-item button {
+  width: 70px;
+}
+
+/* ============= Container-specific layout ============= */
+
+#perkContainer, #debuffContainer{
+  color: white;
+  margin: 1em;
+  padding: 1em;
+  width: 220px;
+}
+
+/* Perks: left column, fixed width */
+#perkContainer {
+  margin-right: auto;
+}
+
+/* Debuffs: right-aligned column */
+#debuffContainer {
+  margin-left: auto;
+  text-align: right;
+}
+
+#debuffContainer .accordion-header {
+  justify-content: flex-end;      /* arrow + text align to the right */
+}
+
+#debuffContainer .debuff-item,
+#debuffContainer .debuff-desc,
+#debuffContainer .debuff-item p {
+  text-align: right;
+}
+
+/* subtle divider between items */
+#perkContainer .perk-item:not(:last-child),
+#debuffContainer .debuff-item:not(:last-child) {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 0.5em;
 }

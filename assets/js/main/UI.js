@@ -235,70 +235,54 @@ function drawGameOver() {
     saveScoreBtn.draw();
 }
 
-//#region updatePassivePerkDisplay()
+// Perks
 function updatePassivePerkDisplay() {
-  const display = document.getElementById("perk-display");
-  const header  = document.getElementById("perk-header");
-  if (!display || !header) return;
+    const container = document.querySelector("#perkContainer");
+    const display = container.querySelector(".perk-display");
+    const countSpan = container.querySelector(".count-label");
+    if (!display || !countSpan) return;
 
-  // Clear current list efficiently
-  display.replaceChildren();
+    display.replaceChildren();
 
-  // Build each perk item
-  passivePerks.forEach((perk, index) => {
-    const item = document.createElement("div");
-    item.className = "perk-item";
+    passivePerks.forEach((perk, index) => {
+        const item = document.createElement("div");
+        item.className = "perk-item";
 
-    const title = document.createElement("div");
-    title.className = "perk-title";
-    title.innerHTML = `<strong>${perk.name}</strong>`;
+        const title = document.createElement("div");
+        title.className = "perk-title";
+        title.innerHTML = `<strong>${perk.name}</strong>`;
 
-    const desc = document.createElement("div");
-    desc.className = "perk-desc";
-    desc.innerHTML = `
-      <p>${perk.description}</p>
-      <button class="removePerk" onclick="removePassivePerk(${index})">Remove</button>
-    `;
+        const desc = document.createElement("div");
+        desc.className = "perk-desc";
+        desc.innerHTML = `
+        <p>${perk.description}</p>
+        <button class="removePerk" onclick="removePassivePerk(${index})">Remove</button>
+      `;
 
-    // Disabled styling
-    if (disabledPerk && disabledPerk.includes(perk)) {
-      item.style.opacity = "0.5";
-      item.style.textDecoration = "line-through";
-      desc.style.textDecoration = "line-through";
-      item.title = "Locked this round";
-    }
+        if (disabledPerk && disabledPerk.includes(perk)) {
+            item.style.opacity = "0.5";
+            item.style.textDecoration = "line-through";
+            desc.style.textDecoration = "line-through";
+            item.title = "Locked this round";
+        }
 
-    item.appendChild(title);
-    item.appendChild(desc);
-    display.appendChild(item);
-  });
+        item.appendChild(title);
+        item.appendChild(desc);
+        display.appendChild(item);
+    });
 
-  // Update the header count while preserving the arrow element
-  // <h3 id="perkCount"><span class="arrow">▶</span> Abilities [ 0 / 5 ]:</h3>
-  let countSpan = header.querySelector(".count-label");
-  if (!countSpan) {
-    // Create a dedicated span to hold the dynamic text so we never overwrite the arrow
-    countSpan = document.createElement("span");
-    countSpan.className = "count-label";
-    header.appendChild(countSpan);
-  }
-  countSpan.textContent = ` Abilities [ ${passivePerks.length} / ${maxPassivePerks} ]:`;
+    countSpan.textContent = `[ ${passivePerks.length} / ${maxPassivePerks} ]:`;
 }
 
-//#region removePassivePerk();
-function removePassivePerk(index) {
-    passivePerks.splice(index, 1);
-    updatePassivePerkDisplay();
-}
-
-//#region updateDebuffDisplay()
 function updateDebuffDisplay() {
-    if (!debuffDisplayDiv) return;
-    debuffDisplayDiv.innerHTML = '';
+    const container = document.querySelector("#debuffContainer");
+    const display = container.querySelector(".debuff-display");
+    const countSpan = container.querySelector(".count-label");
+    if (!display || !countSpan) return;
+
+    display.replaceChildren();
 
     const debuffMap = new Map();
-
-    // checks if the buff exists already, +1 to the counter for the first instance.
     activeDebuffs.forEach(debuff => {
         if (!debuffMap.has(debuff.name)) {
             debuffMap.set(debuff.name, { count: 1, description: debuff.description });
@@ -307,21 +291,23 @@ function updateDebuffDisplay() {
         }
     });
 
-    // Display each unique debuff with count
     debuffMap.forEach((value, name) => {
-        const debuffDiv = document.createElement('div');
-        const debuffDescDiv = document.createElement('div');
+        const item = document.createElement("div");
+        item.className = "debuff-item";
 
-        debuffDiv.className = 'debuff-item';
-        debuffDescDiv.className = 'debuff-desc';
-
+        const title = document.createElement("div");
+        title.className = "debuff-title";
         const displayName = value.count > 1 ? `${name} (x${value.count})` : name;
+        title.innerHTML = `<strong>${displayName}</strong>`;
 
-        debuffDiv.innerHTML = `<strong>${displayName}</strong>`;
-        debuffDescDiv.innerHTML = `<p>${value.description}</p>`;
+        const desc = document.createElement("div");
+        desc.className = "debuff-desc";
+        desc.innerHTML = `<p>${value.description}</p>`;
 
-        debuffDisplayDiv.appendChild(debuffDiv);
-        debuffDiv.appendChild(debuffDescDiv);
+        item.appendChild(title);
+        item.appendChild(desc);
+        display.appendChild(item);
     });
-}
 
+    countSpan.textContent = `[ ${debuffMap.size} ]:`;
+}

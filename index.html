@@ -25,13 +25,10 @@
   <script src="./p5/p5.min.js"></script>
 
   <!-- globals / upgrades -->
-  <script src="./assets/js/main/globals.js"></script> <!-- globals -->
-  <script src="./assets/js/upgrades/packs.js"></script> <!-- upgrades: boosters -->
-  <script src="./assets/js/upgrades/editperks.js"></script> <!-- upgrades: refinements -->
-  <script src="./assets/js/upgrades/passiveperks.js"></script> <!-- upgrades: abilities -->
-  <script src="./assets/js/upgrades/perks.js"></script> <!-- upgrades: perks -->
-  <script src="./assets/js/upgrades/debuffs.js"></script> <!-- debuffs (im too lazy to move it out of debuffs)-->
-  <script src="./assets/js/upgrades/helpers.js"></script> <!-- helper functions for upgrades -->
+  <script src="./assets/js/globals/globals.js"></script> <!-- globals -->
+  <script src="./assets/js/globals/upgrades.js"></script>
+  <script src="./assets/js/globals/debuffs.js"></script> <!-- debuffs (im too lazy to move it out of debuffs)-->
+  <script src="./assets/js/globals/helpers.js"></script> <!-- helper functions for upgrades -->
 
   <!-- classes -->
   <script src="./assets/js/classes/card.js"></script>
@@ -65,34 +62,58 @@
 
 <body>
 
+  <div id="resolution-warning">
+    <p>⚠ Resolution unsupported. Please use a larger screen.<br>
+    (Minimum 1100x600)</p>
+  </div>
+
   <main>
-
-
-
     <div id="perkContainer">
-      <h3 id="perk-header" class="prevent-select">
-        <span class="arrow">▼</span>
+      <h3 class="accordion-header">
+        <span class="arrow">▶</span> Abilities <span class="count-label"></span>
       </h3>
-      <div id="perk-display"></div>
+      <div class="accordion-display perk-display"></div>
     </div>
-
-    <script>
-      document.getElementById("perk-header").addEventListener("click", function () {
-        const display = document.getElementById("perk-display");
-        const arrow = this.querySelector(".arrow");
-
-        display.classList.toggle("closed");
-        arrow.classList.toggle("open");
-      });
-    </script>
 
     <div id="debuffContainer">
-      <h3>Debuffs:</h3>
-      <div id="debuffDisplay"></div>
+      <h3 class="accordion-header">
+        <span class="arrow">▶</span> Debuffs <span class="count-label"></span>
+      </h3>
+      <div class="accordion-display debuff-display"></div>
     </div>
 
+    <!-- "defer" only loads the script once everything else has been loaded -->
+    <script defer>
 
+      // iterate between both perk and debuff
+      function initAccordions() {
+        document.querySelectorAll(".accordion-header").forEach(header => {
+          const display = header.nextElementSibling; // assumes .accordion-display is right after header
+          header.addEventListener("click", () => {
+            display.classList.toggle("closed");
+            const arrow = header.querySelector(".arrow");
+            if (arrow) arrow.classList.toggle("open");
+          });
+        });
+      }
 
+      document.addEventListener("DOMContentLoaded", initAccordions);
+
+    </script>
+
+    <script>
+      function checkResolution() {
+        const warning = document.getElementById('resolution-warning');
+        if (window.innerWidth < 1100 || window.innerHeight < 600) {
+          warning.style.display = 'flex';
+        } else {
+          warning.style.display = 'none';
+        }
+      }
+
+      window.addEventListener('resize', checkResolution);
+      window.addEventListener('DOMContentLoaded', checkResolution);
+    </script>
 
   </main>
 

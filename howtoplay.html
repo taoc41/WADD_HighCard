@@ -5,79 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Highcarder - How to Play</title>
-  <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: auto;
-      width: 100%;
-      height: 100%;
-    }
+  <link href="styles.css" type="text/css" rel="stylesheet">
+  <link href="howtoplay.css" type="text/css" rel="stylesheet">
 
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
-      text-align: center;
-      color: white;
-      z-index: 1;
-      transition: background-color 0.3s ease;
-
-      .nav-container a {
-        display: inline-flex;
-        color: white;
-      }
-
-      .navpage a {
-        padding: 1%;
-        margin: 1%;
-      }
-    }
-
-    body {
-      background-color: #1b1b1b;
-    }
-
-    main {
-      font-family: Arial, Helvetica, sans-serif;
-      margin-top: 7%;
-      padding-inline: 20%;
-      color: white;
-
-      div:nth-of-type(1) {
-        text-align: center;
-        font-size: 14px;
-        padding-inline: 25%;
-      }
-
-      div:nth-of-type(2) {
-
-        p {
-          text-align: center;
-        }
-
-        li {
-          margin-bottom: 1%;
-        }
-      }
-
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      text-decoration: underline;
-      text-align: center;
-    }
-
-    h2 {
-      margin-top: 50px;
-    }
-  </style>
 
   <script src="p5/p5.min.js"></script>
-  <script src="/assets/js/background.js"></script>
+  <script src="./assets/js/background.js"></script>
+
 </head>
 
 <header id="header">
@@ -170,33 +104,23 @@
       </p>
 
       <h3>Burning and Freezing Upgrades</h3>
-      <p>During the upgrade phase, you are able to "burn" or "freeze" an upgrade. You will start with 3 burns and 
+      <p>During the upgrade phase, you are able to "burn" or "freeze" an upgrade. You will start with 3 burns and
         freezes, and are able to gain more through Perks.
         <br><br>
-        Burning an upgrade means to permanently remove it from your current playthrough entirely, allowing you to filter 
-        through and thin the immense amount of upgrades within the pool. Once an upgrade has been burnt, you can never recover 
+        Burning an upgrade means to permanently remove it from your current playthrough entirely, allowing you to filter
+        through and thin the immense amount of upgrades within the pool. Once an upgrade has been burnt, you can never
+        recover
         it, so choose wisely. You are unable to burn Cursed upgrades however.
         <br><br>
         Freezing an upgrade means to keep it within your choices indefinately until you select it, allowing you to hold
-        onto an upgrade if you're feeling indecisive. You cannot have more than one frozen upgrade at any time. You are 
-        also able to unfreeze a frozen ability at any time, though this will not recover a freeze used, so choose wisely.
+        onto an upgrade if you're feeling indecisive. You cannot have more than one frozen upgrade at any time. You are
+        also able to unfreeze a frozen ability at any time, though this will not recover a freeze used, so choose
+        wisely.
       </p>
 
     </div>
 
   </main>
-
-  <script>
-    const header = document.getElementById("header");
-
-    window.addEventListener('scroll', () => {
-      const scrollY = window.scrollY;
-      const maxScroll = 500;
-      const opacity = Math.min(scrollY / maxScroll, 1);
-
-      header.style.background = `linear-gradient(to bottom, rgba(0, 0, 0, ${opacity}), transparent)`
-    });
-  </script>
 </body>
 
 </html>

@@ -9,8 +9,8 @@ function preload() {
 function setup() {
 
   // canvas setup;
-  let canvasWidth = max(windowWidth, 1000);
-  let canvasHeight = max(windowHeight, 600);
+  let canvasWidth = max(windowWidth, MIN_CANVAS_WIDTH);
+  let canvasHeight = max(windowHeight, MIN_CANVAS_HEIGHT);
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.position(0, 0)
   canvas.style('z-index', '-2')
@@ -104,8 +104,8 @@ function draw() {
 // resizes the canvas + limits it to a minimum size of 1200 x 800
 // the html displays would overlap onto the actual play area.
 function windowResized() {
-  let newWidth = max(windowWidth, 1000);
-  let newHeight = max(windowHeight, 600);
+  let newWidth = max(windowWidth, MIN_CANVAS_WIDTH);
+  let newHeight = max(windowHeight, MIN_CANVAS_HEIGHT);
   resizeCanvas(newWidth, newHeight);
 }
 

@@ -1,5 +1,8 @@
 // this script stores all global variables needed for the game
 
+const MIN_CANVAS_WIDTH = 1100;
+const MIN_CANVAS_HEIGHT = 600;
+
 const suits = ['♠', '♥', '♦', '♣'];                                                   // Defines all card suits.
 const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];     // Defines all card ranks + the order.
 
