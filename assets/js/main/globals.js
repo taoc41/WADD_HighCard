@@ -1,18 +1,11 @@
-/**
- * This stores all the global variables needed by the game.
-*/
+// this script stores all global variables needed for the game
 
 const suits = ['♠', '♥', '♦', '♣'];                                                   // Defines all card suits.
 const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];     // Defines all card ranks.
 
 let playBtn, shuffleBtn, confirmBtn, skipBtn, burnBtn, freezeBtn, playAgainBtn, saveScoreBtn;  // Defines all game buttons
 
-// Game States
-const PLAYING = "playing";
-const UPGRADE = "upgrade";
-const GAMEOVER = "gameover";
-
-let gameState = PLAYING;  // "playing", "upgrade", or "gameover"
+let gameState = "playing";  // "playing", "upgrade", or "gameover"
 
 // Rank Value Map, used for multiplier calculations
 const rankValueMap = {
@@ -45,8 +38,8 @@ let baseUpgradeThreshold = 300;     // Base threshold score for one upgrade
 let round = 1;                  // Current round number.
 let ante = 1;                   // Current ante number.
 let maxRounds = 5;              // Maximum amount of rounds needed to play before proceeding onto the next ante.
-let lastAction = "none"         // "none", "playhand", "reshuffle"
 
+let maxPassivePerks = 5;        // Maximum amount of passive perks able to have
 let passivePerks = [];          // Array to hold all acquired passive perks
 let activeDebuffs = [];         // Array to hold all acquired debuff effects.
 let burnedUpgrades = [];        // Array to record all "burned" upgrades
@@ -59,6 +52,7 @@ let upgradeChoiceAmount = 3;
 // Globals for effects;
 let disabledPerk = [];        // Array to hold all currently disabled perks. For the "Perk Lockout" debuff
 let forcedCursedCount = 0;    // Amount of times that upgrades should be Cursed.
+let skipLock = 0;             // Amount of times that you can't skip upgrades.
 let skipUpgradePhase = false; // defines whether the upgrade phase is skipped this ante.
 
 // Preview and Current hand info are seperated as to not cause issues with overwriting.
@@ -74,16 +68,12 @@ let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 
-// add cards to deck
-let pickedCards = 0;
-let pickedIndices = [];
-
 // Background stuff
 let bgColours;
 let blobs = [];
 
 let playerName = ""; // leaderboard
 
-let MAX_PASSIVE_PERKS = 5; 
+
 let passivePerkDisplayDiv;
 let debuffDisplayDiv;

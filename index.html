@@ -7,16 +7,31 @@
   <title>Highcarder</title>
   <link href="index.css" type="text/css" rel="stylesheet">
 
+  <!-- GAME SCRIPTS -->
+
   <!-- P5.js LIBRARY -->
   <script src="/p5/p5.min.js"></script>
+  
+  <!-- globals / upgrades -->
+  <script src="/assets/js/main/globals.js"></script>
+  <script src="/assets/js/upgrades/packs.js"></script>
+  <script src="/assets/js/upgrades/editperks.js"></script>
+  <script src="/assets/js/upgrades/passiveperks.js"></script>
+  <script src="/assets/js/upgrades/perks.js"></script>
+  <script src="/assets/js/upgrades/helpers.js"></script>
 
-  <!-- GAME SCRIPTS -->
-  <script src="/assets/js/globals.js"></script> <!-- Stores the global variables required for the game -->
-  <script src="/assets/js/effect.js"></script> <!-- Stores all arrays and data related to effects (perks, debuffs, packs, etc) -->
-  <script src="/assets/js/classes.js"></script> <!-- Stores all classes -->
-  <script src="/assets/js/sketch.js"></script> <!-- Stores rendering code and the "draw" loop -->
-  <script src="/assets/js/game.js"></script> <!-- Stores game code and input logic -->
-  <script src="/assets/js/debug.js"></script> <!-- Debug functions usable via console (Cheats mostly) -->
+  <!-- classes -->
+  <script src="/assets/js/classes/card.js"></script>
+  <script src="/assets/js/classes/upgradeChoice.js"></script> <!-- game logic -->
+  <script src="/assets/js/classes/buttons.js"></script> <!-- all button classes -->
+
+  <!-- main scripts -->
+  <script src="/assets/js/main/sketch.js"></script> <!-- main -->
+  <script src="/assets/js/main/UI.js"></script> <!-- UI code -->
+  <script src="/assets/js/main/input.js"></script> <!-- input logic -->
+  <script src="/assets/js/main/game.js"></script> <!-- game code -->
+  <script src="/assets/js/debug.js"></script> <!-- debug functions, used in console -->
+
 </head>
 
 <header>
