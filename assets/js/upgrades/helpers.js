@@ -6,6 +6,7 @@
   
     const countMap = {};
     for (const card of deck) {
+      if (!card) continue;
       const key = `${card.rank}${card.suit}`;
       countMap[key] = (countMap[key] || 0) + 1;
     }

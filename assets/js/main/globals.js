@@ -5,7 +5,6 @@ const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 let playBtn, shuffleBtn, confirmBtn, skipBtn, burnBtn, freezeBtn, playAgainBtn, saveScoreBtn, endUpgradeBtn;  // Defines all game buttons
 
-
 let gameState = "playing";  // "playing", "upgrade", or "gameover"
 
 // Rank Value Map, used for multiplier calculations
@@ -75,6 +74,7 @@ let bgColours;
 let blobs = [];
 
 let playerName = ""; // leaderboard
+let nameInput;
 
 let passivePerkDisplayDiv; // define the HTML element (done in setup)
 let debuffDisplayDiv; // define the HTML element (done in setup)

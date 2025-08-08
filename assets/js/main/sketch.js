@@ -27,9 +27,19 @@ function setup() {
   shuffleBtn = new ShuffleButton();
   confirmBtn = new ConfirmButton();
   skipBtn = new SkipButton();
+  endUpgradeBtn = new EndUpgradeButton();
   burnBtn = new BurnButton();
   freezeBtn = new FreezeButton();
+  saveScoreBtn = new SaveScoreButton();
+  playAgainBtn = new PlayAgainButton();
 
+  // text input setup
+  nameInput = createInput('');
+  nameInput.attribute('maxlengh', '12'); // limit to 12 characters
+  nameInput.position(width / 2, height / 2 + 30);
+  nameInput.size(200, 30);
+  nameInput.hide(); // start hidden
+  
   // ui setup.
   noSmooth();
   textAlign(CENTER, CENTER);
@@ -77,7 +87,6 @@ function draw() {
     let t = millis() * b.speed + b.offset; // define the time
     let pulse = sin(millis() * b.pulseSpeed + b.offset) * 20; // pulsing
 
-
     let x = b.x + sin(t) * 30;
     let y = b.y + cos(t * 1.1) * 30;
     let r = b.baseR + pulse;
@@ -101,8 +110,8 @@ function windowResized() {
 }
 
 //#region resetGame()
-function resetGame(){
-    
+function resetGame() {
+
   // resets deck and hand
   deck = [];
   hand = [];
@@ -148,8 +157,9 @@ function resetGame(){
   // clear event text log
   eventTextAnimations = [];
 
-  // set game state
+  // set game state & hide name input
   gameState = "playing";
+  nameInput.hide();
 
   // regenerate everything + start new game
   generateDeck();
@@ -160,10 +170,11 @@ function resetGame(){
 }
 
 //#region saveScore()
-function saveScore(name, score) {
-  let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  leaderboard.push({ name, score });
-  leaderboard.sort((a, b) => b.score - a.score);
-  leaderboard = leaderboard.slice(0, 10);
-  localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+function saveScore(score, ante) {
+  let name = nameInput.value().trim(); // get and clean player name from input field
+  if (name === "") name = "Highcarder"; // fall back if empty
+  let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || []; // retieve leaderboard from localStorage
+  leaderboard.push({ name, score, ante }); // add new score
+  leaderboard.sort((a, b) => b.score - a.score); // sort by highest score
+  localStorage.setItem("leaderboard", JSON.stringify(leaderboard)); // save back to localStorage
 }
