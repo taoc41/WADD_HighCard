@@ -9,11 +9,11 @@ function preload() {
 function setup() {
 
   // canvas setup;
-  let canvasWidth = max(windowWidth, 1200);
-  let canvasHeight = max(windowHeight, 800);
+  let canvasWidth = max(windowWidth, 1000);
+  let canvasHeight = max(windowHeight, 600);
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.position(0, 0)
-  canvas.style('z-index', '-1')
+  canvas.style('z-index', '-2')
   canvas.id("gameCanvas");
 
   // HTML perk/debuff display setup.
@@ -104,8 +104,8 @@ function draw() {
 // resizes the canvas + limits it to a minimum size of 1200 x 800
 // the html displays would overlap onto the actual play area.
 function windowResized() {
-  let newWidth = max(windowWidth, 1200);
-  let newHeight = max(windowHeight, 800);
+  let newWidth = max(windowWidth, 1000);
+  let newHeight = max(windowHeight, 600);
   resizeCanvas(newWidth, newHeight);
 }
 

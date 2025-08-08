@@ -10,7 +10,7 @@ function mousePressed() {
             heldCard = card;
             holdingCardIndex = i;
             holdStartTime = millis();
-            dragOffsetX = mouseX - card.x;
+            dragOffsetX = mouseX - card.x; 
             dragOffsetY = mouseY - card.y;
             break;
         }
@@ -18,18 +18,11 @@ function mousePressed() {
 
     if (gameState === "playing") {
         // Handle play button click
-        if (playBtn && playBtn.contains(mouseX, mouseY)) {
-            playBtn.onClick();
-            return;
-        }
-
+        if (playBtn && playBtn.contains(mouseX, mouseY)) playBtn.onClick();
+        
         // Handle shuffle button click
-        if (shuffleBtn && shuffleBtn.contains(mouseX, mouseY)) {
-            shuffleBtn.onClick();
-            return;
-        }
+        if (shuffleBtn && shuffleBtn.contains(mouseX, mouseY)) shuffleBtn.onClick();
     }
-
 
     // upgrade phase - handle upgrade selection
     if (gameState === "upgrade") {
@@ -42,31 +35,29 @@ function mousePressed() {
             }
         }
 
-        if (confirmBtn && confirmBtn.contains(mouseX, mouseY)) {
-            confirmBtn.onClick();
-        }
-
-        if (skipBtn && skipBtn.contains(mouseX, mouseY)) {
-            skipBtn.onClick();
-        }
-
-        if (burnBtn && burnBtn.contains(mouseX, mouseY)) {
-            burnBtn.onClick();
-        }
-
-        if (freezeBtn && freezeBtn.contains(mouseX, mouseY)) {
-            freezeBtn.onClick();
-        }
-
+        // if the mouse is over the button, then you can click
+        if (confirmBtn && confirmBtn.contains(mouseX, mouseY)) confirmBtn.onClick();
+        if (skipBtn && skipBtn.contains(mouseX, mouseY)) skipBtn.onClick();
+        if (endUpgradeBtn && endUpgradeBtn.contains(mouseX, mouseY)) endUpgradeBtn.onClick();
+        if (burnBtn && burnBtn.contains(mouseX, mouseY)) burnBtn.onClick();
+        if (freezeBtn && freezeBtn.contains(mouseX, mouseY)) freezeBtn.onClick();
+    }
+    
+    // game over, enable button selection
+    if (gameState === "gameover") {
+        if (saveScoreBtn && saveScoreBtn.contains(mouseX, mouseY)) saveScoreBtn.onClick();
+        if (playAgainBtn && playAgainBtn.contains(mouseX, mouseY)) playAgainBtn.onClick();
     }
 }
 
 //#region mouseDragged()
 function mouseDragged() {
+    // timer for when the card should start moving after clicking on it
     if (heldCard && !isDragging && millis() - holdStartTime > 200) {
         isDragging = true;
     }
 
+    // drag the card and move it around
     if (isDragging && heldCard) {
         heldCard.x = mouseX - dragOffsetX;
         heldCard.y = mouseY - dragOffsetY;
@@ -76,25 +67,23 @@ function mouseDragged() {
 //#region mouseReleased()
 
 function mouseReleased() {
-    if (isDragging && heldCard) {
+    if (isDragging && heldCard) { // are we dragging a card?
 
-        // calculate insertion index using midpoints of between current slots
+        // initalize variables
+        let minDist = Infinity; // guarantee that first comparison is always replaced with real distance
+        let targetIndex = holdingCardIndex; // does nothing if no closer card is found
 
-        // find the closest index
-        let minDist = Infinity;
-        let targetIndex = holdingCardIndex;
-
-        for (let i = 0; i < hand.length; i++) {
-            if (i === holdingCardIndex) continue;
-            const card = hand[i];
-            const d = dist(heldCard.x, heldCard.y, card.x, card.y);
+        for (let i = 0; i < hand.length; i++) { // loop all hand indicies
+            if (i === holdingCardIndex) continue; // skip the held card
+            const card = hand[i]; // initalize each card
+            const d = dist(heldCard.x, heldCard.y, card.x, card.y); // measure the distance of the held card from each card's position via dist (p5.js)
             if (d < minDist) {
-                minDist = d;
-                targetIndex = i;
+                minDist = d; // find minimum distance for each card
+                targetIndex = i; // target the smallest distance
             }
         }
 
-        if (minDist <= 150 && targetIndex !== holdingCardIndex) {
+        if (minDist <= 150 && targetIndex !== holdingCardIndex) { // all yes? consider as valid drop
             // remove held card
             const movedCard = hand.splice(holdingCardIndex, 1)[0];
 
@@ -109,40 +98,60 @@ function mouseReleased() {
                 if (idx === holdingCardIndex) return insertAt;
 
                 // moved foward: shift indices in (oldIdx, new Idx] left by 1
+                // move backwaords: shift indices in [new, old) right by 1
                 if (holdingCardIndex < insertAt && idx > holdingCardIndex && idx <= insertAt) return idx - 1;
                 if (insertAt < holdingCardIndex && idx >= insertAt && idx < holdingCardIndex) return idx + 1;
 
                 return idx;
             });
 
-            // dedupe, clamp, sort
-            selected = Array.from(new Set(selected))
-                .filter(i => i >= 0 && i < hand.length)
-                .sort((a, b) => a - b);
+            // clean-up and reorder selected array
+
+            // 1. temporarily creates a set to remove duplicate values, 
+            // 2. converts set back into regular array
+            // 3. keeps indicies that are valid:
+            //          (i >= 0) -> no negative indexes. 
+            //          (i < hand.length) -> no indexes past number of cards in hand
+            // 4. sorts indices in ascending order.
+            
+            selected = Array.from(new Set(selected)) 
+                .filter(i => i >= 0 && i < hand.length) 
+                .sort((a, b) => a - b); 
         }
 
     } else if (heldCard) {
         // click based selection toggle (no drag)
         const idx = holdingCardIndex;
-        if (heldCard.selected) {
-            selected = selected.filter(n => n !== idx);
-            heldCard.selected = false;
-        } else if (selected.length < 5) {
-            selected.push(idx);
-            heldCard.selected = true;
+        if (heldCard.selected) { // is the card clicked already selected?
+            selected = selected.filter(n => n !== idx); // remove from selected array
+            heldCard.selected = false; // mark it as unselected
+        } else if (selected.length < 5) { // otherwise, is selected less than 5?
+            selected.push(idx); // add to selected array
+            heldCard.selected = true; // mark as selected
         }
     }
 
-    // resync `selected` from card flags to avoid ghosting
+    // resync `selected`
+    // scan hand and push indicies where card.selected is true
+    // prevents mismatching/ghosting between flags and index list
+
+    //      1. loop through each card
+    //      2. check if the slot (c) has a card (not null or undefined), and card selected flag is "true"
+    //      3. above conditions met? add index back into hand array
+    //      4. pass updated array onto next iteration
+    //      5. next iteration starts with an empty array ( [] ) and builds back up with indicies of selected cards
+
     selected = hand.reduce((arr, c, i) => {
         if (c && c.selected) arr.push(i);
         return arr;
     }, []);
 
     if (gameState === "playing" && selected.length >= 1) {
-        const chosenCards = selected.map(i => hand[i]).filter(Boolean);
-        previewHandInfo = evaluateHand(chosenCards);
-        previewHandInfo.cards = chosenCards;
+        const chosenCards = selected.map(i => hand[i]).filter(Boolean); // filter out all "null" or ghosting selected cards
+        previewHandInfo = evaluateHand(chosenCards); // evaluate the hand for preview
+
+        // set the properties for the preview hand UI
+        previewHandInfo.cards = chosenCards; 
         previewHandInfo.baseScore = previewHandInfo.score;
     } else {
         previewHandInfo = null;
@@ -152,22 +161,4 @@ function mouseReleased() {
     isDragging = false;
     heldCard = null;
     holdingCardIndex = -1;
-}
-
-//#region keyTyped()
-function keyTyped() {
-    if (gameState === "gameover") {
-        if (playerName.length < 12 && key.match(/^[a-zA-Z0-9 ]$/)) {
-            playerName += key;
-        }
-    }
-}
-
-//#region keyPressed()
-function keyPressed() {
-    if (gameState === "gameover") {
-        if (keyCode === BACKSPACE) {
-            playerName = playerName.slice(0, -1);
-        }
-    }
 }

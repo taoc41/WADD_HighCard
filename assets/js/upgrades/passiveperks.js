@@ -597,19 +597,19 @@ const PASSIVE_PERKS = [
       rarity: "Rare",
     
       get description() {
-        const count = chosenCards ? chosenCards.filter(c => c.suit === this.suit).length : 0;
-        const gained = count * 10;
-        return `+${gained} points.
-        This card gains +10 points for every ${this.suit} played in your hand. (${count} played)`;
+        return `+${this.points} points.
+        This card gains +10 points for every ${this.suit} played.`;
       },
     
+      points: 10,
       trigger: "playHand",
       result: "addScore",
     
       condition: (playedCards) => playedCards.some(c => c.suit === '♣'),
       effect: function (playedCards) {
         const count = playedCards.filter(c => c.suit === this.suit).length;
-        return count * 10;
+        this.points += count * 10
+        return this.points;
       }
     },
     { // Firestarter

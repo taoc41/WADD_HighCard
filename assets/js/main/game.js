@@ -1,5 +1,5 @@
-// this script stores main game code
-// including playing game state and upgrade game state
+// this script stores backend game code, mostly for main gameplay loop
+//
 
 //#region generateDeck()
 // generates a new 52 card deck.
@@ -95,9 +95,10 @@ function playHand() {
     updatePassivePerkDisplay();
     updateDebuffDisplay();
 
-    // apply score, reset appropriate variables
+    // apply score, reset appropriate variables for next round
     score += finalScore
     lastHandInfo = currentHandInfo;
+
     currentHandInfo = null;
     previewHandInfo = null;
     round++;
@@ -113,90 +114,6 @@ function playHand() {
     gameStateLogic();
 }
 
-
-//#region gameStateLogic()
-// main function that handles everything
-// below funtions are helper functions (to refactor so it all isn't a bunch of if statements)
-function gameStateLogic() {
-    if (isGameOver()) {
-        gameState = "gameover";
-        return;
-    }
-
-    if (isAnteOver()) {
-        handleAnteEnd();
-    } else {
-        drawHand(); // new hand if it's not a new ante
-    }
-}
-
-// checks if the game is over
-function isGameOver() {
-    return deck.length === 0 && hand.every(card => card === null);
-}
-
-// checks if the ante is over
-function isAnteOver() {
-    return round > maxRounds;
-}
-
-// handles what to do when the ante is over
-function handleAnteEnd() {
-    const baseThreshold = getUpgradeThreshold();
-
-    if (score >= baseThreshold) {
-        handleSuccessfulAnte(baseThreshold);
-    } else {
-        handleFailedAnte();
-    }
-}
-
-// handles a sucessful ante - if the player meets the score requirement
-function handleSuccessfulAnte(baseThreshold) {
-    upgradePoints = Math.floor(score / baseThreshold) + storedUpgradePoints; // adds upgrade points
-    storedUpgradePoints = 0;
-    totalScore += score;
-    score = 0;
-
-    if (upgradePoints > 0) {
-        const oblivious = activeDebuffs.find(d => d.name === "Oblivious"); // checks for oblivious debuff
-        if (oblivious) {
-            oblivious.effect();
-            nextAnte(); // skip upgrade phase if oblivous debuff exists
-        } else {
-            gameState = "upgrade";
-            generateUpgradeChoice();
-        }
-    } else {
-        nextAnte();
-    }
-}
-
-// handles a failed ante - if the played didn't meet the score requirement
-function handleFailedAnte() {
-    if (storedUpgradePoints > 0) {
-        sendEventText(`Failed to reach score requirement, ${storedUpgradePoints} stored upgrades lost!`);
-    } else if (round === maxRounds + 1) {
-        sendEventText(`You must meet the score requirement to progress!`);
-    }
-
-    storedUpgradePoints = 0;
-    drawHand();
-}
-
-//#region nextAnte()
-// literally so i dont have to keep repeating this code over and over
-function nextAnte() {
-    addDebuffAnte(); // adds a debuff every 5 antes
-    gameState = "playing"; // sets game state
-    ante++; // next ante
-    round = 1; // reset back to round 1
-    upgradePoints = 0; // reset upgrade points
-    selectedUpgradeIndex = null // resets upgrade selection
-    returnHand(); // return the hand from upgrade screen back into deck
-    drawHand(); // redraw a new hand
-}
-
 //#region evaluateHand()
 /**
     * Evaluates the hand for scoring/typing
@@ -205,32 +122,45 @@ function nextAnte() {
 */
 function evaluateHand(cards) {
 
-    // seperates ranks and sets some info needed for later
-    let ranksOnly = cards.map(c => c.rank);
-    let suitsOnly = cards.map(c => c.suit);
-    let rankCounts = {};
-    let rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    // create rank only and suits only arrays by mapping over selected `cards`
+    let ranksOnly = cards.map(c => c.rank); // holds only ranks e.g. ['K', 'A', '2']
+    let suitsOnly = cards.map(c => c.suit); // holds only suits e.g. ['♠', '♠', '♥']
+    let rankCounts = {}; // initalize the object first
+    const rankOrder = ranks; // gets the ranks global array, should already be in order
 
+    // loop over rankOnly to build rankCounts -> stores how many each rank appears
     for (let r of ranksOnly) {
         rankCounts[r] = (rankCounts[r] || 0) + 1;
     }
 
-    // hand type checks.
-    let counts = Object.values(rankCounts).sort((a, b) => b - a);                                                          // Tells how much of each rank is present. Identifies pairs, Three -> Five of a Kind, Etc.
-    let isFlush = suitsOnly.every(s => s === suitsOnly[0]);                                                                // Checks if all cards are the same rank.
-    let sortedIndices = ranksOnly.map(r => rankOrder.indexOf(r)).sort((a, b) => a - b);                                    // Creates a numerically sorted list of ranks.
-    let isStraight = sortedIndices.length >= 2 && sortedIndices.every((val, i, arr) => i === 0 || val - arr[i - 1] === 1); // Checks if sortedIndices form a consecutive sequence. Confirms if hand is a straight.
+    /* hand type checks. */
+    // Tells how much of each rank is present. Identifies pairs, Three -> Five of a Kind, Etc.
+    let counts = Object.values(rankCounts).sort((a, b) => b - a); 
 
-    // arrow functions to check what cards make up the hand type (pair, straight, etc)
-    const getCardsByRank = (rank) => cards.filter(c => c.rank === rank);        // return all cards from `cards` that match a specific rank
-    const getUsedCards = (rankCountMap, count) =>                               // return all cards that appears `count` times in the hand.
-        Object.entries(rankCountMap)                                            // rankCountMap is an object, e.g. { 'A': 2, '10, 'J': 2 }, this line converts it to [['A', 2], ['10', 1], ['J', 2]].
-            .filter(([_, cnt]) => cnt === count)                                // keeps entries where the count matches the value that we are interested in
-            .flatMap(([rank]) => getCardsByRank(rank));                         // for each matching rank, pull all cards with that rank using `getCardByRank`. flatMap flattens the array into single card objects.
+    // checks if all cards are the same suit.
+    let isFlush = suitsOnly.every(s => s === suitsOnly[0]);  
+
+    // creates a numerically sorted list of ranks.
+    let sortedIndices = ranksOnly.map(r => rankOrder.indexOf(r)).sort((a, b) => a - b);     
+
+    // checks if sortedIndices form a consecutive sequence. confirms if hand is a straight.
+    let isStraight = sortedIndices.length >= 2 && sortedIndices.every((val, i, arr) => i === 0 || val - arr[i - 1] === 1); 
+
+    /* helper functions to check what cards make up the hand type (pair, straight, etc) 
+    used for rank multiplier -> only use the cards that make up the poker hand for multiplier */
+
+    // getCardByRank: return all cards from `cards` that match a specific rank
+    // getUsedCards: retuns all cards that appear a specific amount of times
+    const getCardsByRank = (rank) => cards.filter(c => c.rank === rank);        
+    const getUsedCards = (rankCountMap, count) =>          // return all cards that appears `count` times in the hand.
+        Object.entries(rankCountMap)                       // rankCountMap is an object, e.g. { 'A': 2, '10, 'J': 2 }, this line converts it to [['A', 2], ['10', 1], ['J', 2]].
+            .filter(([_, cnt]) => cnt === count)           // keeps entries where the count matches the value that we are interested in
+            .flatMap(([rank]) => getCardsByRank(rank));    // for each matching rank, pull all cards with that rank using `getCardByRank`. flatMap flattens the array into single card objects.
 
     // checks for how many cards are selected and returns the appropriate object depending on the type of hand selected using the hand type checks
+    // this looks awful i know i hate it too
     switch (cards.length) {
-        case 1: // 1 card selected ————————————————————————————————————————————————————————
+        case 1: // 1 card selected
 
             // High Card
             return {
@@ -239,7 +169,7 @@ function evaluateHand(cards) {
                 usedCards: [cards[0]]
             };
 
-        case 2: // 2 cards selected ——————————————————————————————————————————————————————
+        case 2: // 2 cards selected
 
             // Pair
             if (counts[0] === 2) {
@@ -250,7 +180,7 @@ function evaluateHand(cards) {
             // High Card
             return { name: "High Card", score: 5, usedCards: [cards[0]] };
 
-        case 3: // Three cards selected —————————————————————————————————————————————————
+        case 3: // Three cards selected
 
             // Three of a Kind
             if (counts[0] === 3) {
@@ -267,7 +197,7 @@ function evaluateHand(cards) {
             // High Card
             return { name: "High Card", score: 5, usedCards: [cards[0]] };
 
-        case 4: // 4 Cards selected ———————
+        case 4: // 4 Cards selected
 
             // Four of a Kind
             if (counts[0] === 4) {
@@ -296,7 +226,7 @@ function evaluateHand(cards) {
             // High Card
             return { name: "High Card", score: 5, usedCards: [cards[0]] };
 
-        case 5: // 5 Cards selected —————————————————————————————————————————————————
+        case 5: // 5 Cards selected
 
             // Flush Five
             if (isFlush && counts[0] === 5) {
@@ -418,6 +348,7 @@ function reshuffleHand() {
 //#region returnHand()
 function returnHand() {
     for (let card of hand) {
+        if (!card) continue
         card.selected = false; // unmark all cards as selected
     }
     selected = []; // clear selected cards
@@ -433,294 +364,3 @@ function getUpgradeThreshold() {
     const threshold = baseUpgradeThreshold * Math.pow(growthRate, ante - 1); // math to increase ante
     return Math.round(threshold / 100) * 100; // Round to the nearest 100
 }
-
-//#region weightedRandomRarity()
-// random rarity generation based on the rates
-function weightedRandomRarity() {
-    let r = random();
-    let cumulative = 0;
-    for (let rarity in RARITY_WEIGHTS) {
-        cumulative += RARITY_WEIGHTS[rarity];
-        if (r < cumulative) return rarity;
-    }
-    return "Common";
-}
-
-/* UPGRADE GAME STATE --------------------------------------------------------------------------------------------*/
-
-//#region generateUpgradeChoice()
-
-// this has genuinely caused me the most headaches
-// i wish death upon javascript
-// chatGPT was used here for debugging -> ended up being typos & generation returns null as a choice for some reason
-function generateUpgradeChoice() {
-    selectedUpgradeIndex = null;
-    burnUsed = false;
-    returnHand();
-    drawHand();
-
-    const frozenNames = new Set(
-        [...frozenUpgrades.values()]
-            .map(choice => choice?.data?.name)
-            .filter(Boolean)
-    );
-
-    // filters -> no duplicate choices with already owned passives + burned upgrades
-    const availablePassives = PASSIVE_PERKS.filter(p =>
-        !passivePerks.some(pp => pp.name === p.name) &&
-        !burnedUpgrades.includes(p.name) &&
-        !frozenNames.has(p.name)
-    );
-    const availablePacks = PACKS.filter(p =>
-        !burnedUpgrades.includes(p.name) &&
-        !frozenNames.has(p.name)
-    );
-    const availableEdits = EDIT_PERKS.filter(p =>
-        !burnedUpgrades.includes(p.name) &&
-        !frozenNames.has(p.name)
-    );
-    const availablePerks = PERKS.filter(p =>
-        !burnedUpgrades.includes(p.name) &&
-        !frozenNames.has(p.name)
-    );
-
-    const slots = new Array(upgradeChoiceAmount).fill(null); // prepare output array & keep frozen upgrades
-    const usedNames = new Set(frozenNames); // already appeared in this roll
-
-    // place frozen upgrades back into their respective slots
-    // burned upgrade? get rid of it
-    // frozen upgrade is overflowing? get rid of it
-    for (const [slotIdx, choice] of [...frozenUpgrades.entries()]) {
-        if (
-            slotIdx < upgradeChoiceAmount &&
-            choice &&
-            !burnedUpgrades.includes(choice.data?.name)
-        ) {
-            slots[slotIdx] = choice;
-            usedNames.add(choice.data.name);
-        } else {
-            // invalid/overflowed frozen – drop it
-            frozenUpgrades.delete(slotIdx);
-        }
-    }
-
-    // helper - pick from a pool by rarity while avoiding duplicates
-    const tryPickByRarity = (pool, rarity) => {
-        const candidates = pool.filter(p => p.rarity === rarity
-            && !usedNames.has(p.name)
-        );
-        if (!candidates.length) return null;
-        const pick = random(candidates);
-        usedNames.add(pick.name);
-        return pick;
-    };
-
-    const tryPickAny = (pool) => {
-        const pick = pool.find(p => !usedNames.has(p.name));
-        if (!pick) return null;
-        usedNames.add(pick.name);
-        return pick;
-    };
-
-    // fill empty slots.
-    for (let i = 0; i < slots.length; i++) {
-        if (slots[i]) continue;
-
-        const roll = random();
-        let rarity = weightedRandomRarity();
-
-        // force cursed upgrade if forcedCursedCount is above 0 (A)
-        if (forcedCursedCount > 0) {
-            rarity = "Cursed";
-            forcedCursedCount--
-            sendEventText(`An upgrade had become cursed!`);
-        }
-
-        // defines how often an upgrade type should appear
-        // pack - 55% change
-        // edit - 25% chance
-        // passive + perk, 10% chance
-        const typePools = [
-            { chance: 0.55, type: "pack", pool: availablePacks }, // 55% chance
-            { chance: 0.75, type: "edit", pool: availableEdits }, // 25% chance
-            { chance: 0.9, type: "passive", pool: availablePassives }, // 10% chance
-            { change: 1.0, type: "perk", pool: availablePerks } // 10% chance
-        ];
-
-        // force cursed upgrade (B)
-        for (let { chance, type, pool } of typePools) {
-            if (roll < chance && pool.length > 0) {
-                const filteredPool = rarity === "Cursed"
-                    ? pool.filter(p => p.rarity === "Cursed")
-                    : pool;
-
-                const pick = tryPickByRarity(filteredPool, rarity) || tryPickAny(filteredPool);
-                if (pick) {
-                    slots[i] = new UpgradeChoice(type, pick);
-                    break;
-                }
-            }
-        }
-    }
-
-    // fall back to prevent "nulls" from being generated
-    // i hate this so much
-    const classifyType = (item) => {
-        if (availablePacks.some(p => p.name === item.name)) return "pack";
-        if (availableEdits.some(p => p.name === item.name)) return "edit";
-        if (availablePassives.some(p => p.name === item.name)) return "passive";
-        if (availablePerks.some(p => p.name === item.name)) return "perk";
-    };
-
-    // defines the fallback pool
-    let fallbackPool = [
-        ...availablePacks,
-        ...availableEdits,
-        ...availablePassives,
-        ...availablePerks
-    ].filter(u => !usedNames.has(u.name)); // no dupes
-
-    // force cursed upgrades if needed yet again
-    if (forcedCursedCount > 0) {
-        fallbackPool = fallbackPool.filter(u => u.rarity === "Cursed");
-    }
-
-    // now fill the upgrade slots
-    for (let i = 0; i < slots.length; i++) {
-        if (slots[i]) continue; // already filled
-
-        if (fallbackPool.length === 0) break;
-
-        //pick one at random, classify and place
-        const pick = random(fallbackPool);
-        const type = classifyType(pick);
-
-        slots[i] = new UpgradeChoice(type, pick);
-        usedNames.add(pick.name);
-
-        fallbackPool = fallbackPool.filter(u => u.name !== pick.name);
-    }
-
-    upgradeChoices = slots.filter(Boolean); // last fallback to not return any nulls
-    upgradeChoices = slots; // set the upgrade choices.
-}
-
-//#region confirmUpgrade()
-function confirmUpgrade() {
-    if (selectedUpgradeIndex === null) return;
-
-    const choice = upgradeChoices[selectedUpgradeIndex];
-    const ok = choice.apply();
-    if (!ok) return;
-
-    if (ok) {
-        frozenUpgrades.delete(selectedUpgradeIndex); // unfreeze the upgrade if any
-        upgradePoints--;
-        upgradePoints > 0 ? generateUpgradeChoice() : nextAnte(); // more upgrades? generate upgrade choice again, then next ante.
-    }
-}
-
-//#region burnUpgrade()
-function burnUpgrade() {
-    if (burnUsed) {
-        sendEventText("You can only burn once per upgrade!")
-        return;
-    }
-
-    if (selectedUpgradeIndex == null) return;
-
-    const selectedUpgrade = upgradeChoices[selectedUpgradeIndex];
-
-    if (!selectedUpgrade.isBurnable()) {
-        sendEventText("Cannot burn a Cursed upgrade!")
-        return;
-    }
-
-    if (burnsRemaining <= 0) {
-        sendEventText("No burns remaining!!")
-        return;
-    }
-
-    // handles burning the upgrade
-    const burned = upgradeChoices[selectedUpgradeIndex]; // get the selected upgrade
-    burnedUpgrades.push(burned.name); // push it into the list of burned upgrades
-    frozenUpgrades.delete(selectedUpgradeIndex); // get rid of the freeze if there is one.
-    sendEventText(`${burned.name} has been burned!`)
-    upgradeChoices.splice(selectedUpgradeIndex, 1); // remove from selectable list
-    selectedUpgradeIndex = null; // reset burned index back to null
-    burnsRemaining--; // decrease amount of burns by 1
-    burnUsed = true // cannot use burn again until another upgrade is chosen, or the upgrade is skipped.
-
-    for (let perk of passivePerks) {
-        if (perk.trigger === "onBurn" && (!disabledPerk.includes(perk))) {
-            perk.effect(burned);
-            sendEventText(`${perk.name} activated!`)
-        }
-    }
-}
-
-//#region freezeUpgrade();
-function freezeUpgrade() {
-    if (selectedUpgradeIndex == null) return;
-
-    const idx = selectedUpgradeIndex;
-
-    if (frozenUpgrades.has(idx)) {
-        frozenUpgrades.delete(idx);
-        this.label = `Freeze (${freezesRemaining})`
-        return;
-    }
-
-    if (freezesRemaining <= 0) {
-        sendEventText(`No more freezes remaining!`);
-        return;
-    }
-
-    const choice = upgradeChoices[idx];
-    if (!choice) return;
-    frozenUpgrades.set(idx, choice);
-    this.label = "Unfreeze"
-    freezesRemaining--;
-
-}
-
-//#region addDebuffPer5Ante()
-function addDebuffAnte() {
-    if (ante % 5 !== 0) return; // do nothing if ante is not a multiple of 5
-
-    // filter debuffs that haven't hit the max count
-    const validDebuffs = DEBUFFS.filter(d => {
-        const count = activeDebuffs.filter(ad => ad.name === d.name).length;
-        return !d.max || count < d.max;
-    });
-
-    // do nothing if there's no debuffs available to add / all debuffs hit max limit.
-    if (validDebuffs.length === 0) return;
-
-    // add the debuff (push into activeDebuff array)
-    const debuff = random(validDebuffs);
-    activeDebuffs.push(debuff);
-
-    // activate the debuff effect now if the type is defined as "once"
-    if (debuff.type === "once" && typeof debuff.effect === "function") {
-        debuff.effect();
-    }
-
-    // event text for visual clarity
-    sendEventText(`Difficulty increase... the "${debuff.name}" debuff was added.`)
-
-    // update the HTMl display
-    updateDebuffDisplay();
-}
-
-function skipUpgrade() {
-    storedUpgradePoints++;
-    upgradePoints--;
-    generateUpgradeChoice();
-
-    if (upgradePoints <= 0) nextAnte();
-}
-
-
-
-

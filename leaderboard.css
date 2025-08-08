@@ -1,0 +1,33 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+main {
+    font-family: sans-serif;
+    color: #fff;
+    text-align: center;
+    margin-top: 2%;
+    padding: 50px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+table {
+    margin: auto;
+    border-collapse: collapse;
+    width: 50%;
+}
+
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+}
+
+tr:nth-child(even) {
+    background: #222;
+}

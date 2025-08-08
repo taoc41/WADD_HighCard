@@ -20,6 +20,7 @@ class UpgradeChoice {
         const pad = 15;
         const stepMax = this.w + 20;
 
+        // calculate the spacing for the upgrade choices.
         const spacing = (count > 1)
             ? Math.min((width - 2 * pad - this.w) / (count - 1), stepMax)
             : 0;
@@ -35,7 +36,7 @@ class UpgradeChoice {
         fill(selectedUpgradeIndex === i ? 40 : 60); // if logic encapsulated within fill method.
         rect(this.x - 100, this.y - 100, this.w, this.h, 20);
 
-        // if frozen
+        // if frozen, draw blue outline over the box
         if (frozenUpgrades.has(i)) {
             noFill();
             stroke(0, 200, 255);
@@ -46,6 +47,8 @@ class UpgradeChoice {
 
         // text
         const rarityColour = getRarityColor(this.rarity);
+        
+        // get the type of upgrade for the text
         const typeText = () => {
             switch (this.type) {
                 case "passive": return "Passive Ability";
@@ -84,25 +87,26 @@ class UpgradeChoice {
         return this.rarity !== "Cursed";
     }
 
+    // returns true or false depending on the outcome/some requirements
     apply() {
 
-        // if perk type is "passive"
+        // if perk type is "passive" & player has reached the max ability limit
         if (this.type === "passive") {
             if (passivePerks.length >= maxPassivePerks) {
                 alert("You already have 5 passive perks. Remove one before adding another.");
-                return false;
+                return false; // stop here.
             }
-            passivePerks.push(this.data);
-            updatePassivePerkDisplay?.();
-            return true;
+            passivePerks.push(this.data); // add the ability
+            updatePassivePerkDisplay(); // update the HTML display
+            return true; // continue onto next ante or upgrade
         }
 
-        // if perk type is "pack"
+        // if upgrade type is "pack" or "perk"
         if (this.type === "pack" || this.type === "perk") {
-            this.data.apply?.(); // apply pack
+            this.data.apply?.(); // apply pack/perk
             this.type === "pack" ? shuffle(deck, true) : null; // shuffle the deck if pack
-            updatePassivePerkDisplay?.(); // update perk display
-            return true;
+            updatePassivePerkDisplay(); // update HTML display (for some abilities that dynamically update description)
+            return true; // continue onto next ante or upgrade
         }
 
         // if the perk type is "edit"
@@ -110,30 +114,17 @@ class UpgradeChoice {
             const selectedCards = selected.map(i => hand[i]);
             const req = this.data;
 
-            if (selectedCards.length < req.minReq) {
-                eventTextAnimations.push({
-                    text: `You need to select at least ${req.minReq} first!`,
-                    x: width / 2,
-                    y: height / 2 - 100 + (eventTextAnimations.length * 30),
-                    opacity: 255,
-                    timer: 60
-                });
-                return;
-            } else if (selectedCards.length > req.maxReq) {
-                eventTextAnimations.push({
-                    text: `You can only selected a max of ${req.maxReq} cards!`,
-                    x: width / 2,
-                    y: height / 2 - 100 + (eventTextAnimations.length * 30),
-                    opacity: 255,
-                    timer: 60
-                });
-                return;
+            if (selectedCards.length < req.minReq) { // under minimum selection?
+                sendEventText(`You need to select at least ${req.minReq} first!`)
+                return false; // stop here.
+            } else if (selectedCards.length > req.maxReq) { // over minimum selection?
+                sendEventText(`You can only selected a max of ${req.maxReq} cards!`)
+                return false; // stop here.
             }
 
-            this.data.apply?.(selectedCards);
-            updatePassivePerkDisplay?.();
-            shuffle(deck, true);
-            return true;
+            this.data.apply(selectedCards); // apply the edit to the selected cards.
+            updatePassivePerkDisplay(); // update HTML display
+            return true; // continue onto next ante or upgrade
         }
 
         return false;

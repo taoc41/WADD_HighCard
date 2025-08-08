@@ -18,14 +18,13 @@ class GameButton {
         this.h = h;
         this.w = w;
         this.label = label;
-        this.visible = true;
+
     }
 
-    draw() {
-        if (!this.visible) return; // If "visible" is false, stop the function here.
-        fill(0, 200, 0);
+    draw(fillColour) {
+        fillColour ? fill(fillColour) : fill(0, 180, 0);
         rect(this.x, this.y, this.w, this.h, 10);
-        fill(255);
+        fill(255)
         text(this.label, this.x + this.w / 2, this.y + this.h / 2);
     }
 
@@ -63,7 +62,9 @@ class PlayHandButton extends GameButton {
     }
 
     onClick() {
-        playHand();
+        if (gameState === "playing" && selected.length >= 1 && selected.length <= 5) {
+            playHand();
+        }
     }
 }
 
@@ -73,16 +74,19 @@ class PlayHandButton extends GameButton {
 */
 class ShuffleButton extends GameButton {
     constructor(x, y) {
-        super(x, y, 140, 40, `Reshuffle (${reshuffleUses})`);
+        super(width - 200, height - 75, 140, 40, `Reshuffle (${reshuffleUses})`);
     }
 
     draw() {
+        this.updatePosition(width - 200, height - 75);
         this.label = `Reshuffle (${reshuffleUses})`; // update label each frame.
         super.draw();
     }
 
     onClick() {
-        reshuffleHand();
+        if (gameState === "playing" && reshuffleUses > 0 && selected.length >= 1 && selected.length <= 5) {
+            reshuffleHand();
+        }
     }
 }
 
@@ -118,6 +122,23 @@ class SkipButton extends GameButton {
     }
 }
 
+//#region End Upgrade Button
+class EndUpgradeButton extends GameButton {
+    constructor() {
+        super(0, 0, 140, 35, `End Upgrade Phase`);
+    }
+
+    draw() {
+        this.updatePosition(width / 2 - 70, height / 1.3 + 75)
+        super.draw(color(145, 130, 115)); // somewhere around gray-ish green
+    }
+
+    onClick() {
+        endUpgrade();
+    }
+}
+
+
 //#region Burn Button
 class BurnButton extends GameButton {
     constructor() {
@@ -127,7 +148,7 @@ class BurnButton extends GameButton {
     draw() {
         this.updatePosition(width / 2 + 150, height / 1.3 + 20)
         this.label = `Burn (${burnsRemaining})`
-        super.draw();
+        super.draw(color(215, 130, 80)); // peru orange
     }
 
 
@@ -145,14 +166,15 @@ class FreezeButton extends GameButton {
     draw() {
         this.updatePosition(width / 2 - 270, height / 1.3 + 20)
 
+        // updates the label based on whether a frozen upgrade is selected
         const hasSelection = selectedUpgradeIndex !== null && upgradeChoices[selectedUpgradeIndex];
         const isFrozen = hasSelection && frozenUpgrades.has(selectedUpgradeIndex)
 
         this.label = (hasSelection && isFrozen)
-            ? "Unfreeze"
-            : `Freeze (${freezesRemaining})`;
+        ? "Unfreeze"
+        : `Freeze (${freezesRemaining})`;
 
-        super.draw();
+        super.draw(color(60, 110, 155)); // steel blue
     }
 
     onClick() {
@@ -167,12 +189,12 @@ class PlayAgainButton extends GameButton {
     }
 
     draw() {
-        this.updatePosition(width / 2 - 270, height / 1.3 + 20)
+        this.updatePosition(width / 2 - 130, height / 2 + 100);
         super.draw();
     }
 
     onClick() {
-        saveScore();
+        resetGame();
     }
 }
 
@@ -183,11 +205,12 @@ class SaveScoreButton extends GameButton {
     }
 
     draw() {
-        this.updatePosition(width / 2 - 270, height / 1.3 + 20)
+        this.updatePosition(width / 2 + 10, height / 2 + 100);
         super.draw();
     }
 
     onClick() {
-        resetGame();
+        saveScore(totalScore, ante);
+        window.location.href = "leaderboard.html"; // redirect to leaderboard
     }
 }

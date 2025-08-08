@@ -1,4 +1,5 @@
 // this script stores all the debuff info and code for the game
+// honestly i couldn't think of any more
 
 //#region DEBUFFS
 const DEBUFFS = [
@@ -18,7 +19,7 @@ const DEBUFFS = [
       type: "perRound",
       effect: () => {
         if (deck.length > 0) {
-          deck.splice(floor(random(deck.length)), 1)
+          deck.splice(floor(random(deck.length)), 1) // remove random card
         }
       },
     },
@@ -29,12 +30,12 @@ const DEBUFFS = [
       type: "perRound",
       effect: () => {
         if (deck.length > 0) {
-          deck.splice(floor(random(deck.length)), 1)
+          deck.splice(floor(random(deck.length)), 1) // remove 2 randoms card
           deck.splice(floor(random(deck.length)), 1)
         }
       },
     },
-    { // Perk Lockout
+    { // Silenced
       name: "Silenced",
       description: "A random ability is disabled this round.",
       max: 5,

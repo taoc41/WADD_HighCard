@@ -1,58 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Highcarder - Leaderboard</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: auto;
-    }
-    
-    nav {
-      position: absolute;
-      width: 100%;
-      text-align: center;
-    }
+  <link href="styles.css" type="text/css" rel="stylesheet">
+  <link href="leaderboard.css" type="text/css" rel="stylesheet">
 
-    .nav-container a {
-      display: inline-flex;
-      color: white;
-    }
-
-    .navpage a {
-      padding: 1%;
-      margin: 1%;
-    }
-    
-    main { 
-      font-family: sans-serif; 
-      color: #fff; 
-      text-align: center; 
-      margin-top: 2%;
-      padding: 50px; 
-    }
-
-    h1 { 
-      margin-bottom: 20px; 
-    }
-
-    table { 
-      margin: auto; 
-      border-collapse: collapse; 
-      width: 50%; 
-    }
-
-    th, td { 
-      padding: 10px; 
-      border-bottom: 1px solid #444; 
-    }
-
-    tr:nth-child(even) {
-       background: #222; 
-    }
-  
-  </style>
 
   <script src="p5/p5.min.js"></script>
   <script src="/assets/js/background.js"></script>
@@ -75,22 +28,30 @@
     <h1>Leaderboard</h1>
     <table id="leaderboard">
       <thead>
-        <tr> <th>Rank</th> <th>Name</th> <th>Score</th> </tr>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Score</th>
+          <th>Ante</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
   </main>
-  
 
+  <!-- not its own seperate script because its so small -->
   <script>
+    // get the DOM elements & local storage data
     const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
     const tbody = document.querySelector("#leaderboard tbody");
 
+    // iterate through each entry in data
     leaderboard.forEach((entry, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td>`;
-      tbody.appendChild(row);
+      const row = document.createElement("tr"); // create a row for the entry
+      row.innerHTML = `<td>${index + 1}</td><td>${entry.name}</td><td>${entry.score}</td><td>${entry.ante}</td>`; // set the data from the entry
+      tbody.appendChild(row); // put "row" into the leaderboard
     });
   </script>
 </body>
+
 </html>

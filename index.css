@@ -1,115 +1,98 @@
 html, body {
-    margin: 0;
-    padding: 0;
-    overflow: auto;
-    width: 100%;
-    height: 100%;
-    min-width: 1200px;
-    min-height: 800px;
-  }
-
-  body {
-    justify-content: center;
-    background-color: #1b1b1b;
-  }
-
-  main {
-    display: inline;
-  }
-
-  nav {
-    position: absolute;
-    width: 100%;
-    min-width: 1200px;
-    text-align: center;
-  }
-
-  /* prevents text from being highlighted - 
-  for the perk containers 
-  CSS from: https://www.w3schools.com/howto/howto_css_disable_text_selection.asp*/
-  .prevent-select {
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
-  }
-
-  .nav-container a {
-    display: inline-flex;
-    color: white;
-  }
-
-  .navpage a {
-    padding: 1%;
-    margin: 1%;
-  }
-
-  #gameCanvas{
-    display: inline-flex;
-  }
-
-  #effectContainer {
-    display: flex;
-    width: 100%;
-  }
-
-  #debuffContainer {
-    color: white;
-    padding: 1em;
-    text-align: right;
-    width: 15%;
-    margin-left: auto;
-  }
-
-  .debuff-item {
-    display: inline-block;
-    text-align: right;
-
-    strong {
-      font-size: 18px;
-    }
-
-    .debuff-desc {
-      display: inline;
-      align-items: center;
-      margin-bottom: 1em;
-    }
-
-    p {
-      font-size: 12px;
-      padding: 0;
-      margin: 0;
-    }
-  }
-
-  #perkContainer {
-    color: white; 
-    padding: 1em; 
-    width: 15%;
-  }
-
-  .perk-item{
-    display: inline-block;
-    
-    strong {
-      font-size: 18px;
-    }
-
-    .perk-desc{
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 1em;
-
-    p {
-      font-size: 12px;
-      padding: 0;
-      margin: 0;
-    }
-    
-    button {
-      width: 70px;
-      margin-left: 1em;
-    }
-  }
+  min-width: 1100px;
+  min-height: 600px;
 }
 
-  
+body {
+  background-color: #1b1b1b;
+}
+
+main {
+  display: flex;
+}
+
+/* Debuff container */
+#debuffContainer {
+  color: white;
+  padding: 1em;
+  text-align: right;
+  width: 15%;
+  margin-left: auto;
+}
+
+#debuffContainer .debuff-item {
+  display: inline-block;
+  text-align: right;
+}
+
+#debuffContainer .debuff-item strong {
+  font-size: 18px;
+}
+
+#debuffContainer .debuff-item .debuff-desc {
+  display: inline;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+#debuffContainer .debuff-item p {
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+
+/* Perk container */
+#perkContainer {
+  color: white;
+  padding: 1em;
+  width: 250px;
+  margin-right: auto;
+}
+
+#perkDisplay {
+  max-height: 100%;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+#perkDisplay.closed {
+  max-height: 0;
+}
+
+/* ---------- Arrow for accordion ---------- */
+#perkContainer .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  margin-right: 8px;
+}
+
+#perkContainer .arrow.open {
+  transform: rotate(-90deg);
+}
+
+/* ---------- Perk items ---------- */
+#perkContainer .perk-item {
+  display: inline-block;
+}
+
+#perkContainer .perk-item strong {
+  font-size: 18px;
+}
+
+#perkContainer .perk-item p {
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+#perkContainer .perk-item button {
+  width: 70px;
+  margin-left: 1em;
+}
+
+#perkContainer .perk-desc {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1em;
+}

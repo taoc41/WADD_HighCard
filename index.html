@@ -5,20 +5,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Highcarder</title>
+  <link href="styles.css" type="text/css" rel="stylesheet">
   <link href="index.css" type="text/css" rel="stylesheet">
 
-  <!-- GAME SCRIPTS -->
+  <!-- 
+    _____          __  __ ______    _____  _____ _____  _____ _____ _______ _____ 
+  / ____|   /\   |  \/  |  ____|  / ____|/ ____|  __ \|_   _|  __ \__   __/ ____|
+ | |  __   /  \  | \  / | |__    | (___ | |    | |__) | | | | |__) | | | | (___  
+ | | |_ | / /\ \ | |\/| |  __|    \___ \| |    |  _  /  | | |  ___/  | |  \___ \ 
+ | |__| |/ ____ \| |  | | |____   ____) | |____| | \ \ _| |_| |      | |  ____) |
+  \_____/_/    \_\_|  |_|______| |_____/ \_____|_|  \_\_____|_|      |_| |_____/ 
+                                                                                 
+  made using ASCII generator: https://patorjk.com/software/taag/#p=display&f=Big&t=GAME%20SCRIPTS 
+  -->
 
-  <!-- P5.js LIBRARY -->
+  <!-- P5.js library -->
   <script src="/p5/p5.min.js"></script>
-  
+
   <!-- globals / upgrades -->
-  <script src="/assets/js/main/globals.js"></script>
-  <script src="/assets/js/upgrades/packs.js"></script>
-  <script src="/assets/js/upgrades/editperks.js"></script>
-  <script src="/assets/js/upgrades/passiveperks.js"></script>
-  <script src="/assets/js/upgrades/perks.js"></script>
-  <script src="/assets/js/upgrades/helpers.js"></script>
+  <script src="/assets/js/main/globals.js"></script> <!-- globals -->
+  <script src="/assets/js/upgrades/packs.js"></script> <!-- upgrades: boosters -->
+  <script src="/assets/js/upgrades/editperks.js"></script> <!-- upgrades: refinements -->
+  <script src="/assets/js/upgrades/passiveperks.js"></script> <!-- upgrades: abilities -->
+  <script src="/assets/js/upgrades/perks.js"></script> <!-- upgrades: perks -->
+  <script src="/assets/js/upgrades/debuffs.js"></script> <!-- debuffs (im too lazy to move it out of debuffs)-->
+  <script src="/assets/js/upgrades/helpers.js"></script> <!-- helper functions for upgrades -->
 
   <!-- classes -->
   <script src="/assets/js/classes/card.js"></script>
@@ -29,7 +40,11 @@
   <script src="/assets/js/main/sketch.js"></script> <!-- main -->
   <script src="/assets/js/main/UI.js"></script> <!-- UI code -->
   <script src="/assets/js/main/input.js"></script> <!-- input logic -->
-  <script src="/assets/js/main/game.js"></script> <!-- game code -->
+
+  <!-- game state scripts-->
+  <script src="/assets/js/main/game.js"></script> <!-- main game -->
+  <script src="/assets/js/main/upgradephase.js"></script> <!-- upgrade phase -->
+  <script src="/assets/js/main/gamestatelogic.js"></script> <!-- gamestate logic phase -->
   <script src="/assets/js/debug.js"></script> <!-- debug functions, used in console -->
 
 </head>
@@ -50,19 +65,32 @@
 
   <main>
 
-    <div id="effectContainer" class="prevent-select">
-      
-      <div id="perkContainer">
-        <h3 id="perkCount">Abilities [ 0 / 5 ]:</h3>
-        <div id="perkDisplay"></div>
-      </div>
-  
-      <div id="debuffContainer">
-        <h3>Debuffs:</h3>
-        <div id="debuffDisplay"></div>
-      </div>
 
+
+    <div id="perkContainer">
+      <h3 id="perk-header" class="prevent-select">
+        <span class="arrow">▼</span>
+      </h3>
+      <div id="perk-display"></div>
     </div>
+
+    <script>
+      document.getElementById("perk-header").addEventListener("click", function () {
+        const display = document.getElementById("perk-display");
+        const arrow = this.querySelector(".arrow");
+
+        display.classList.toggle("closed");
+        arrow.classList.toggle("open");
+      });
+    </script>
+
+    <div id="debuffContainer">
+      <h3>Debuffs:</h3>
+      <div id="debuffDisplay"></div>
+    </div>
+
+
+
 
   </main>
 

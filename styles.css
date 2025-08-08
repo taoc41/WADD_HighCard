@@ -1,0 +1,51 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+}
+
+
+.navpage a {
+    padding: 1em;
+    margin: 1em;
+}
+
+.nav-container {
+    /* so it centers in the screen */
+    width: 600px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.nav-container a {
+    color: white;
+}
+
+
+
+/* prevents text from being highlighted - 
+  for the perk containers 
+  CSS from: https://www.w3schools.com/howto/howto_css_disable_text_selection.asp*/
+.prevent-select {
+    -webkit-user-select: none;
+    /* Safari */
+    -ms-user-select: none;
+    /* IE 10 and IE 11 */
+    user-select: none;
+    /* Standard syntax */
+}
+
+
+body {
+    background-color: #1b1b1b;
+
+}
