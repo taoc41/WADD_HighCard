@@ -41,7 +41,6 @@ function drawGradientBackground() {
         fill(c);
         rect(0, y, width, 1);
     }
-
 }
 
 //#region drawUI()
@@ -235,30 +234,43 @@ function drawGameOver() {
     saveScoreBtn.draw();
 }
 
-// Perks
+
+
+//#region updatePassivePerkDisplay()
+// updates HTML display
 function updatePassivePerkDisplay() {
+
+    // get all DOM elements
     const container = document.querySelector("#perkContainer");
     const display = container.querySelector(".perk-display");
     const countSpan = container.querySelector(".count-label");
-    if (!display || !countSpan) return;
+    if (!display || !countSpan) return; // doesn't exist? stop here.
 
-    display.replaceChildren();
+    // clear all existing perk elements from display container
+    // replaceChildren() keeps listeners intact, better than innerHTML = ''
+    display.replaceChildren(); 
 
+    // loop through each perk active
     passivePerks.forEach((perk, index) => {
+
+        // create a container for a single perk item
         const item = document.createElement("div");
         item.className = "perk-item";
 
+        // create the title section (name of perk)
         const title = document.createElement("div");
         title.className = "perk-title";
         title.innerHTML = `<strong>${perk.name}</strong>`;
 
+        // create description section
         const desc = document.createElement("div");
         desc.className = "perk-desc";
         desc.innerHTML = `
         <p>${perk.description}</p>
         <button class="removePerk" onclick="removePassivePerk(${index})">Remove</button>
-      `;
+      `; // button will call removePassivePerk(index) when clicked
 
+        // if perk is disabled, mark it visually
         if (disabledPerk && disabledPerk.includes(perk)) {
             item.style.opacity = "0.5";
             item.style.textDecoration = "line-through";
@@ -266,48 +278,71 @@ function updatePassivePerkDisplay() {
             item.title = "Locked this round";
         }
 
+        // put title and description inside item container
         item.appendChild(title);
         item.appendChild(desc);
+
+        // add completed perk to display conatiner
         display.appendChild(item);
     });
 
+    // update perk count display
     countSpan.textContent = `[ ${passivePerks.length} / ${maxPassivePerks} ]:`;
 }
 
+//#region updateDebuffDisplay()
 function updateDebuffDisplay() {
+
+    // get DOM elements
     const container = document.querySelector("#debuffContainer");
     const display = container.querySelector(".debuff-display");
     const countSpan = container.querySelector(".count-label");
-    if (!display || !countSpan) return;
+    if (!display || !countSpan) return; // doesn't exist? stop here.
 
+    // clear all existing perk elements from display container
+    // replaceChildren() keeps listeners intact, better than innerHTML = ''
     display.replaceChildren();
 
+    // create a new map to track unique debuffs + their counts
     const debuffMap = new Map();
     activeDebuffs.forEach(debuff => {
         if (!debuffMap.has(debuff.name)) {
+            // debuff not yet added? store description and set count to 1
             debuffMap.set(debuff.name, { count: 1, description: debuff.description });
         } else {
+            // already exists? +1 count
             debuffMap.get(debuff.name).count++;
         }
     });
 
+    // loop through every unique debuff entry in the map
     debuffMap.forEach((value, name) => {
+
+        // create a container for a single debuff item
         const item = document.createElement("div");
         item.className = "debuff-item";
 
+        // create the title section (name of debuff)
         const title = document.createElement("div");
         title.className = "debuff-title";
+
+        // show multiplier if debuff appears more than once
         const displayName = value.count > 1 ? `${name} (x${value.count})` : name;
         title.innerHTML = `<strong>${displayName}</strong>`;
 
+        // create description section
         const desc = document.createElement("div");
         desc.className = "debuff-desc";
         desc.innerHTML = `<p>${value.description}</p>`;
 
+        // put title and description inside item container
         item.appendChild(title);
         item.appendChild(desc);
+
+        // add completed debuff to display container
         display.appendChild(item);
     });
 
+    // update debuff count on display
     countSpan.textContent = `[ ${debuffMap.size} ]:`;
 }

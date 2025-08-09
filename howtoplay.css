@@ -1,116 +1,95 @@
 main {
-    font-family: "PT Serif", serif;
-    margin-top: 5em;
-    padding-inline: 20%;
-    color: white;
+  font-family: "PT Serif", serif;
+  margin-top: 5%;
+  padding-inline: 20%;
+  color: white;
 }
 
 .nav-container {
-    /* so it centers in the screen */
-    width: 100%;
-
-    background: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
 }
 
 .center-text {
-    text-align: center;
+  text-align: center;
 }
 
+/* nth-of-type used so I don't have to spam ids or classes*/
 main>div:nth-of-type(1) {
-    text-align: center;
-    font-size: 14px;
-    padding-inline: 10%;
-}
-
-main>div:nth-of-type(2) p {
-    text-align: center;
+  text-align: center;
+  font-size: 14px;
+  padding-inline: 10%;
 }
 
 main>div:nth-of-type(2) li {
-    margin-bottom: 1%;
+  margin-bottom: 1%;
 }
 
 h1 {
-    margin-bottom: 20px;
-    text-decoration: underline;
-    text-align: center;
+  margin-bottom: 20px;
+  text-decoration: underline;
+  text-align: center;
 }
 
 h2 {
-    margin-top: 50px;
+  margin-top: 3em;
 }
 
-#scoring {
-    text-align: center;
+h3 {
+  margin-top: 2em
 }
 
-/* Visually-hidden caption for a11y */
-.sr-only {
-    position: absolute;
-    width: 1px; height: 1px;
-    padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0,0,0,0);
-    white-space: nowrap; border: 0;
+.margin {
+  margin: 2em;
+}
+
+.images {
+  display: flex;
+  justify-content: center;   /* center the pair */
+  align-items: center;       /* align bottoms nicely despite different ratios */
+  gap: 1.5rem;               /* tidy, consistent spacing between them */
+  flex-wrap: nowrap;         /* keep them side-by-side on wide screens */
+}
+
+/* Override the global img rule inside .images */
+.images img {
+  flex: 0 0 auto;                      /* do NOT stretch to fill */
+  height: clamp(180px, 35vh, 420px);   /* same responsive height for both */
+  width: auto;                         /* keep aspect ratio */
+  max-width: 100%;                     /* prevent overflow on tiny screens */
+  object-fit: contain;                 /* no distortion */
+}
+
+/* On narrow screens, let them stack neatly */
+@media (max-width: 768px) {
+  .images {
+    flex-wrap: wrap;
   }
-  
-  #poker-hands {
-    margin-top: 48px;
+  .images img {
+    height: clamp(160px, 28vh, 360px);
   }
-  
-  .table-wrapper {
-    overflow-x: auto;
-    margin-top: 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.03);
-  }
-  
-  .poker-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: "PT Serif", serif;
-    color: white;
-  }
-  
-  .poker-table thead th {
-    text-align: left;
-    font-weight: 700;
-    padding: 12px 14px;
-    background: rgba(255,255,255,0.06);
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-  }
-  
-  .poker-table tbody td {
-    padding: 12px 14px;
-    vertical-align: top;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  
-  .poker-table tbody tr:nth-child(odd) {
-    background: rgba(255,255,255,0.02);
-  }
-  
-  @media (max-width: 768px) {
-    .poker-table thead th,
-    .poker-table tbody td {
-      padding: 10px 12px;
-    }
-  }
+}
+
+#poker-hands {
+  margin-top: 2em;
+}
+
 
 img {
-    display: block;
-    width: 100%;
-    height: auto;
-    justify-content: center;
+  display: block;
+  width: 100%;
+  height: auto;
+  justify-content: center;
 }
 
 /* ===== Responsive adjustments ===== */
-@media (max-width: 1024px) {
-    main {
-        padding-inline: 10%;
-    }
 
-    main>div:nth-of-type(1) {
-        padding-inline: 15%;
-    }
+@media (max-width: 1024px) {
+  main {
+    padding-inline: 10%;
+  }
+
+  main>div:nth-of-type(1) {
+    padding-inline: 15%;
+  }
 }
