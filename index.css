@@ -11,8 +11,7 @@ main {
   display: flex;
 }
 
-
-/* ============= Shared accordion styles ============= */
+/* ------------ Shared accordion styles ------------ */
 
 .accordion-header {
   display: flex;
@@ -20,10 +19,8 @@ main {
   gap: 8px;
   cursor: pointer;
   color: white;
-  margin: 0;           /* reset h3 defaults if needed */
-  user-select: none;
+  user-select: none; /* makes sure you can't highlight the text*/
 
-  
   border-bottom: 1px solid rgba(255,255,255,0.08);
   padding-bottom: 0.5em;
 }
@@ -84,7 +81,7 @@ main {
   width: 70px;
 }
 
-/* ============= Container-specific layout ============= */
+/* ------------ Container-specific layout ------------ */
 
 #perkContainer, #debuffContainer {
   font-family: 'PT Serif', serif;
@@ -94,19 +91,19 @@ main {
   width: 220px;
 }
 
-/* Perks: left column, fixed width */
+/* perks: left column, fixed width */
 #perkContainer {
   margin-right: auto;
 }
 
-/* Debuffs: right-aligned column */
+/* debuffs: right-aligned column */
 #debuffContainer {
   margin-left: auto;
   text-align: right;
 }
 
 #debuffContainer .accordion-header {
-  justify-content: flex-end;      /* arrow + text align to the right */
+  justify-content: flex-end; /* arrow + text align to the right */
 }
 
 #debuffContainer .debuff-item,

@@ -69,7 +69,6 @@ function setup() {
       offset: random(TWO_PI)
     });
   }
-
 }
 
 

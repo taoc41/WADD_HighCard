@@ -88,38 +88,7 @@
     </div>
 
     <!-- "defer" only loads the script once everything else has been loaded -->
-    <script defer>
-
-      // iterate between both perk and debuff
-      function initAccordions() {
-        document.querySelectorAll(".accordion-header").forEach(header => {
-          const display = header.nextElementSibling; // assumes .accordion-display is right after header
-          header.addEventListener("click", () => {
-            display.classList.toggle("closed");
-            const arrow = header.querySelector(".arrow");
-            if (arrow) arrow.classList.toggle("open");
-          });
-        });
-      }
-
-      document.addEventListener("DOMContentLoaded", initAccordions);
-
-    </script>
-
-    <script>
-      function checkResolution() {
-        const warning = document.getElementById('resolution-warning');
-        if (window.innerWidth < 1100 || window.innerHeight < 600) {
-          warning.style.display = 'flex';
-        } else {
-          warning.style.display = 'none';
-        }
-      }
-
-      window.addEventListener('resize', checkResolution);
-      window.addEventListener('DOMContentLoaded', checkResolution);
-    </script>
-
+    <script src="./assets/js/website/initAccordions.js" defer></script>
   </main>
 
 </body>

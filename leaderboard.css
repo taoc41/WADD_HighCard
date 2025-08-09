@@ -1,33 +1,23 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    overflow: auto;
-}
+
+/* very simple */
+
+.nav-container {
+    width: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+  }
 
 main {
-    font-family: sans-serif;
+    font-family: "PT Serif";
     color: #fff;
     text-align: center;
-    margin-top: 2%;
-    padding: 50px;
+    margin-top: 5%;
+    padding-inline: 20%;;
+}
+
+.table thead th {
+    text-align: center;
 }
 
 h1 {
     margin-bottom: 20px;
-}
-
-table {
-    margin: auto;
-    border-collapse: collapse;
-    width: 50%;
-}
-
-th,
-td {
-    padding: 10px;
-    border-bottom: 1px solid #444;
-}
-
-tr:nth-child(even) {
-    background: #222;
 }

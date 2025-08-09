@@ -7,7 +7,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
 
   <title>Highcarder - How to Play</title>
   <link href="styles.css" type="text/css" rel="stylesheet">
@@ -62,16 +63,36 @@
 
     <div>
       <h2>
-        Poker Hands & Scoring
+        Scoring
       </h2>
-      <p>Scoring in Highcarder is done by playing poker hands. The stronger the poker hand, the higher the score. 
+
+      <p>
+        Scoring in Highcarder is done by playing poker hands. The stronger the poker hand, the higher the score.
         Each poker hand has their own base score, however, they can be increased by playing high ranking cards!
       </p>
 
+      <p>
+        A card's rank contributes to the "Multiplier", which multiplies the base score by the total sum of ranks
+        played that make up the poker hand. Higher ranks, mean a higher multiplier!
+      </p>
+
+      <div class="images"> 
+        <img src="./assets/images/hand.png" alt="Highcarder Gameplay">
+        <img src="./assets/images/abilities.png" alt="Abilities.">
+      </div>
+      
+      <p>Abilities can also influence the score and multiplier through effects that require conditions to activate.
+        Abilities are perhaps one of the most important aspects to Highcarder, as they're what keeps you alive and 
+        going, either adding cards or making sure you're always reaching the upgrade requirement.
+      </p>
+
+
+
       <section id="poker-hands">
+        <h2>Poker Hands</h2>
+        <p>If you're unfamiliar on how to play poker, here's a complementary list of poker hands!</p>
         <div class="table-wrapper">
-          <table class="poker-table" aria-describedby="poker-hands">
-            <caption class="sr-only">Poker hands with required cards and base scores</caption>
+          <table class="table">
             <thead>
               <tr>
                 <th scope="col">Hand</th>
@@ -82,32 +103,32 @@
             <tbody>
               <tr>
                 <td>High Card</td>
-                <td>Any 5 cards that don’t form a listed hand</td>
+                <td>1 card, or up to any 5 cards that don't form a listed hand</td>
                 <td>5</td>
               </tr>
               <tr>
                 <td>Pair</td>
-                <td>2 cards of the same rank + 3 kickers</td>
+                <td>2 cards of the same rank</td>
                 <td>10</td>
               </tr>
               <tr>
                 <td>Two Pair</td>
-                <td>Two different pairs + 1 kicker</td>
+                <td>Two different pairs</td>
                 <td>20</td>
               </tr>
               <tr>
                 <td>Three of a Kind</td>
-                <td>3 cards of the same rank + 2 kickers</td>
+                <td>3 cards of the same rank</td>
                 <td>30</td>
               </tr>
               <tr>
                 <td>Straight</td>
-                <td>5 consecutive ranks (suits don’t matter)</td>
+                <td>5 ranks in sequential order (suits don't matter)</td>
                 <td>35</td>
               </tr>
               <tr>
                 <td>Flush</td>
-                <td>5 cards of the same suit (ranks don’t matter)</td>
+                <td>5 cards of the same suit (ranks don't matter)</td>
                 <td>40</td>
               </tr>
               <tr>
@@ -117,17 +138,17 @@
               </tr>
               <tr>
                 <td>Four of a Kind</td>
-                <td>4 cards of the same rank + 1 kicker</td>
+                <td>4 cards of the same rank</td>
                 <td>60</td>
               </tr>
               <tr>
                 <td>Straight Flush</td>
-                <td>5 consecutive cards of the same suit</td>
+                <td>5 sequential ranks of the same suit</td>
                 <td>75</td>
               </tr>
               <tr>
                 <td>Royal Flush</td>
-                <td>10–J–Q–K–A of the same suit</td>
+                <td>10-J-Q-K-A of the same suit</td>
                 <td>100</td>
               </tr>
             </tbody>
@@ -135,11 +156,6 @@
         </div>
       </section>
 
-      <p>A card's rank contributes to the "Multiplier", which multiplies the base score by the total sum of ranks
-        played that make up the poker hand. Higher ranks, mean a higher multiplier!</p>
-
-        <img src="./assets/images/hand.png" alt="Highcarder Gameplay">
-        <span></span>
     </div>
 
 
@@ -159,40 +175,119 @@
         For example, if your score is 3000 and the requirement is 300, you can choose 10 upgrades (3000 ÷ 300 = 10)
       </p>
 
-      <img src="./assets/image/upgrade.png" alt="The Upgrade Screen">
+      <img src="./assets/images/upgrade.png" alt="The Upgrade Screen">
 
+      <div id="margin"></div>
       <h3>Rarities</h3>
       <p>Each upgrade has its own rarity, as common with many roguelike games. Some upgrades are more rarer than
         others, and thus are more stronger than others. The rarities within Highcarder as followed.
       </p>
-      <li><b>Common (74.5%)</b> - The basic bunch, ordinary and simple.</li>
-      <li><b>Uncommon (15%)</b> - More specialized, but nothing too special.</li>
-      <li><b>Rare (6%)</b> - Often times key to strategies, the engine to get things going.</li>
-      <li><b>Mythical (2.5%)</b> - "Event-tier" upgrades that can turn the tables.</li>
-      <li><b>Legendary (0.5%)</b> - The rarest out of them all, often setting you up for several antes.</li>
-      <li><b>Cursed (1.5%)</b> - High risk, high reward. They come with a heafty price, so don't be too greedy.</li>
+
+      <section id="rarity-table">
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Rarity</th>
+                <th>Chance</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Common</td>
+                <td>74.5%</td>
+                <td>The basic bunch, ordinary and simple.</td>
+              </tr>
+              <tr>
+                <td>Uncommon</td>
+                <td>15%</td>
+                <td>More specialized, but nothing too special.</td>
+              </tr>
+              <tr>
+                <td>Rare</td>
+                <td>6%</td>
+                <td>Often times key to strategies, the engine to get things going.</td>
+              </tr>
+              <tr>
+                <td>Mythical</td>
+                <td>2.5%</td>
+                <td>"Event-tier" upgrades that can turn the tables.</td>
+              </tr>
+              <tr>
+                <td>Legendary</td>
+                <td>0.5%</td>
+                <td>The rarest out of them all, often setting you up for several antes.</td>
+              </tr>
+              <tr>
+                <td>Cursed</td>
+                <td>1.5%</td>
+                <td>High risk, high reward. They come with a hefty price, so don't be too greedy.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <h3>Skip / Store</h3>
       <p>If you don't like the current choice of upgrades, you are able to skip them and store the current upgrade
         point for the next upgrade phase. Doing this comes at a price however, as if you're unable to progress to
         the next ante within the round limit, you will lose the points you have stored.
       </p>
+      <p>
+        You can also choose to skip the upgrade phase entirely, if you have too many upgrades. Your points will be
+        stored for the next upgrade phase if you decide to end the upgrade phase entirely.
+      </p>
 
       <h3>Burning and Freezing Upgrades</h3>
       <p>During the upgrade phase, you are able to "burn" or "freeze" an upgrade. You will start with 3 burns and
         freezes, and are able to gain more through Perks.
         <br><br>
-        Burning an upgrade means to permanently remove it from your current playthrough entirely, allowing you to filter
+        Burning an upgrade means to <b>permanently remove it</b> from your current playthrough entirely, allowing you to filter
         through and thin the immense amount of upgrades within the pool. Once an upgrade has been burnt, you can never
         recover
         it, so choose wisely. You are unable to burn Cursed upgrades however.
         <br><br>
         Freezing an upgrade means to keep it within your choices indefinately until you select it, allowing you to hold
-        onto an upgrade if you're feeling indecisive. You cannot have more than one frozen upgrade at any time. You are
-        also able to unfreeze a frozen ability at any time, though this will not recover a freeze used, so choose
-        wisely.
+        onto an upgrade if you're feeling indecisive. You are also able to unfreeze a frozen ability at any time, though 
+        this will not recover a freeze used, so choose wisely.
       </p>
 
+    </div>
+
+    <div>
+      <h2>
+        Tips and Tricks!
+      </h2>
+      <p>
+        You are able to drag and drop your cards to sort them! Some refinements also rely on card positions, so this will
+        be useful later down the line.
+      </p>
+      <p>
+        Are the abilities and debuff displays getting in the way? Try clicking on them! You're able to
+        collapse them and open them at any time!
+      </p>
+      <p>
+        Try experimenting with hand types once you get more than 4 of the same card... you never know, you may
+        discover something that would be considered illegal in regular poker.
+      </p>
+      <p>
+        Abilities with an "x Mult" effect will instead multiply your multiplier (including any +Mult effects 
+        from other abilities)! If you come across any, make sure to take them!
+      </p>
+      <p>
+        Frozen upgrades will persist even to the next upgrade phase! You even also freeze more than one upgrade, 
+        just don't be too indecisive and waste them all at the same time.
+      </p>
+    </div>
+
+    <div>
+      <h2>
+        Good Luck!
+      </h2>
+      <p>
+        This is the end of the "How to Play" page... you're on your own now. Good luck out there, and don't run out of cards!!
+      </p>
     </div>
 
     <footer></footer>

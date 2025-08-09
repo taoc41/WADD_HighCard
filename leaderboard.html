@@ -2,6 +2,10 @@
 <html>
 
 <head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  
   <title>Highcarder - Leaderboard</title>
   <link href="styles.css" type="text/css" rel="stylesheet">
   <link href="leaderboard.css" type="text/css" rel="stylesheet">
@@ -26,17 +30,23 @@
 <body>
   <main>
     <h1>Leaderboard</h1>
-    <table id="leaderboard">
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Name</th>
-          <th>Score</th>
-          <th>Ante</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+
+    <div class="table-wrapper">
+      <table class="table" id="leaderboard">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Score</th>
+            <th>Ante</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows injected via JS -->
+        </tbody>
+      </table>
+    </div>
+
   </main>
 
   <!-- not its own seperate script because its so small -->

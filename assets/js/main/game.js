@@ -5,9 +5,9 @@
 // generates a new 52 card deck.
 function generateDeck() {
     deck = [];
-    for (let s of suits) {
-        for (let r of ranks) {
-            deck.push(new Card(r, s));
+    for (let s of suits) { // for every suit
+        for (let r of ranks) { // for every rank
+            deck.push(new Card(r, s)); // outputs 52 cards in total
         }
     }
     shuffle(deck, true);
@@ -33,7 +33,7 @@ function drawHand() {
     // if hand has fewer than allowed size, draw the difference
     let needed = handSize - hand.length;
     if (needed > 0) {
-        let drawn = deck.splice(0, needed);
+        let drawn = deck.splice(0, needed); // splice is used here instead of shift
         hand = hand.concat(drawn);
     }
 }
@@ -306,34 +306,36 @@ function calculateRankMultiplier(cards) {
 }
 
 
-/* -------------------------------------------- */
-
 //#region reshuffleHand()
 function reshuffleHand() {
-    selected = selected.filter(i => hand[i] !== null && hand[i] !== undefined);
+    selected = selected.filter(i => hand[i] !== null && hand[i] !== undefined); // clean up selected (remove null/undefined entries)
 
-    if (selected.length === 0 || reshuffleUses <= 0) return;
+    if (selected.length === 0 || reshuffleUses <= 0) return; // don't do anything if nothing is selected, or no reshuffles left
 
-    let chosenCards = selected.map(i => hand[i]);
-    chosenCards.forEach(c => c.selected = false);
-    deck.push(...chosenCards);
-    shuffle(deck, true);
+    let chosenCards = selected.map(i => hand[i]); // builds map from currently selected cards 
+    chosenCards.forEach(c => c.selected = false); // clear selected marker
+    deck.push(...chosenCards); // push the cards back into the deck
+    shuffle(deck, true); // shuffle the deck array
 
-    for (let i = 0; i < selected.length; i++) {
-        let handIndex = selected[i];
+    for (let i = 0; i < selected.length; i++) { // for each card that was shuffled back into the deck
+        let handIndex = selected[i]; 
         if (deck.length > 0) {
-            hand[handIndex] = deck.shift();
-            hand[handIndex].selected = false;
+            // take the top card of the deck and put it into hand
+            // shift used here instead of splice due to safety check.
+            hand[handIndex] = deck.shift(); 
+            hand[handIndex].selected = false; // remove selected marker just in case.
         } else {
-            hand[handIndex] = null;
+            hand[handIndex] = null; // if the deck is empty, mark as null.
         }
     }
 
-    selected = [];
+    // reset necessary variables + reduce shuffle uses
+    selected = []; 
     currentHandInfo = null;
     previewHandInfo = null;
     reshuffleUses--;
 
+    // if there was a passive with onShuffle trigger, activate its effect.
     for (let perk of passivePerks) {
         if (perk.trigger === "onShuffle" && !disabledPerk.includes(perk)) {
             if (!perk.condition || perk.condition(chosenCards)) {
